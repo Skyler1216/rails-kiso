@@ -1,0 +1,43 @@
+<h1>映画を編集する</h1>
+
+<%= form_with(model: [:admin, @movie], local: true) do |form| %>
+  <% if flash[:alert] %>
+    <p style="color: red;"><%= flash[:alert] %></p>
+  <% end %>
+
+  <div>
+    <%= form.label :name, "タイトル" %><br>
+    <%= form.text_field :name %>
+  </div>
+
+  <div>
+    <%= form.label :year, "公開年" %><br>
+    <%= form.text_field :year %>
+  </div>
+
+  <div>
+    <%= form.label :description, "概要" %><br>
+    <%= form.text_area :description %>
+  </div>
+
+  <div>
+    <%= form.label :image_url, "画像URL" %><br>
+    <%= form.text_field :image_url %>
+  </div>
+
+  <div>
+    <%= form.label :is_showing, "上映中" %>
+    <%= form.check_box :is_showing %>
+  </div>
+
+  <div>
+    <%= form.submit "更新する" %>
+  </div>
+  
+<% end %>
+
+  <div> 
+    <%= button_to "削除する", admin_movie_path(@movie), method: :delete, data: { confirm: "本当に削除してもよろしいですか？" } %>
+  </div>
+
+

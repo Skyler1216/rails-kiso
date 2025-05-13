@@ -1,0 +1,13 @@
+<h1>座席表</h1>
+<p>※スクリーンはこちら側です</p>
+
+<table border="1">
+  <% ['a', 'b', 'c'].each do |row| %>
+    <tr>
+      <% sheets_in_row = @sheets && @sheets[row.to_s] || [] %>
+      <% sheets_in_row.sort_by(&:column).each do |sheet| %>
+        <td><%= "#{sheet.row}-#{sheet.column}" %></td>
+      <% end %>
+    </tr>
+  <% end %>
+</table>
