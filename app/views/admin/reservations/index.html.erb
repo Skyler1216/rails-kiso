@@ -1,0 +1,35 @@
+<h1>予約一覧</h1>
+
+<% if @reservations.any? %>
+  <table border="1" cellspacing="0" cellpadding="6">
+    <thead>
+      <tr>
+        <th>映画</th>
+        <th>日時</th>
+        <th>座席</th>
+        <th>予約者名</th>
+        <th>メールアドレス</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @reservations.each do |r| %>
+        <tr>
+          <td><%= r.schedule.movie.name %></td>
+          <td><%= r.schedule.start_time.strftime('%Y-%m-%d %H:%M') %></td>
+          <td><%= "#{r.sheet.row}-#{r.sheet.column}" %></td>
+          <td><%= r.name %></td>
+          <td><%= r.email %></td>
+          <td>
+            <%= link_to "詳細", admin_reservation_path(r) %> |
+            <%= button_to "削除", admin_reservation_path(r), method: :delete, data: { confirm: "削除しますか？" } %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>予約はまだありません。</p>
+<% end %>
+
+<p><%= link_to "新規予約", new_admin_reservation_path %></p>

@@ -1,0 +1,38 @@
+<h1>予約詳細・編集</h1>
+
+<%= form_with model: @reservation, url: admin_reservation_path(@reservation), method: :put, local: true do |f| %>
+  <div>
+    <%= f.label :schedule_id, "映画・スケジュール" %><br>
+    <%= f.collection_select :schedule_id, Schedule.includes(:movie).order(:start_time), :id,
+          ->(s) { "#{s.movie.name}（#{s.start_time.strftime('%Y/%m/%d %H:%M')}）" }, selected: @reservation.schedule_id %>
+  </div>
+
+  <div>
+    <%= f.label :sheet_id, "座席" %><br>
+    <%= f.collection_select :sheet_id, Sheet.all.order(:row, :column), :id,
+          ->(s) { "#{s.row.upcase}-#{s.column}" }, selected: @reservation.sheet_id %>
+  </div>
+
+  <div>
+    <%= f.label :date, "日付" %><br>
+    <%= f.date_field :date, value: @reservation.date %>
+  </div>
+
+  <div>
+    <%= f.label :name, "予約者氏名" %><br>
+    <%= f.text_field :name %>
+  </div>
+
+  <div>
+    <%= f.label :email, "予約者メールアドレス" %><br>
+    <%= f.email_field :email %>
+  </div>
+
+  <%= f.submit "更新する" %>
+<% end %>
+
+<hr>
+
+<%= button_to "この予約を削除", admin_reservation_path(@reservation), method: :delete, data: { confirm: "本当に削除しますか？" } %>
+
+<p><%= link_to "← 一覧へ戻る", admin_reservations_path %></p>

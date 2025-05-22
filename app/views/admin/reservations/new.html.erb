@@ -1,0 +1,34 @@
+<h1>新規予約（管理者）</h1>
+
+<%= form_with model: @reservation, url: admin_reservations_path, local: true do |f| %>
+  <div>
+    <%= f.label :movie_id, "映画" %><br>
+    <%= f.collection_select :schedule_id, Schedule.includes(:movie).order(:start_time), :id,
+          ->(s) { "#{s.movie.name}（#{s.start_time.strftime('%Y/%m/%d %H:%M')}）" } %>
+  </div>
+
+  <div>
+    <%= f.label :sheet_id, "座席" %><br>
+    <%= f.collection_select :sheet_id, Sheet.all.order(:row, :column), :id,
+          ->(s) { "#{s.row.upcase}-#{s.column}" } %>
+  </div>
+
+  <div>
+    <%= f.label :date, "日付" %><br>
+    <%= f.date_field :date %>
+  </div>
+
+  <div>
+    <%= f.label :name, "予約者氏名" %><br>
+    <%= f.text_field :name %>
+  </div>
+
+  <div>
+    <%= f.label :email, "予約者メールアドレス" %><br>
+    <%= f.email_field :email %>
+  </div>
+
+  <%= f.submit "登録" %>
+<% end %>
+
+<p><%= link_to "戻る", admin_reservations_path %></p>
