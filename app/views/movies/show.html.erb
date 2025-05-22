@@ -1,0 +1,55 @@
+<h1><%= @movie.name %></h1>
+
+<p><strong>年：</strong><%= @movie.year %></p>
+<p><strong>説明：</strong><%= @movie.description %></p>
+<p><img src="<%= @movie.image_url %>" alt="<%= @movie.name %>の画像" width="200"></p>
+<p><strong>上映中：</strong><%= @movie.is_showing ? "はい" : "いいえ" %></p>
+
+<h2>上映スケジュール</h2>
+<% if @schedules.any? %>
+  <ul>
+    <% @schedules.each do |schedule| %>
+        <li>
+            <%= schedule.start_time.strftime("%Y年 %-m月%-d日 %H:%M") %>〜<%= schedule.end_time.strftime("%H:%M") %>
+        </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>上映スケジュールはまだ登録されていません。</p>
+<% end %>
+
+<h2>座席予約</h2>
+
+<%= form_with url: movie_path(@movie), method: :get, local: true do %>
+  <div>
+    <%= label_tag :date, "日付（1週間以内）" %><br>
+    <%= select_tag :date, options_for_select(
+      @schedules.map { |s| s.start_time.to_date }
+                .select { |d| d >= Date.today && d <= Date.today + 6 }
+                .uniq
+                .sort
+                .map { |d| [d.strftime('%Y年%m月%d日'), d.to_s] },
+      # params[:date]
+      @selected_date
+    ) %>
+  </div>
+  <%= submit_tag "この日付のスケジュールを見る" %>
+<% end %>
+
+<% if @filtered_schedules.present? %>
+  <%= form_with url: reservation_movie_path(@movie), method: :get, local: true do %>
+    <%= hidden_field_tag :date, params[:date] %>
+
+    <div>
+      <%= label_tag :schedule_id, "スケジュールを選択" %><br>
+      <%= select_tag :schedule_id, options_from_collection_for_select(
+        @filtered_schedules,
+        :id,
+        ->(s) { "#{s.start_time.strftime('%H:%M')}～#{s.end_time.strftime('%H:%M')}" }
+      ) %>
+    </div>
+
+    <%= submit_tag "座席を予約する" %>
+  <% end %>
+<% end %>
+

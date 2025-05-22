@@ -1,0 +1,24 @@
+<h1>スケジュール編集</h1>
+
+<p>作品ID: <%= @schedule.movie_id %></p>
+
+<%= form_with model: [:admin, @schedule], url: admin_schedule_path(@schedule), method: :put, local: true do |f| %>
+
+  <div>
+    <%= form.label :start_time, "開始時刻" %><br>
+    <%= form.datetime_select :start_time %>
+  </div>
+
+  <div>
+    <%= form.label :end_time, "終了時刻" %><br>
+    <%= form.datetime_select :end_time %>
+  </div>
+
+  <div>
+    <%= form.submit "更新" %>
+  </div>
+<% end %>
+
+<hr>
+
+<%= button_to "削除", admin_schedule_path(@schedule), method: :delete, data: { confirm: "本当に削除しますか？" } %>

@@ -37,7 +37,7 @@
         <td><%= movie.year %></td>
         <td><%= movie.is_showing ? '上映中' : '上映予定' %></td>
         <td><%= movie.description %></td>
-        <td><a href="<%= movie.image_url %>" target="_blank">リンク</a></td>
+        <td>  <img src="<%= movie.image_url %>" alt="movie image"></td>        
         <td><%= movie.created_at.strftime("%y-%m-%d %H:%M:%S") %></td>
         <td><%= movie.updated_at.strftime("%y-%m-%d %H:%M:%S") %></td>
       </tr>

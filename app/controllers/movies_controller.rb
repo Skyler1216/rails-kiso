@@ -11,4 +11,52 @@ class MoviesController < ApplicationController
       @movies = @movies.where("name LIKE :q OR description LIKE :q", q: "%#{keyword}%")
     end
   end
+  
+  # def show
+  #   @movie = Movie.find(params[:id])
+  #   @schedules = @movie.schedules
+
+  #   if params[:date].present?
+  #     begin
+  #       selected_date = Date.parse(params[:date])
+  #       @filtered_schedules = @schedules.select { |s| s.start_time.to_date == selected_date }
+  #     rescue ArgumentError
+  #       @filtered_schedules = []
+  #     end
+  #   else
+  #     @filtered_schedules = []
+  #   end
+  # end
+  def show
+    @movie = Movie.find(params[:id])
+    @schedules = @movie.schedules.order(:start_time)
+  
+    available_dates = @schedules
+                        .map { |s| s.start_time.to_date }
+                        .select { |d| d >= Date.today && d <= Date.today + 6 }
+                        .uniq
+  
+    selected_date = params[:date].presence || available_dates.first
+    @filtered_schedules = @schedules.select { |s| s.start_time.to_date.to_s == selected_date.to_s }
+    @selected_date = selected_date
+  end
+  
+
+  def reservation
+    @movie = Movie.find(params[:id])
+  
+    # schedule_idとdateがクエリに含まれていない場合はリダイレクト
+    unless params[:schedule_id].present? && params[:date].present?
+      return redirect_to movie_path(@movie), alert: "スケジュールと日付を選択してください"
+    end
+  
+    @schedule = Schedule.find_by(id: params[:schedule_id])
+    unless @schedule
+      return redirect_to movie_path(@movie), alert: "スケジュールが見つかりません"
+    end
+  
+    @date = params[:date]
+    @sheets = Sheet.all
+  end
+
 end

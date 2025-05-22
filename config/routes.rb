@@ -1,18 +1,32 @@
 Rails.application.routes.draw do
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
-
+  # ヘルスチェック
   get "up" => "rails/health#show", as: :rails_health_check
 
-  # 映画一覧表示
+  # 映画一覧・詳細表示
   get '/movies', to: 'movies#index'
+  get '/movies/:id', to: 'movies#show'
 
-  # 座席一覧表示
+  # 公開ページの座席予約機能
+  resources :movies, only: [:index, :show] do
+    get 'reservation', on: :member  # /movies/:id/reservation
+
+    resources :schedules, only: [] do
+      resources :reservations, only: [:new]  # /movies/:movie_id/schedules/:schedule_id/reservations/new
+    end
+  end
+
+  resources :reservations, only: [:create]  # POST /reservations
+
+  # 座席一覧
   resources :sheets, only: [:index]
 
-  # 管理画面（admin namespace）
+  # 管理画面
   namespace :admin do
-    resources :movies, only: [:index, :new, :create, :edit, :update, :destroy]
+    resources :movies, only: [:index, :new, :create, :edit, :update, :destroy, :show] do
+      resources :schedules, only: [:new, :create]
+    end
+    resources :schedules, only: [:index, :show, :edit, :update, :destroy]
   end
-  # Defines the root path route ("/")
+
   # root "posts#index"
 end
