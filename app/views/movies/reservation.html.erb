@@ -7,10 +7,14 @@
   <% ['a', 'b', 'c'].each do |row| %>
     <tr>
       <% @sheets.select { |s| s.row == row }.each do |sheet| %>
-        <td>
-          <%= link_to "#{sheet.row.upcase}-#{sheet.column}",
-                      new_movie_schedule_reservation_path(@movie, @schedule,
-                        date: @date, sheet_id: sheet.id) %>
+        <td style="padding: 5px;">
+          <% if @reserved_sheets.include?(sheet.id) %>
+            <span style="color: gray;"><%= "#{sheet.row.upcase}-#{sheet.column}" %></span>
+          <% else %>
+            <%= link_to "#{sheet.row.upcase}-#{sheet.column}",
+                        new_movie_schedule_reservation_path(@movie, @schedule,
+                          date: @date, sheet_id: sheet.id) %>
+          <% end %>
         </td>
       <% end %>
     </tr>

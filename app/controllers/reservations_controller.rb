@@ -10,6 +10,12 @@ class ReservationsController < ApplicationController
     @sheet = Sheet.find(params[:sheet_id])
     @date = params[:date]
 
+    # 予約済みかをチェックして防ぐ！
+    if Reservation.exists?(schedule_id: @schedule.id, date: @date, sheet_id: @sheet.id)
+      redirect_to reservation_movie_path(@movie, schedule_id: @schedule.id, date: @date), alert: "その座席はすでに予約済みです"
+      return
+    end
+
     @reservation = Reservation.new
   end
 

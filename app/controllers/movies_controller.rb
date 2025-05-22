@@ -12,21 +12,6 @@ class MoviesController < ApplicationController
     end
   end
   
-  # def show
-  #   @movie = Movie.find(params[:id])
-  #   @schedules = @movie.schedules
-
-  #   if params[:date].present?
-  #     begin
-  #       selected_date = Date.parse(params[:date])
-  #       @filtered_schedules = @schedules.select { |s| s.start_time.to_date == selected_date }
-  #     rescue ArgumentError
-  #       @filtered_schedules = []
-  #     end
-  #   else
-  #     @filtered_schedules = []
-  #   end
-  # end
   def show
     @movie = Movie.find(params[:id])
     @schedules = @movie.schedules.order(:start_time)
@@ -45,7 +30,7 @@ class MoviesController < ApplicationController
   def reservation
     @movie = Movie.find(params[:id])
   
-    # schedule_idとdateがクエリに含まれていない場合はリダイレクト
+    # クエリが不足していたらリダイレクト
     unless params[:schedule_id].present? && params[:date].present?
       return redirect_to movie_path(@movie), alert: "スケジュールと日付を選択してください"
     end
@@ -56,7 +41,16 @@ class MoviesController < ApplicationController
     end
   
     @date = params[:date]
+  
+    # 座席一覧（全件）
     @sheets = Sheet.all
+  
+    # 予約済み座席のid一覧（この日付・スケジュールに対して）
+    @reserved_sheets = Reservation.where(
+      schedule_id: @schedule.id,
+      date: @date
+    ).pluck(:sheet_id)
   end
+  
 
 end
