@@ -1,2 +1,4 @@
 class Sheet < ApplicationRecord
-end
+    belongs_to :screen
+  end
+  

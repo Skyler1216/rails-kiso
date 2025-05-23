@@ -43,12 +43,16 @@ class MoviesController < ApplicationController
     @date = params[:date]
   
     # 座席一覧（全件）
-    @sheets = Sheet.all
+    # @sheets = Sheet.all
+    # 座席一覧（スクリーンごと）
+    @sheets = Sheet.where(screen_id: @schedule.screen_id)
+
   
     # 予約済み座席のid一覧（この日付・スケジュールに対して）
     @reserved_sheets = Reservation.where(
       schedule_id: @schedule.id,
-      date: @date
+      date: @date,
+      screen_id: @schedule.screen_id
     ).pluck(:sheet_id)
   end
   

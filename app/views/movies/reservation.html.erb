@@ -8,7 +8,14 @@
     <tr>
       <% @sheets.select { |s| s.row == row }.each do |sheet| %>
         <td style="padding: 5px;">
-          <% if @reserved_sheets.include?(sheet.id) %>
+          <% reserved = Reservation.exists?(
+            schedule_id: @schedule.id,
+            screen_id: @schedule.screen_id,
+            sheet_id: sheet.id,
+            date: @date
+          ) %>
+
+          <% if reserved %>
             <span style="color: gray;"><%= "#{sheet.row.upcase}-#{sheet.column}" %></span>
           <% else %>
             <%= link_to "#{sheet.row.upcase}-#{sheet.column}",

@@ -11,7 +11,14 @@ class ReservationsController < ApplicationController
     @date = params[:date]
 
     # 予約済みかをチェックして防ぐ！
-    if Reservation.exists?(schedule_id: @schedule.id, date: @date, sheet_id: @sheet.id)
+    # if Reservation.exists?(schedule_id: @schedule.id, date: @date, sheet_id: @sheet.id)
+    if Reservation.exists?(
+      schedule_id: @schedule.id,
+      date: @date,
+      sheet_id: @sheet.id,
+      screen_id: @schedule.screen_id
+    )
+      
       redirect_to reservation_movie_path(@movie, schedule_id: @schedule.id, date: @date), alert: "その座席はすでに予約済みです"
       return
     end
@@ -23,10 +30,11 @@ class ReservationsController < ApplicationController
     @reservation = Reservation.new(reservation_params)
   
     if Reservation.exists?(
-        date: @reservation.date,
-        schedule_id: @reservation.schedule_id,
-        sheet_id: @reservation.sheet_id
-      )
+      date: @reservation.date,
+      schedule_id: @reservation.schedule_id,
+      sheet_id: @reservation.sheet_id,
+      screen_id: @reservation.screen_id  # ← 追加
+    )
       redirect_to reservation_movie_path(
         @reservation.schedule.movie_id,
         schedule_id: @reservation.schedule_id,
@@ -51,6 +59,6 @@ class ReservationsController < ApplicationController
   private
 
   def reservation_params
-    params.require(:reservation).permit(:name, :email, :schedule_id, :sheet_id, :date)
+    params.require(:reservation).permit(:name, :email, :schedule_id, :sheet_id, :date, :screen_id)
   end
 end
