@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_05_23_011503) do
+ActiveRecord::Schema[7.1].define(version: 2025_05_24_041640) do
   create_table "movies", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", limit: 160, null: false, comment: "映画のタイトル。邦題・洋題は一旦考えなくてOK"
     t.string "year", limit: 45, comment: "公開年"
@@ -31,6 +31,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_23_011503) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "screen_id", null: false
+    t.integer "user_id"
     t.index ["date", "schedule_id", "sheet_id"], name: "index_reservations_on_date_schedule_sheet", unique: true
     t.index ["schedule_id"], name: "index_reservations_on_schedule_id"
     t.index ["screen_id"], name: "index_reservations_on_screen_id"
@@ -60,6 +61,19 @@ ActiveRecord::Schema[7.1].define(version: 2025_05_23_011503) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "screen_id"
+  end
+
+  create_table "users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "email", default: "", null: false
+    t.string "encrypted_password", default: "", null: false
+    t.string "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "name"
+    t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
   add_foreign_key "reservations", "schedules"

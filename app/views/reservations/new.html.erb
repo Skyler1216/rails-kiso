@@ -14,12 +14,12 @@
 
   <div>
     <%= f.label :name, "予約者氏名" %><br>
-    <%= f.text_field :name %>
+    <%= f.text_field :name, value: current_user.name, readonly: true %>
   </div>
 
   <div>
     <%= f.label :email, "予約者メールアドレス" %><br>
-    <%= f.email_field :email %>
+    <%= f.email_field :email, value: current_user.email, readonly: true %>
   </div>
 
   <%= f.submit "予約する" %>

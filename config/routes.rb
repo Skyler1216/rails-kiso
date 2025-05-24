@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  
+  devise_for :users
+
   # ヘルスチェック
   get "up" => "rails/health#show", as: :rails_health_check
 
@@ -30,4 +33,5 @@ Rails.application.routes.draw do
   end
 
   # root "posts#index"
+  root "movies#index"
 end

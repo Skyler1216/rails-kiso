@@ -7,9 +7,14 @@ RSpec.describe User, type: :request do
   let(:attributes) { %w[name email password password_confirmation] }
 
 describe 'Staton14 POST /users' do
-    it '必須項目（名前、メールアドレス、パスワード、確認用パスワード）が全て入力されていて、ユーザー登録ができること' do
-        post user_registration_path, params: { user: user_params }
-        expect(response.status).to eq 302
+    # it '必須項目（名前、メールアドレス、パスワード、確認用パスワード）が全て入力されていて、ユーザー登録ができること' do
+    #     post user_registration_path, params: { user: user_params }
+    #     expect(response.status).to eq 302
+    # end
+    it '必須項目が全て入力されていて、ユーザー登録ができること' do
+        expect {
+          post user_registration_path, params: { user: user_params }
+        }.to change(User, :count).by(1)
     end
 
     it '必須項目が空文字のときにはユーザー登録ができないこと' do
