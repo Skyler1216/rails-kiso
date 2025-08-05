@@ -8,7 +8,6 @@
   },
   "scripts": {
     "login:techtrain": "techtrain-railway login",
-    "postinstall": "yarn login:techtrain",
     "lint": "yarn eslint --ext .js,.jsx,.ts,.tsx .",
     "lint:fix": "yarn eslint --ext .js,.jsx,.ts,.tsx . --fix",
     "format": "yarn prettier --write .",

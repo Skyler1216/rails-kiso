@@ -1,0 +1,38 @@
+current directory: /home/shirota/rails-kiso/vendor/bundle/ruby/3.2.0/gems/psych-5.1.2/ext/psych
+/usr/bin/ruby3.2 -I/usr/lib/ruby/vendor_ruby extconf.rb
+checking for yaml.h... yes
+checking for yaml_get_version() in -lyaml... yes
+creating Makefile
+
+current directory: /home/shirota/rails-kiso/vendor/bundle/ruby/3.2.0/gems/psych-5.1.2/ext/psych
+make DESTDIR\= sitearchdir\=./.gem.20250805-36905-84det8 sitelibdir\=./.gem.20250805-36905-84det8 clean
+cd libyaml && make clean
+/bin/sh: 1: cd: can't cd to libyaml
+make: [Makefile:283: clean-so] Error 2 (ignored)
+
+current directory: /home/shirota/rails-kiso/vendor/bundle/ruby/3.2.0/gems/psych-5.1.2/ext/psych
+make DESTDIR\= sitearchdir\=./.gem.20250805-36905-84det8 sitelibdir\=./.gem.20250805-36905-84det8
+compiling psych.c
+compiling psych_emitter.c
+compiling psych_parser.c
+compiling psych_to_ruby.c
+compiling psych_yaml_tree.c
+linking shared-object psych.so
+
+current directory: /home/shirota/rails-kiso/vendor/bundle/ruby/3.2.0/gems/psych-5.1.2/ext/psych
+make DESTDIR\= sitearchdir\=./.gem.20250805-36905-84det8 sitelibdir\=./.gem.20250805-36905-84det8 install
+make: Warning: File 'Makefile' has modification time 1.5 s in the future
+compiling psych_emitter.c
+compiling psych_parser.c
+compiling psych_to_ruby.c
+linking shared-object psych.so
+/usr/bin/install -c -m 0755 psych.so ./.gem.20250805-36905-84det8
+make: warning:  Clock skew detected.  Your build may be incomplete.
+
+current directory: /home/shirota/rails-kiso/vendor/bundle/ruby/3.2.0/gems/psych-5.1.2/ext/psych
+make DESTDIR\= sitearchdir\=./.gem.20250805-36905-84det8 sitelibdir\=./.gem.20250805-36905-84det8 clean
+make: Warning: File 'Makefile' has modification time 0.71 s in the future
+cd libyaml && make clean
+/bin/sh: 1: cd: can't cd to libyaml
+make: [Makefile:283: clean-so] Error 2 (ignored)
+make: warning:  Clock skew detected.  Your build may be incomplete.
