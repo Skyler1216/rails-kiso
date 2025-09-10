@@ -75,4 +75,4 @@ Style/MethodDefParentheses:
 
 # 条件式の括弧
 Style/ParenthesesAroundCondition:
-  EnforcedStyle: require_parentheses  # 括弧を必須にする
+  Enabled: true  # 条件式の括弧チェックを有効にする
