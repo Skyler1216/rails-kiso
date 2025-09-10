@@ -1,18 +1,64 @@
 # 環境構築
 
-1. Docker
-2. Visual Studio Code
-3. Git
+## 必要なソフトウェア
+
+1. Ruby 3.2.3
+2. MySQL 8.0以上
+3. Node.js (LTS版)
+4. Visual Studio Code
+5. Git
 
 上記は必ずインストールした上で始めてください。
 
-## Mac における環境構築
+## ローカル開発環境のセットアップ
 
-[MacOS における環境構築について](./docs/README-mac.md) を参照ください。
+### 1. リポジトリのクローン
+```bash
+git clone <リポジトリURL>
+cd rails-kiso
+```
 
-## Windows における環境構築
+### 2. 依存関係のインストール
+```bash
+# Rubyのgemをインストール
+bundle install
 
-[Windows における環境構築について](./docs/README-windows.md) を参照ください。
+# Node.jsのパッケージをインストール
+npm install
+```
+
+### 3. データベースのセットアップ
+```bash
+# MySQLにログインしてユーザーとデータベースを作成
+mysql -u root -p
+
+# MySQL内で以下のコマンドを実行
+CREATE USER 'user'@'localhost' IDENTIFIED BY 'user';
+CREATE DATABASE app_development;
+CREATE DATABASE app_test;
+CREATE DATABASE app_production;
+GRANT ALL PRIVILEGES ON app_development.* TO 'user'@'localhost';
+GRANT ALL PRIVILEGES ON app_test.* TO 'user'@'localhost';
+GRANT ALL PRIVILEGES ON app_production.* TO 'user'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+
+# Railsでデータベースを作成
+bundle exec rails db:create
+
+# マイグレーションを実行
+bundle exec rails db:migrate
+
+# シードデータを投入（必要に応じて）
+bundle exec rails db:seed
+```
+
+### 4. サーバーの起動
+```bash
+bundle exec rails server
+```
+
+ブラウザで `http://localhost:3000` にアクセスして動作を確認してください。
 
 # テスト実行の仕方
 
@@ -24,7 +70,10 @@ Visual Studio Code を使用してコードを編集し、「TechTrain Railway�
 
 ```bash
 # Station1のテストをする場合
-docker compose exec web bundle exec rspec ./spec/station01
+bundle exec rspec ./spec/station01
+
+# 全テストを実行する場合
+bundle exec rspec
 ```
 
 ## 自分のリポジトリの状態を最新の TechBowl-japan/rails-stations と合わせる
@@ -69,5 +118,5 @@ git fetch upstream
 # ↓ 最新の状態を自分のリポジトリに入れてローカルの状態も最新へ
 git merge upstream/main
 git push
-yarn install
+npm install
 ```
