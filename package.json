@@ -8,10 +8,10 @@
   },
   "scripts": {
     "login:techtrain": "techtrain-railway login",
-    "lint": "yarn eslint --ext .js,.jsx,.ts,.tsx .",
-    "lint:fix": "yarn eslint --ext .js,.jsx,.ts,.tsx . --fix",
-    "format": "yarn prettier --write .",
-    "format:check": "yarn prettier --check ."
+    "lint": "npx eslint --ext .js,.jsx,.ts,.tsx .",
+    "lint:fix": "npx eslint --ext .js,.jsx,.ts,.tsx . --fix",
+    "format": "npx prettier --write .",
+    "format:check": "npx prettier --check ."
   },
   "devDependencies": {
     "eslint": "^9.32.0",

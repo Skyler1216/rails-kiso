@@ -2,21 +2,17 @@ default: &default
   adapter: mysql2
   encoding: utf8mb4
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  username: root
-  password: "password"
-  host: db
-  sslverify: true
-  sslca: /var/lib/mysql/ca.pem
-  sslcert: /var/lib/mysql/client-cert.pem
-  sslkey: /var/lib/mysql/client-key.pem
+  username: user
+  password: "user"
+  host: localhost
+  port: 3306
+  # ↓ ローカルでは SSL 使わない（証明書が無いので）
+  # sslverify: false
 
 development:
   <<: *default
   database: app_development
 
-# Warning: The database defined as "test" will be erased and
-# re-generated from your development database when you run "rake".
-# Do not set this db to the same as development or production.
 test:
   <<: *default
   database: app_test
@@ -24,5 +20,6 @@ test:
 production:
   <<: *default
   database: app_production
-  username: app
-  password: <%= ENV['APP_DATABASE_PASSWORD'] %>
+  # 本番は別設定を使う想定。ENVから上書きするなど。
+  # username: app
+  # password: <%= ENV['APP_DATABASE_PASSWORD'] %>
