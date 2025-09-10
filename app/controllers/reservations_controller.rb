@@ -27,35 +27,14 @@ class ReservationsController < ApplicationController
 
   def create
     @reservation = Reservation.new(reservation_params)
-    
-    # 🔽 current_user から情報を上書き
-    @reservation.name = current_user.name
-    @reservation.email = current_user.email
-    @reservation.user = current_user  # ← user_id を紐づける
+    assign_user_info
 
-    if Reservation.exists?(
-      date: @reservation.date,
-      schedule_id: @reservation.schedule_id,
-      sheet_id: @reservation.sheet_id,
-      screen_id: @reservation.screen_id
-    )
-      redirect_to reservation_movie_path(
-        @reservation.schedule.movie_id,
-        schedule_id: @reservation.schedule_id,
-        date: @reservation.date
-      ), alert: "その座席はすでに予約済みです"
+    if duplicate_reservation_exists?
+      redirect_to_duplicate_reservation_path
     elsif @reservation.save
       redirect_to movie_path(@reservation.schedule.movie_id), notice: "予約が完了しました"
     else
-      puts @reservation.errors.full_messages
-
-      @schedule = Schedule.find(@reservation.schedule_id)
-      @movie = @schedule.movie
-      @sheet = Sheet.find(@reservation.sheet_id)
-      @date = @reservation.date
-
-      flash.now[:alert] = "入力内容に誤りがあります"
-      render :new, status: :unprocessable_entity
+      handle_reservation_error
     end
   end
 
@@ -63,5 +42,40 @@ class ReservationsController < ApplicationController
 
   def reservation_params
     params.require(:reservation).permit(:name, :email, :schedule_id, :sheet_id, :date, :screen_id)
+  end
+
+  def assign_user_info
+    @reservation.name = current_user.name
+    @reservation.email = current_user.email
+    @reservation.user = current_user
+  end
+
+  def duplicate_reservation_exists?
+    Reservation.exists?(
+      date: @reservation.date,
+      schedule_id: @reservation.schedule_id,
+      sheet_id: @reservation.sheet_id,
+      screen_id: @reservation.screen_id
+    )
+  end
+
+  def redirect_to_duplicate_reservation_path
+    redirect_to reservation_movie_path(
+      @reservation.schedule.movie_id,
+      schedule_id: @reservation.schedule_id,
+      date: @reservation.date
+    ), alert: "その座席はすでに予約済みです"
+  end
+
+  def handle_reservation_error
+    puts @reservation.errors.full_messages
+
+    @schedule = Schedule.find(@reservation.schedule_id)
+    @movie = @schedule.movie
+    @sheet = Sheet.find(@reservation.sheet_id)
+    @date = @reservation.date
+
+    flash.now[:alert] = "入力内容に誤りがあります"
+    render :new, status: :unprocessable_entity
   end
 end
