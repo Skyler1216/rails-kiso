@@ -70,3 +70,4 @@ TechTrain Railway の問題を解くために必要な下記ツールのイン�
 
 以上で Rails Railway に取り組むための環境が整いました。  
 Visual Studio Code を使用してコードを編集し、「TechTrain Railway」という拡張機能から「できた!」と書かれた青いボタンをクリックすると判定が始まります。
+test
