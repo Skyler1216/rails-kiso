@@ -31,7 +31,7 @@ class Admin::SchedulesController < ApplicationController
     @movie = Movie.find(params[:movie_id])
     @schedule = @movie.schedules.build
   end
-  
+
   def create
     @movie = Movie.find(params[:movie_id])
     @schedule = @movie.schedules.build(schedule_params)
@@ -46,7 +46,7 @@ class Admin::SchedulesController < ApplicationController
     @schedule = Schedule.find(params[:id])
   end
 
-  private      
+  private
   # 更新可能なパラメータを制限
   def schedule_params
     params.require(:schedule).permit(:start_time, :end_time)
@@ -54,4 +54,3 @@ class Admin::SchedulesController < ApplicationController
 
 
 end
-  

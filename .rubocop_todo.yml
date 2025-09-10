@@ -84,11 +84,6 @@ Layout/EndAlignment:
     - 'app/models/screen.rb'
     - 'app/models/sheet.rb'
 
-# Offense count: 65
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: native, lf, crlf
-Layout/EndOfLine:
-  Enabled: false
 
 # Offense count: 7
 # This cop supports safe autocorrection (--autocorrect).
@@ -213,37 +208,7 @@ Layout/SpaceInsidePercentLiteralDelimiters:
   Exclude:
     - 'Gemfile'
 
-# Offense count: 10
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: final_newline, final_blank_line
-Layout/TrailingEmptyLines:
-  Exclude:
-    - 'spec/factories/movie.rb'
-    - 'spec/factories/schedule.rb'
-    - 'spec/factories/sheet.rb'
-    - 'spec/station02/movies_controller_spec.rb'
-    - 'spec/station03/movie_spec.rb'
-    - 'spec/station03/movies_controller_spec.rb'
-    - 'spec/station09/movies_controller_spec.rb'
-    - 'spec/station09/schedules_controller_spec.rb'
-    - 'spec/station10/reservation_spec.rb'
-    - 'spec/station13/screen_spec.rb'
 
-# Offense count: 35
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: AllowInHeredoc.
-Layout/TrailingWhitespace:
-  Exclude:
-    - 'Gemfile'
-    - 'app/controllers/admin/movies_controller.rb'
-    - 'app/controllers/admin/reservations_controller.rb'
-    - 'app/controllers/admin/schedules_controller.rb'
-    - 'app/controllers/application_controller.rb'
-    - 'app/controllers/movies_controller.rb'
-    - 'app/models/screen.rb'
-    - 'app/models/sheet.rb'
-    - 'config/routes.rb'
 
 # Offense count: 6
 # Configuration parameters: AllowedMethods, AllowedPatterns, CountRepeatedAttributes.

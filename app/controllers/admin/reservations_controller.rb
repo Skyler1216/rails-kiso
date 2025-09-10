@@ -11,14 +11,14 @@ class Admin::ReservationsController < ApplicationController
     def index
         @reservations = Reservation.includes(:schedule, :sheet).order("schedules.start_time ASC")
     end
-  
+
     def new
       @reservation = Reservation.new
     end
-  
+
     # def create
     #   @reservation = Reservation.new(reservation_params)
-  
+
     #   if Reservation.exists?(
     #        schedule_id: @reservation.schedule_id,
     #        date: @reservation.date,
@@ -33,7 +33,7 @@ class Admin::ReservationsController < ApplicationController
     # end
     def create
         @reservation = Reservation.new(reservation_params)
-      
+
         if Reservation.exists?(
             date: @reservation.date,
             schedule_id: @reservation.schedule_id,
@@ -48,15 +48,14 @@ class Admin::ReservationsController < ApplicationController
           render :new, status: :bad_request
         end
     end
-      
-  
+
     def show
       @reservation = Reservation.find(params[:id])
     end
-  
+
     def update
       @reservation = Reservation.find(params[:id])
-  
+
       if Reservation.where.not(id: @reservation.id).exists?(
            schedule_id: reservation_params[:schedule_id],
            date: reservation_params[:date],
@@ -69,17 +68,16 @@ class Admin::ReservationsController < ApplicationController
         redirect_to admin_reservations_path, alert: "入力内容に誤りがあります"
       end
     end
-  
+
     def destroy
       @reservation = Reservation.find(params[:id])
       @reservation.destroy
       redirect_to admin_reservations_path, notice: "予約を削除しました"
     end
-  
+
     private
-  
+
     def reservation_params
       params.require(:reservation).permit(:schedule_id, :sheet_id, :date, :name, :email)
     end
   end
-  

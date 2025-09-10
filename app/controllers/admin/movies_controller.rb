@@ -2,7 +2,7 @@ class Admin::MoviesController < ApplicationController
 
   def index
     @movies = Movie.all
-  end  
+  end
 
   def new
     @movie = Movie.new
@@ -47,7 +47,7 @@ class Admin::MoviesController < ApplicationController
     flash[:notice] = "映画を削除しました。"
     redirect_to admin_movies_path
   end
-  
+
   def show
     @movie = Movie.find(params[:id])
   end
@@ -57,5 +57,5 @@ class Admin::MoviesController < ApplicationController
   def movie_params
     params.require(:movie).permit(:name, :year, :description, :image_url, :is_showing)
   end
-  
+
 end
