@@ -19,21 +19,39 @@ AllCops:
   Exclude:
     - 'bin/**/*'          # Rails が生成する bin ファイル
     - 'db/schema.rb'      # 自動生成される DB スキーマ
+    - 'db/migrate/**/*'   # マイグレーションファイル（自動生成）
     - 'node_modules/**/*' # JS の依存パッケージ
     - 'vendor/**/*'       # gem を vendor/bundle に入れる場合
-    - 'log/**/*'
-    - 'tmp/**/*'
+    - 'log/**/*'          # ログファイル
+    - 'tmp/**/*'          # 一時ファイル
+    - 'storage/**/*'      # ActiveStorage のファイル
+    - 'public/**/*'       # 静的ファイル
+    - 'config/initializers/devise.rb' # Devise設定（自動生成）
 
 # 行の長さに関するルール
 Layout/LineLength:
   Max: 120              # デフォルト80は厳しいので120文字に緩和
   Exclude:
     - 'spec/**/*'       # テストコードは長くなりがちなので除外
+    - 'config/**/*'     # 設定ファイルも長くなりがち
 
 # ブロックが長すぎると怒られるルール
 Metrics/BlockLength:
   Exclude:
     - 'spec/**/*'       # RSpec の describe/context は長くなるので除外
+    - 'config/**/*'     # 設定ファイルのブロック
+
+# メソッドが長すぎると怒られるルール
+Metrics/MethodLength:
+  Max: 20               # デフォルト10は厳しいので20行に緩和
+  Exclude:
+    - 'spec/**/*'       # テストメソッドは長くなりがち
+
+# クラスが長すぎると怒られるルール
+Metrics/ClassLength:
+  Max: 200              # デフォルト100は厳しいので200行に緩和
+  Exclude:
+    - 'spec/**/*'       # テストクラスは長くなりがち
 
 # frozen_string_literal コメントを必須にするか
 Style/FrozenStringLiteralComment:
@@ -42,3 +60,19 @@ Style/FrozenStringLiteralComment:
 # 改行コードの統一
 Layout/EndOfLine:
   EnforcedStyle: lf     # Windows の CRLF を強制的に LF に統一
+
+# 文字列の引用符スタイル
+Style/StringLiterals:
+  EnforcedStyle: single_quotes  # シングルクォートを推奨
+
+# ハッシュの記法
+Style/HashSyntax:
+  EnforcedStyle: ruby19  # { key: value } スタイルを推奨
+
+# メソッド定義の引数括弧
+Style/MethodDefParentheses:
+  EnforcedStyle: require_parentheses  # 括弧を必須にする
+
+# 条件式の括弧
+Style/ParenthesesAroundCondition:
+  EnforcedStyle: require_parentheses  # 括弧を必須にする
