@@ -43,9 +43,9 @@ screens.each do |screen|
 end
 
 # === 各スクリーンに同じ時間帯のスケジュールを設定 ===
-Schedule.destroy_all  # 念のため再度クリア
+Schedule.destroy_all # 念のため再度クリア
 
-(0..6).each do |i|  # 1週間分
+(0..6).each do |i| # 1週間分
   date = Date.today + i
 
   [
@@ -58,7 +58,7 @@ Schedule.destroy_all  # 念のため再度クリア
         movie: movies[idx],
         screen: screen,
         start_time: date.to_datetime.change(hour: start_hour, min: start_min),
-        end_time:   date.to_datetime.change(hour: end_hour, min: end_min)
+        end_time: date.to_datetime.change(hour: end_hour, min: end_min)
       )
     end
   end

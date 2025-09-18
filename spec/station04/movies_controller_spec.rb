@@ -7,7 +7,7 @@ RSpec.describe Admin::MoviesController, type: :controller do
   end
 
   describe 'Station4 GET /admin/movies/:id/edit' do
-    before { get 'edit', params: {id: @movie.id} }
+    before { get 'edit', params: { id: @movie.id } }
 
     it '200を返すこと' do
       expect(response).to have_http_status(200)

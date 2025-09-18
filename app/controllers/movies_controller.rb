@@ -53,5 +53,4 @@ class MoviesController < ApplicationController
       screen_id: @schedule.screen_id
     ).pluck(:sheet_id)
   end
-
 end

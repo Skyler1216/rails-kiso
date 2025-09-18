@@ -1,5 +1,4 @@
 class Admin::MoviesController < ApplicationController
-
   def index
     @movies = Movie.all
   end
@@ -17,7 +16,6 @@ class Admin::MoviesController < ApplicationController
       flash.now[:alert] = "登録に失敗しました（#{@movie.errors.full_messages.join("、")}）"
       render :new, status: :unprocessable_entity
     end
-
   rescue => e
     flash.now[:alert] = "エラーが発生しました: #{e.message}"
     render :new, status: :internal_server_error
@@ -57,5 +55,4 @@ class Admin::MoviesController < ApplicationController
   def movie_params
     params.require(:movie).permit(:name, :year, :description, :image_url, :is_showing)
   end
-
 end

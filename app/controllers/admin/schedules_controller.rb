@@ -47,10 +47,9 @@ class Admin::SchedulesController < ApplicationController
   end
 
   private
+
   # 更新可能なパラメータを制限
   def schedule_params
     params.require(:schedule).permit(:start_time, :end_time)
   end
-
-
 end

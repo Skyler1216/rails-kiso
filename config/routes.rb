@@ -10,14 +10,14 @@ Rails.application.routes.draw do
 
   # 公開ページの座席予約機能
   resources :movies, only: [:index, :show] do
-    get 'reservation', on: :member  # /movies/:id/reservation
+    get 'reservation', on: :member # /movies/:id/reservation
 
     resources :schedules, only: [] do
-      resources :reservations, only: [:new]  # /movies/:movie_id/schedules/:schedule_id/reservations/new
+      resources :reservations, only: [:new] # /movies/:movie_id/schedules/:schedule_id/reservations/new
     end
   end
 
-  resources :reservations, only: [:create]  # POST /reservations
+  resources :reservations, only: [:create] # POST /reservations
 
   # 座席一覧
   resources :sheets, only: [:index]

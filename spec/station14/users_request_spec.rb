@@ -12,39 +12,39 @@ describe 'Staton14 POST /users' do
     #     expect(response.status).to eq 302
     # end
     it '必須項目が全て入力されていて、ユーザー登録ができること' do
-        expect {
-          post user_registration_path, params: { user: user_params }
-        }.to change(User, :count).by(1)
+      expect {
+        post user_registration_path, params: { user: user_params }
+      }.to change(User, :count).by(1)
     end
 
     it '必須項目が空文字のときにはユーザー登録ができないこと' do
-        attributes.each do |attr|
-            params = user_params.dup
-            params[attr.to_sym] = ""
-            expect do
-                post user_registration_path, params: { user: params }
-            end.to_not change(User, :count)
-        end
+      attributes.each do |attr|
+        params = user_params.dup
+          params[attr.to_sym] = ""
+          expect do
+            post user_registration_path, params: { user: params }
+          end.to_not change(User, :count)
+      end
     end
 
     it '必須項目がnullのときにはユーザー登録ができないこと' do
-        attributes.each do |attr|
-            params = user_params.dup
-            params[attr.to_sym] = nil
-            expect do
-                post user_registration_path, params: { user: params }
-            end.to_not change(User, :count)
-        end
+      attributes.each do |attr|
+        params = user_params.dup
+          params[attr.to_sym] = nil
+          expect do
+            post user_registration_path, params: { user: params }
+          end.to_not change(User, :count)
+      end
     end
 
     it '必須項目が欠けている時にはユーザー登録ができないこと' do
-        attributes.each do |attr|
-            params = user_params.dup
-            params.delete(attr.to_sym)
-            expect do
-                post user_registration_path, params: { user: params }
-            end.to_not change(User, :count)
-        end
+      attributes.each do |attr|
+        params = user_params.dup
+          params.delete(attr.to_sym)
+          expect do
+            post user_registration_path, params: { user: params }
+          end.to_not change(User, :count)
+      end
     end
 
     it 'パスワードと確認用パスワードが一致しないときはユーザー登録ができないこと' do

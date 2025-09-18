@@ -48,7 +48,7 @@ RSpec.describe ReservationsController, type: :controller do
     let(:sheets) { create_list(:sheet, 5) }
     let(:date) { "2023-01-31" }
     let(:schedule) { create(:schedule, movie_id: movie.id) }
-    let(:success_request) { post :create, params: { reservation: { name: "TEST_NAME", email: "test@test.com", date: date, sheet_id: sheets.first.id , schedule_id: schedule.id, movie_id: movie.id }}, session: {} }
+    let(:success_request) { post :create, params: { reservation: { name: "TEST_NAME", email: "test@test.com", date: date, sheet_id: sheets.first.id, schedule_id: schedule.id, movie_id: movie.id } }, session: {} }
 
     it 'schedule_id, sheet_id, name, email, dateのすべてがあるときに302を返す' do
       success_request

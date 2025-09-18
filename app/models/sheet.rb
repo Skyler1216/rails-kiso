@@ -1,3 +1,3 @@
 class Sheet < ApplicationRecord
-    belongs_to :screen
-  end
+  belongs_to :screen
+end

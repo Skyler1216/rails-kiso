@@ -1,13 +1,3 @@
-# 共通プリフロー（毎回これで始める）
-
-```bash
-git add -A && git commit -m "chore: snapshot before rubocop batch"
-
-```
-
-- まずスナップショットを切っておく（戻せるように）。
-
----
 
 # バッチ1：改行コード & 末尾空白系（基礎整形）
 
