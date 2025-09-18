@@ -264,3 +264,29 @@ git add .rubocop_todo.yml && git commit -m "chore: refresh rubocop_todo after fi
 
 **RuboCopの警告が全て解消され、コードベースが大幅に改善されました！**
 
+---
+
+# 🔄 追加修正：自動修正可能な警告（2025-09-18）
+
+## ✅ 追加修正：自動修正可能な警告
+**実施内容**
+- `.rubocop_todo.yml`から自動修正可能な10個のCopを削除
+- `bundle exec rubocop -a`で自動修正実行
+
+**削除したCop**
+- `Layout/BlockAlignment`、`Layout/FirstArgumentIndentation`、`Layout/IndentationConsistency`
+- `Layout/MultilineMethodCallIndentation`、`Style/BlockDelimiters`
+- `Style/GuardClause`、`Style/IfUnlessModifier`、`Style/RedundantConstantBase`
+- `Style/RescueStandardError`、`Style/TrailingCommaInHashLiteral`
+
+**結果**
+- **36件の警告を自動修正**
+- エラークラス指定、インデント、ガード節、修飾子、ブロック区切り文字の修正完了
+
+## 📊 最終統計（更新）
+- **合計修正件数**: 340件以上の警告を修正
+- **対象ファイル**: 98ファイル
+- **現在の状況**: 98ファイル全てで「no offenses detected」
+
+**RuboCopの警告が完全に解消され、コードベースがさらに改善されました！**
+

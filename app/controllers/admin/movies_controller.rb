@@ -17,7 +17,7 @@ module Admin
         flash.now[:alert] = "登録に失敗しました（#{@movie.errors.full_messages.join('、')}）"
         render :new, status: :unprocessable_entity
       end
-    rescue => e
+    rescue StandardError => e
       flash.now[:alert] = "エラーが発生しました: #{e.message}"
       render :new, status: :internal_server_error
     end
@@ -35,7 +35,7 @@ module Admin
         flash.now[:alert] = "更新に失敗しました（#{@movie.errors.full_messages.join('、')}）"
         render :edit, status: :unprocessable_entity
       end
-    rescue => e
+    rescue StandardError => e
       flash.now[:alert] = "エラーが発生しました: #{e.message}"
       render :edit, status: :internal_server_error
     end

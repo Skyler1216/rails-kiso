@@ -2,14 +2,12 @@ class MoviesController < ApplicationController
   def index
     @movies = Movie.all
 
-    if params[:is_showing].present?
-      @movies = @movies.where(is_showing: params[:is_showing])
-    end
+    @movies = @movies.where(is_showing: params[:is_showing]) if params[:is_showing].present?
 
-    if params[:keyword].present?
-      keyword = params[:keyword]
-      @movies = @movies.where('name LIKE :q OR description LIKE :q', q: "%#{keyword}%")
-    end
+    return unless params[:keyword].present?
+
+    keyword = params[:keyword]
+    @movies = @movies.where('name LIKE :q OR description LIKE :q', q: "%#{keyword}%")
   end
 
   def show
@@ -17,9 +15,9 @@ class MoviesController < ApplicationController
     @schedules = @movie.schedules.order(:start_time)
 
     available_dates = @schedules
-                        .map { |s| s.start_time.to_date }
-                        .select { |d| d >= Date.today && d <= Date.today + 6 }
-                        .uniq
+                      .map { |s| s.start_time.to_date }
+                      .select { |d| d >= Date.today && d <= Date.today + 6 }
+                      .uniq
 
     selected_date = params[:date].presence || available_dates.first
     @filtered_schedules = @schedules.select { |s| s.start_time.to_date.to_s == selected_date.to_s }
@@ -35,9 +33,7 @@ class MoviesController < ApplicationController
     end
 
     @schedule = Schedule.find_by(id: params[:schedule_id])
-    unless @schedule
-      return redirect_to movie_path(@movie), alert: 'スケジュールが見つかりません'
-    end
+    return redirect_to movie_path(@movie), alert: 'スケジュールが見つかりません' unless @schedule
 
     @date = params[:date]
 

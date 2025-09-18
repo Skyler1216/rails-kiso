@@ -36,7 +36,7 @@ RSpec.describe Admin::SchedulesController, type: :controller do
       schedule = create(:schedule, movie_id: movie.id)
 
       expect do
-        delete :destroy, params: { id: schedule.id, movie_id: movie.id, }
+        delete :destroy, params: { id: schedule.id, movie_id: movie.id }
       end.to change(Schedule, :count).by(-1)
     end
   end

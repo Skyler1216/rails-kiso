@@ -36,10 +36,10 @@ module Admin
       @reservation = Reservation.new(reservation_params)
 
       if Reservation.exists?(
-          date: @reservation.date,
-          schedule_id: @reservation.schedule_id,
-          sheet_id: @reservation.sheet_id
-        )
+        date: @reservation.date,
+        schedule_id: @reservation.schedule_id,
+        sheet_id: @reservation.sheet_id
+      )
         flash[:alert] = 'その座席はすでに予約済みです'
         render :new, status: :bad_request
       elsif @reservation.save
@@ -58,10 +58,10 @@ module Admin
       @reservation = Reservation.find(params[:id])
 
       if Reservation.where.not(id: @reservation.id).exists?(
-           schedule_id: reservation_params[:schedule_id],
-           date: reservation_params[:date],
-           sheet_id: reservation_params[:sheet_id]
-         )
+        schedule_id: reservation_params[:schedule_id],
+        date: reservation_params[:date],
+        sheet_id: reservation_params[:sheet_id]
+      )
         redirect_to admin_reservation_path(@reservation), alert: 'その座席はすでに予約済みです'
       elsif @reservation.update(reservation_params)
         redirect_to admin_reservations_path, notice: '予約を更新しました'
