@@ -1,2 +1,4 @@
-module Admin::SchedulesHelper
+module Admin
+  module SchedulesHelper
+  end
 end

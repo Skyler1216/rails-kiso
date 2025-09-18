@@ -87,29 +87,12 @@ Style/BlockDelimiters:
   Exclude:
     - 'spec/station14/users_request_spec.rb'
 
-# Offense count: 6
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: nested, compact
-Style/ClassAndModuleChildren:
-  Exclude:
-    - 'app/controllers/admin/movies_controller.rb'
-    - 'app/controllers/admin/reservations_controller.rb'
-    - 'app/controllers/admin/schedules_controller.rb'
-    - 'app/helpers/admin/movies_helper.rb'
-    - 'app/helpers/admin/reservations_helper.rb'
-    - 'app/helpers/admin/schedules_helper.rb'
 
 # Offense count: 23
 # Configuration parameters: AllowedConstants.
 Style/Documentation:
   Enabled: false
 
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Style/GlobalStdStream:
-  Exclude:
-    - 'config/environments/production.rb'
 
 # Offense count: 1
 # This cop supports safe autocorrection (--autocorrect).
@@ -131,12 +114,6 @@ Style/RedundantConstantBase:
   Exclude:
     - 'config/environments/production.rb'
 
-# Offense count: 2
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: SafeForConstants.
-Style/RedundantFetchBlock:
-  Exclude:
-    - 'config/puma.rb'
 
 
 # Offense count: 2
