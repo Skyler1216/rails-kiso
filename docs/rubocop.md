@@ -14,7 +14,6 @@ sudo apt-get install -y dos2unix
 find . -type f -not -path "./.git/*" -exec dos2unix {} +
 bundle exec rubocop -a
 bundle exec rubocop
-git add -A && git commit -m "style: normalize EOL to LF and remove trailing spaces/blank lines"
 
 ```
 
@@ -34,9 +33,6 @@ git add -A && git commit -m "style: normalize EOL to LF and remove trailing spac
 ```bash
 bundle exec rubocop -a
 bundle exec rubocop
-git add -A && git commit -m "style: fix spacing/indentation and empty-line layout cops"
-
-```
 
 ---
 
@@ -54,9 +50,7 @@ git add -A && git commit -m "style: fix spacing/indentation and empty-line layou
 
 ```bash
 bundle exec rubocop -a
-git add -A && git commit -m "style: unify string quotes and tidy percent/interpolation/comment styles"
-
-```
+bundle exec rubocop
 
 ---
 
@@ -66,15 +60,6 @@ git add -A && git commit -m "style: unify string quotes and tidy percent/interpo
 
 - `Bundler/OrderedGems`
 - `Layout/SpaceInsidePercentLiteralDelimiters`（Gemfile対象が多い）
-
-**実作業**
-
-```bash
-bundle exec rubocop -a Gemfile
-bundle exec rubocop
-git add -A && git commit -m "style: order gems in Gemfile and tidy percent literal delimiters"
-
-```
 
 ---
 
