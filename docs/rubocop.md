@@ -33,6 +33,7 @@ bundle exec rubocop
 ```bash
 bundle exec rubocop -a
 bundle exec rubocop
+```
 
 ---
 
@@ -51,6 +52,7 @@ bundle exec rubocop
 ```bash
 bundle exec rubocop -a
 bundle exec rubocop
+```
 
 ---
 
