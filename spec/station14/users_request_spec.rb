@@ -20,7 +20,7 @@ describe 'Staton14 POST /users' do
     it '必須項目が空文字のときにはユーザー登録ができないこと' do
       attributes.each do |attr|
         params = user_params.dup
-          params[attr.to_sym] = ""
+          params[attr.to_sym] = ''
           expect do
             post user_registration_path, params: { user: params }
           end.to_not change(User, :count)
@@ -49,7 +49,7 @@ describe 'Staton14 POST /users' do
 
     it 'パスワードと確認用パスワードが一致しないときはユーザー登録ができないこと' do
       expect do
-        post user_registration_path, params: { user: attributes_for(:user, password: "testuser", password_confirmation: "testuser2") }
+        post user_registration_path, params: { user: attributes_for(:user, password: 'testuser', password_confirmation: 'testuser2') }
       end.to_not change(User, :count)
     end
   end

@@ -2,7 +2,7 @@ Rails.application.routes.draw do
   devise_for :users
 
   # ヘルスチェック
-  get "up" => "rails/health#show", as: :rails_health_check
+  get 'up' => 'rails/health#show', as: :rails_health_check
 
   # 映画一覧・詳細表示
   get '/movies', to: 'movies#index'
@@ -32,5 +32,5 @@ Rails.application.routes.draw do
   end
 
   # root "posts#index"
-  root "movies#index"
+  root 'movies#index'
 end

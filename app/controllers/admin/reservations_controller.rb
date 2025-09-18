@@ -9,7 +9,7 @@ class Admin::ReservationsController < ApplicationController
   #                     .order("schedules.start_time ASC")
   # end
   def index
-    @reservations = Reservation.includes(:schedule, :sheet).order("schedules.start_time ASC")
+    @reservations = Reservation.includes(:schedule, :sheet).order('schedules.start_time ASC')
   end
 
   def new
@@ -39,12 +39,12 @@ class Admin::ReservationsController < ApplicationController
         schedule_id: @reservation.schedule_id,
         sheet_id: @reservation.sheet_id
       )
-      flash[:alert] = "その座席はすでに予約済みです"
+      flash[:alert] = 'その座席はすでに予約済みです'
       render :new, status: :bad_request
     elsif @reservation.save
       redirect_to admin_reservations_path
     else
-      flash[:alert] = "入力内容に誤りがあります"
+      flash[:alert] = '入力内容に誤りがあります'
       render :new, status: :bad_request
     end
   end
@@ -61,18 +61,18 @@ class Admin::ReservationsController < ApplicationController
          date: reservation_params[:date],
          sheet_id: reservation_params[:sheet_id]
        )
-      redirect_to admin_reservation_path(@reservation), alert: "その座席はすでに予約済みです"
+      redirect_to admin_reservation_path(@reservation), alert: 'その座席はすでに予約済みです'
     elsif @reservation.update(reservation_params)
-      redirect_to admin_reservations_path, notice: "予約を更新しました"
+      redirect_to admin_reservations_path, notice: '予約を更新しました'
     else
-      redirect_to admin_reservations_path, alert: "入力内容に誤りがあります"
+      redirect_to admin_reservations_path, alert: '入力内容に誤りがあります'
     end
   end
 
   def destroy
     @reservation = Reservation.find(params[:id])
     @reservation.destroy
-    redirect_to admin_reservations_path, notice: "予約を削除しました"
+    redirect_to admin_reservations_path, notice: '予約を削除しました'
   end
 
   private

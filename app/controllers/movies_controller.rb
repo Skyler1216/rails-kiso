@@ -8,7 +8,7 @@ class MoviesController < ApplicationController
 
     if params[:keyword].present?
       keyword = params[:keyword]
-      @movies = @movies.where("name LIKE :q OR description LIKE :q", q: "%#{keyword}%")
+      @movies = @movies.where('name LIKE :q OR description LIKE :q', q: "%#{keyword}%")
     end
   end
 
@@ -31,12 +31,12 @@ class MoviesController < ApplicationController
 
     # クエリが不足していたらリダイレクト
     unless params[:schedule_id].present? && params[:date].present?
-      return redirect_to movie_path(@movie), alert: "スケジュールと日付を選択してください"
+      return redirect_to movie_path(@movie), alert: 'スケジュールと日付を選択してください'
     end
 
     @schedule = Schedule.find_by(id: params[:schedule_id])
     unless @schedule
-      return redirect_to movie_path(@movie), alert: "スケジュールが見つかりません"
+      return redirect_to movie_path(@movie), alert: 'スケジュールが見つかりません'
     end
 
     @date = params[:date]

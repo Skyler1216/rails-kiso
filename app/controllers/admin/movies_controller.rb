@@ -10,10 +10,10 @@ class Admin::MoviesController < ApplicationController
   def create
     @movie = Movie.new(movie_params)
     if @movie.save
-      flash[:notice] = "映画を登録しました。"
+      flash[:notice] = '映画を登録しました。'
       redirect_to admin_movies_path
     else
-      flash.now[:alert] = "登録に失敗しました（#{@movie.errors.full_messages.join("、")}）"
+      flash.now[:alert] = "登録に失敗しました（#{@movie.errors.full_messages.join('、')}）"
       render :new, status: :unprocessable_entity
     end
   rescue => e
@@ -28,10 +28,10 @@ class Admin::MoviesController < ApplicationController
   def update
     @movie = Movie.find(params[:id])
     if @movie.update(movie_params)
-      flash[:notice] = "映画を更新しました。"
+      flash[:notice] = '映画を更新しました。'
       redirect_to admin_movies_path
     else
-      flash.now[:alert] = "更新に失敗しました（#{@movie.errors.full_messages.join("、")}）"
+      flash.now[:alert] = "更新に失敗しました（#{@movie.errors.full_messages.join('、')}）"
       render :edit, status: :unprocessable_entity
     end
   rescue => e
@@ -42,7 +42,7 @@ class Admin::MoviesController < ApplicationController
   def destroy
     @movie = Movie.find(params[:id])
     @movie.destroy
-    flash[:notice] = "映画を削除しました。"
+    flash[:notice] = '映画を削除しました。'
     redirect_to admin_movies_path
   end
 

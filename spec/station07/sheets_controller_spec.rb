@@ -17,8 +17,8 @@ RSpec.describe SheetsController, type: :controller do
     end
 
     it '実装の中でsheetsテーブルにアクセスして、マスを固定値で固めていないこと。' do
-      expect(response.body).to include("#{@sheets.first.column}")
-      expect(response.body).to include("#{@sheets.last.column}")
+      expect(response.body).to include(@sheets.first.column.to_s)
+      expect(response.body).to include(@sheets.last.column.to_s)
     end
   end
 end

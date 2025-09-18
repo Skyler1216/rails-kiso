@@ -3,7 +3,7 @@
 
 **TODOから外すCop**
 
-- `Layout/EndOfLine: Enabled: false`（このブロックを削除）
+- `Layout/EndOfLine: Enabled: false`
 - `Layout/TrailingWhitespace`
 - `Layout/TrailingEmptyLines`
 
@@ -150,6 +150,3 @@ git add .rubocop_todo.yml && git commit -m "chore: refresh rubocop_todo after fi
 5. **バッチ6**（Metrics：設計/リファクタ）
 6. **バッチ5**（unsafe混在：個別に）
 
----
-
-この順でやれば、見た目のノイズ→軽微整形→記法→周辺→設計、の順に綺麗に仕上がります。必要なら、次のバッチ用に「TODOから消すべきCop一覧」をあなたの最新ファイルに合わせてまた指示するよ。

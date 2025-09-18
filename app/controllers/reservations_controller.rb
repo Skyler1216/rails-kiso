@@ -18,7 +18,7 @@ class ReservationsController < ApplicationController
       sheet_id: @sheet.id,
       screen_id: @schedule.screen_id
     )
-      redirect_to reservation_movie_path(@movie, schedule_id: @schedule.id, date: @date), alert: "その座席はすでに予約済みです"
+      redirect_to reservation_movie_path(@movie, schedule_id: @schedule.id, date: @date), alert: 'その座席はすでに予約済みです'
       return
     end
 
@@ -32,7 +32,7 @@ class ReservationsController < ApplicationController
     if duplicate_reservation_exists?
       redirect_to_duplicate_reservation_path
     elsif @reservation.save
-      redirect_to movie_path(@reservation.schedule.movie_id), notice: "予約が完了しました"
+      redirect_to movie_path(@reservation.schedule.movie_id), notice: '予約が完了しました'
     else
       handle_reservation_error
     end
@@ -64,7 +64,7 @@ class ReservationsController < ApplicationController
       @reservation.schedule.movie_id,
       schedule_id: @reservation.schedule_id,
       date: @reservation.date
-    ), alert: "その座席はすでに予約済みです"
+    ), alert: 'その座席はすでに予約済みです'
   end
 
   def handle_reservation_error
@@ -75,7 +75,7 @@ class ReservationsController < ApplicationController
     @sheet = Sheet.find(@reservation.sheet_id)
     @date = @reservation.date
 
-    flash.now[:alert] = "入力内容に誤りがあります"
+    flash.now[:alert] = '入力内容に誤りがあります'
     render :new, status: :unprocessable_entity
   end
 end
