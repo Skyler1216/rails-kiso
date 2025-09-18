@@ -9,7 +9,7 @@ Rails.application.routes.draw do
   get '/movies/:id', to: 'movies#show'
 
   # 公開ページの座席予約機能
-  resources :movies, only: [:index, :show] do
+  resources :movies, only: %i[index show] do
     get 'reservation', on: :member # /movies/:id/reservation
 
     resources :schedules, only: [] do
@@ -24,11 +24,11 @@ Rails.application.routes.draw do
 
   # 管理画面
   namespace :admin do
-    resources :movies, only: [:index, :new, :create, :edit, :update, :destroy, :show] do
-      resources :schedules, only: [:new, :create]
+    resources :movies, only: %i[index new create edit update destroy show] do
+      resources :schedules, only: %i[new create]
     end
-    resources :schedules, only: [:index, :show, :edit, :update, :destroy]
-    resources :reservations, only: [:index, :new, :create, :show, :update, :destroy]
+    resources :schedules, only: %i[index show edit update destroy]
+    resources :reservations, only: %i[index new create show update destroy]
   end
 
   # root "posts#index"

@@ -11,7 +11,7 @@ class Reservation < ApplicationRecord
   validates :date, presence: true
 
   validates :sheet_id, uniqueness: {
-    scope: [:schedule_id, :date, :screen_id],
+    scope: %i[schedule_id date screen_id],
     message: 'はすでに予約されています'
   }
 end
