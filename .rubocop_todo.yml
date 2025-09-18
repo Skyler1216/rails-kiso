@@ -70,10 +70,6 @@ Layout/SpaceAroundOperators:
 
 
 
-# Offense count: 6
-# Configuration parameters: AllowedMethods, AllowedPatterns, CountRepeatedAttributes.
-Metrics/AbcSize:
-  Max: 27
 
 
 # Offense count: 1

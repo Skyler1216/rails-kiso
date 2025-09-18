@@ -53,6 +53,10 @@ Metrics/ClassLength:
   Exclude:
     - 'spec/**/*'       # テストクラスは長くなりがち
 
+# Metrics/AbcSize: 複雑度の制限を緩和
+Metrics/AbcSize:
+  Max: 27
+
 # frozen_string_literal コメントを必須にするか
 Style/FrozenStringLiteralComment:
   Enabled: false        # Ruby3では不要なのでオフ
