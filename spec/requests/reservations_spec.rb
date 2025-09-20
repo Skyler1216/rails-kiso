@@ -1,17 +1,38 @@
 require 'rails_helper'
 
 RSpec.describe 'Reservations', type: :request do
-  describe 'GET /new' do
-    it 'returns http success' do
-      get '/reservations/new'
-      expect(response).to have_http_status(:success)
-    end
-  end
+  describe 'POST /reservations' do
+    context 'when unauthenticated' do
+      it 'redirects to the login page' do
+        post reservations_path
 
-  describe 'GET /create' do
-    it 'returns http success' do
-      get '/reservations/create'
-      expect(response).to have_http_status(:success)
+        expect(response).to redirect_to(new_user_session_path)
+      end
+    end
+
+    context 'when authenticated' do
+      it 'processes the reservation request' do
+        user = create(:user)
+        sign_in(user)
+
+        movie = create(:movie)
+        screen = create(:screen)
+        sheet = create(:sheet, screen: screen)
+        schedule = create(:schedule, movie: movie, screen: screen)
+
+        post reservations_path, params: {
+          reservation: {
+            name: user.name,
+            email: user.email,
+            schedule_id: schedule.id,
+            sheet_id: sheet.id,
+            screen_id: screen.id,
+            date: Date.today
+          }
+        }
+
+        expect(response).to redirect_to(movie_path(movie))
+      end
     end
   end
 end
