@@ -1,3 +1,21 @@
+## 📖 これまでにやったこと
+
+### 1. RuboCop 導入
+
+- `Gemfile` の `:development` グループに RuboCop を追加
+- `bundle install` で gem を導入
+- `bundle exec rubocop` で初回実行 → 大量の指摘が出るのを確認
+
+### 2. 設定ファイルの準備
+
+- `.rubocop.yml` を作成
+    - プロジェクト独自のルールを定義
+    - `inherit_from: .rubocop_todo.yml` で TODO リストを読み込み
+    - LF改行統一、シングルクォート強制など基本方針を設定
+- `bundle exec rubocop --auto-gen-config` を実行
+    - `.rubocop_todo.yml` を生成 → 「現時点で直せていない違反のリスト」を保存
+
+---
 
 # バッチ1：改行コード & 末尾空白系（基礎整形）
 
