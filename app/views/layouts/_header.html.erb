@@ -1,0 +1,42 @@
+<%# =========================================
+    メインナビゲーションヘッダー
+    - ロゴ、グローバルナビ、認証アクションをまとめた共通パーツ
+    - application.html.erb から呼び出され、全ページで利用される
+%>
+<header class="border-b border-white/10 bg-slate-900/80 shadow-md backdrop-blur">
+  <%# ヘッダー内コンテナ: レスポンシブに横並びへ切り替え %>
+  <div class="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+    <%# 左側: ブランドロゴとグローバルナビゲーション %>
+    <div class="flex flex-1 items-center justify-between gap-6">
+      <%# ブランドロゴ: トップページへのリンク %>
+      <%= link_to root_path, class: "flex items-center gap-3" do %>
+        <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-brand-red text-lg font-bold text-white shadow-glow">C</span>
+        <div class="leading-tight">
+          <p class="font-heading text-lg text-brand-gold">CineVerse</p>
+          <p class="text-xs text-gray-400">Cinema Experience</p>
+        </div>
+      <% end %>
+
+      <%# グローバルナビ: 上映作品・座席一覧へのリンク群 %>
+      <nav class="flex items-center gap-4 text-sm md:gap-5">
+        <%= link_to '上映作品', movies_path, class: header_nav_link_class %>
+        <%= link_to '座席一覧', sheets_path, class: header_nav_link_class %>
+      </nav>
+    </div>
+
+    <%# 右側: 認証状態に応じたアクションボタン %>
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+      <% if user_signed_in? %>
+        <%# ログイン済みの場合: ユーザー名とログアウトリンクを表示 %>
+        <p class="text-sm text-gray-300"><%= "ようこそ、#{current_user.name} さん！" %></p>
+        <%= link_to 'ログアウト', destroy_user_session_path, method: :delete, data: { turbo: false }, class: header_secondary_button_class %>
+      <% else %>
+        <%# 未ログインの場合: ログイン・新規登録ボタンを並べて表示 %>
+        <div class="flex items-center gap-3">
+          <%= link_to 'ログイン', new_user_session_path, class: header_secondary_button_class %>
+          <%= link_to 'ユーザー登録', new_user_registration_path, class: header_primary_button_class %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</header>

@@ -1,62 +1,44 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <%# ================================
+        ページ共通のメタ情報とアセット読み込み
+        - Google Fonts は Tailwind より前に読み込んでフォントを準備
+        - Tailwind / application スタイルは Turbo が差分ロード可能なよう data 属性を付与
+    %>
     <title>App</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
-    <!-- Brand fonts sourced via Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700&family=Roboto+Slab:wght@600&display=swap" rel="stylesheet">
 
-    <!-- Tailwind build output is loaded first so utility classes are available app-wide -->
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
   <body class="min-h-screen bg-brand-night text-gray-100 antialiased">
+    <%# ============================================
+        アプリケーション全体を包むラッパー
+        - 背景色やベースのタイポグラフィをここで指定
+        - ヘッダー + メインコンテンツで縦方向に構成
+    %>
     <div class="flex min-h-screen flex-col">
-      <!-- Global navigation refreshed with Tailwind utilities -->
-      <header class="border-b border-white/10 bg-slate-900/80 shadow-md backdrop-blur">
-        <div class="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-          <div class="flex flex-1 items-center justify-between gap-6">
-            <%= link_to root_path, class: "flex items-center gap-3" do %>
-              <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-brand-red text-lg font-bold text-white shadow-glow">C</span>
-              <div class="leading-tight">
-                <p class="font-heading text-lg text-brand-gold">CineVerse</p>
-                <p class="text-xs text-gray-400">Cinema Experience</p>
-              </div>
-            <% end %>
+      <%= render 'layouts/header' %>
 
-            <nav class="flex items-center gap-4 text-sm md:gap-5">
-              <%= link_to '上映作品', movies_path, class: 'nav-link' %>
-              <%= link_to '座席一覧', sheets_path, class: 'nav-link' %>
-            </nav>
-          </div>
-
-          <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <% if user_signed_in? %>
-              <p class="text-sm text-gray-300"><%= "ようこそ、#{current_user.name} さん！" %></p>
-              <%= link_to 'ログアウト', destroy_user_session_path, method: :delete, data: { turbo: false }, class: 'btn-secondary text-xs sm:text-sm' %>
-            <% else %>
-              <div class="flex items-center gap-3">
-                <%= link_to 'ログイン', new_user_session_path, class: 'btn-secondary text-xs sm:text-sm' %>
-                <%= link_to 'ユーザー登録', new_user_registration_path, class: 'btn-primary text-xs sm:text-sm' %>
-              </div>
-            <% end %>
-          </div>
-        </div>
-      </header>
-
+      <%# ============================================
+          メインコンテンツ領域
+          - flash メッセージを最上部に表示
+          - 各ページ固有の内容は yield で差し込む
+      %>
       <main class="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-        <!-- Flash messages surface in the main content column -->
+        <%# flash: 空文字を除外しつつ、種別に応じた装飾を適用 %>
         <% flash.each do |type, message| %>
           <% next if message.blank? %>
-          <% css_class = type.to_sym == :notice ? 'flash-success' : 'flash-alert' %>
-          <div class="<%= css_class %>">
+          <div class="<%= flash_banner_class(type) %>">
             <span><%= message %></span>
           </div>
         <% end %>
