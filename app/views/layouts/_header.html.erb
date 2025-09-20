@@ -51,4 +51,25 @@
       
     </div>
   </div>
+
+  <% if current_user&.admin? %>
+    <div class="admin-toolbar">
+      <div class="admin-toolbar__content">
+        <div class="admin-toolbar__info">
+          <span class="admin-toolbar__badge">Admin</span>
+          <div>
+            <p class="admin-toolbar__title">管理者モード</p>
+            <p class="admin-toolbar__subtitle">管理機能へのショートカット</p>
+          </div>
+        </div>
+
+        <nav class="admin-toolbar__nav">
+          <%= link_to 'ダッシュボード', admin_root_path, class: admin_nav_link_class(admin_root_path) %>
+          <%= link_to '映画管理', admin_movies_path, class: admin_nav_link_class(admin_movies_path) %>
+          <%= link_to 'スケジュール', admin_schedules_path, class: admin_nav_link_class(admin_schedules_path) %>
+          <%= link_to '予約管理', admin_reservations_path, class: admin_nav_link_class(admin_reservations_path) %>
+        </nav>
+      </div>
+    </div>
+  <% end %>
 </header>

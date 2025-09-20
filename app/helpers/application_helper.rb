@@ -22,6 +22,12 @@ module ApplicationHelper
     'btn-secondary text-xs sm:text-sm'
   end
 
+  def admin_nav_link_class(path)
+    classes = ['admin-link']
+    classes << 'admin-link--active' if current_page?(path)
+    classes.join(' ')
+  end
+
   # フラッシュメッセージ種別に紐づく Tailwind ユーティリティクラスを返す。
   # notice -> 成功体裁 / それ以外 -> 警告体裁 として扱い、判定ロジックをレイアウトから切り離す。
   def flash_banner_class(type)

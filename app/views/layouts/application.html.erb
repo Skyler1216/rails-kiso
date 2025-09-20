@@ -47,9 +47,6 @@
       <% if user_signed_in? %>
         <%# 🎭 ヘッダー: 全ページ共通のナビゲーション %>
         <%= render 'layouts/header' %>
-
-        <%# 🔐 管理者専用ナビゲーション: 管理者ログイン時のみ表示 %>
-        <%= render 'layouts/admin_navigation' %>
       <% end %>
 
       <%# ========================================
