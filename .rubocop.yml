@@ -80,3 +80,7 @@ Style/MethodDefParentheses:
 # 条件式の括弧
 Style/ParenthesesAroundCondition:
   Enabled: true  # 条件式の括弧チェックを有効にする
+
+# ドキュメントコメントは必須ではない
+Style/Documentation:
+  Enabled: false
