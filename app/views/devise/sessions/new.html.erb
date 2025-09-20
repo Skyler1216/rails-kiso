@@ -1,7 +1,7 @@
 <div class="auth-shell">
   <div class="auth-layout">
     <section class="auth-hero">
-      <span class="auth-hero__kicker">Welcome back</span>
+      <span class="auth-hero__kicker">おかえりなさい</span>
       <h1 class="auth-hero__title">CineVerseにログイン</h1>
       <p class="auth-hero__description">
         登録済みのメールアドレスとパスワードでログインしてください。ログインすると座席予約の履歴管理や、上映スケジュールのチェックがスムーズに行えます。
@@ -18,12 +18,12 @@
         <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: 'auth-form' }) do |f| %>
           <div class="form-field">
             <%= f.label :email, 'メールアドレス', class: 'form-label' %>
-            <%= f.email_field :email, autofocus: true, autocomplete: 'email', class: 'form-input', placeholder: 'yourname@example.com' %>
+            <%= f.email_field :email, autofocus: true, autocomplete: 'email', class: 'form-input', placeholder: 'メールアドレスを入力してください' %>
           </div>
 
           <div class="form-field">
             <%= f.label :password, 'パスワード', class: 'form-label' %>
-            <%= f.password_field :password, autocomplete: 'current-password', class: 'form-input', placeholder: 'パスワードを入力' %>
+            <%= f.password_field :password, autocomplete: 'current-password', class: 'form-input', placeholder: 'パスワードを入力してください' %>
           </div>
 
           <% if devise_mapping.rememberable? %>

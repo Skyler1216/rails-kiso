@@ -1492,10 +1492,6 @@ a:hover {
   border-color: rgb(239 68 68 / 0.3);
 }
 
-.border-red-500\/40 {
-  border-color: rgb(239 68 68 / 0.4);
-}
-
 .border-white {
   --tw-border-opacity: 1;
   border-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
@@ -1580,18 +1576,8 @@ a:hover {
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
 }
 
-.from-red-900\/30 {
-  --tw-gradient-from: rgb(127 29 29 / 0.3) var(--tw-gradient-from-position);
-  --tw-gradient-to: rgb(127 29 29 / 0) var(--tw-gradient-to-position);
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-}
-
 .to-red-800 {
   --tw-gradient-to: #991b1b var(--tw-gradient-to-position);
-}
-
-.to-red-800\/20 {
-  --tw-gradient-to: rgb(153 27 27 / 0.2) var(--tw-gradient-to-position);
 }
 
 .object-cover {
