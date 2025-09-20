@@ -1,98 +1,49 @@
-<!-- ========================================
-     🔐 Devise ログインページ
-     ========================================
-     
-     このファイルはユーザーのログインフォームを表示します。
-     GET /users/sign_in でアクセスされたときに表示されます。
-     
-     処理の流れ:
-     1. ユーザーが /users/sign_in にアクセス
-     2. Devise::SessionsController#new が実行
-     3. このビューが表示される
-     4. フォーム送信 → POST /users/sign_in → ログイン処理
--->
+<div class="auth-shell">
+  <div class="auth-layout">
+    <section class="auth-hero">
+      <span class="auth-hero__kicker">Welcome back</span>
+      <h1 class="auth-hero__title">CineVerseにログイン</h1>
+      <p class="auth-hero__description">
+        登録済みのメールアドレスとパスワードでログインしてください。ログインすると座席予約の履歴管理や、上映スケジュールのチェックがスムーズに行えます。
+      </p>
+    </section>
 
-<!-- ページタイトル -->
-<h2>Log in</h2>
+    <div class="auth-card">
+      <div class="auth-card__content">
+        <div class="auth-card__header">
+          <h2>アカウントにアクセス</h2>
+          <p>必要な情報を入力し、「ログインする」で続行します。</p>
+        </div>
 
-<!-- ========================================
-     📝 ログインフォーム
-     ======================================== -->
-<%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
-  <!-- 
-      フォームの設定:
-      - resource: ユーザーオブジェクト（User.new）
-      - as: resource_name: フォームの名前（:user）
-      - url: session_path(resource_name): 送信先URL（/users/sign_in）
-  -->
+        <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: 'auth-form' }) do |f| %>
+          <div class="form-field">
+            <%= f.label :email, 'メールアドレス', class: 'form-label' %>
+            <%= f.email_field :email, autofocus: true, autocomplete: 'email', class: 'form-input', placeholder: 'yourname@example.com' %>
+          </div>
 
-  <!-- ========================================
-       📧 メールアドレス入力フィールド
-       ======================================== -->
-  <div class="field">
-    <%= f.label :email %><br />
-    <!-- 
-        メールアドレス入力:
-        - autofocus: true: ページ読み込み時に自動フォーカス
-        - autocomplete: "email": ブラウザの自動補完を有効化
-    -->
-    <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
-  </div>
+          <div class="form-field">
+            <%= f.label :password, 'パスワード', class: 'form-label' %>
+            <%= f.password_field :password, autocomplete: 'current-password', class: 'form-input', placeholder: 'パスワードを入力' %>
+          </div>
 
-  <!-- ========================================
-       🔒 パスワード入力フィールド
-       ======================================== -->
-  <div class="field">
-    <%= f.label :password %><br />
-    <!-- 
-        パスワード入力:
-        - autocomplete: "current-password": ブラウザのパスワード自動補完を有効化
-        - 入力内容は自動的に隠される（●●●●）
-    -->
-    <%= f.password_field :password, autocomplete: "current-password" %>
-  </div>
+          <% if devise_mapping.rememberable? %>
+            <div class="auth-remember">
+              <label>
+                <%= f.check_box :remember_me %>
+                <span>次回から自動的にログイン</span>
+              </label>
+            </div>
+          <% end %>
 
-  <!-- ========================================
-       💾 ログイン状態を記憶するチェックボックス
-       ======================================== -->
-  <% if devise_mapping.rememberable? %>
-    <!-- 
-        条件分岐:
-        - devise_mapping.rememberable?: Deviseの設定でrememberableが有効かチェック
-        - 有効な場合のみチェックボックスを表示
-    -->
-    <div class="field">
-      <!-- 
-          チェックボックス:
-          - remember_me: ログイン状態を記憶するかどうか
-          - チェックすると次回アクセス時に自動ログイン
-      -->
-      <%= f.check_box :remember_me %>
-      <%= f.label :remember_me %>
+          <div class="auth-actions">
+            <%= f.submit 'ログインする', class: 'btn-primary w-full justify-center' %>
+          </div>
+        <% end %>
+
+        <div class="auth-links">
+          <%= render 'devise/shared/links' %>
+        </div>
+      </div>
     </div>
-  <% end %>
-
-  <!-- ========================================
-       🚀 送信ボタン
-       ======================================== -->
-  <div class="actions">
-    <!-- 
-        送信ボタン:
-        - クリックすると POST /users/sign_in に送信
-        - Devise::SessionsController#create が実行される
-        - ログイン処理が開始される
-    -->
-    <%= f.submit "Log in" %>
   </div>
-<% end %>
-
-<!-- ========================================
-     🔗 その他のリンク
-     ======================================== -->
-<!-- 
-    共有リンク:
-    - 新規登録リンク
-    - パスワード忘れリンク
-    - その他のDevise関連リンク
--->
-<%= render "devise/shared/links" %>
+</div>
