@@ -1,55 +1,100 @@
-<h1><%= @movie.name %></h1>
-
-<p><strong>年：</strong><%= @movie.year %></p>
-<p><strong>説明：</strong><%= @movie.description %></p>
-<p><img src="<%= @movie.image_url %>" alt="<%= @movie.name %>の画像" width="200"></p>
-<p><strong>上映中：</strong><%= @movie.is_showing ? "はい" : "いいえ" %></p>
-
-<h2>上映スケジュール</h2>
-<% if @schedules.any? %>
-  <ul>
-    <% @schedules.each do |schedule| %>
-        <li>
-            <%= schedule.start_time.strftime("%Y年 %-m月%-d日 %H:%M") %>〜<%= schedule.end_time.strftime("%H:%M") %>
-        </li>
-    <% end %>
-  </ul>
-<% else %>
-  <p>上映スケジュールはまだ登録されていません。</p>
-<% end %>
-
-<h2>座席予約</h2>
-
-<%= form_with url: movie_path(@movie), method: :get, local: true do %>
+<div class="page-shell">
   <div>
-    <%= label_tag :date, "日付（1週間以内）" %><br>
-    <%= select_tag :date, options_for_select(
-      @schedules.map { |s| s.start_time.to_date }
-                .select { |d| d >= Date.today && d <= Date.today + 6 }
-                .uniq
-                .sort
-                .map { |d| [d.strftime('%Y年%m月%d日'), d.to_s] },
-      # params[:date]
-      @selected_date
-    ) %>
+    <%= link_to '← 上映作品一覧に戻る', movies_path, class: 'btn-secondary text-xs sm:text-sm' %>
   </div>
-  <%= submit_tag "この日付のスケジュールを見る" %>
-<% end %>
 
-<% if @filtered_schedules.present? %>
-  <%= form_with url: reservation_movie_path(@movie), method: :get, local: true do %>
-    <%= hidden_field_tag :date, params[:date] %>
+  <section class="detail-layout">
+    <aside class="poster-card">
+      <% if @movie.image_url.present? %>
+        <%= image_tag @movie.image_url, alt: "#{@movie.name}のポスター" %>
+      <% else %>
+        <div class="movie-card__poster--empty">No Poster</div>
+      <% end %>
+    </aside>
 
-    <div>
-      <%= label_tag :schedule_id, "スケジュールを選択" %><br>
-      <%= select_tag :schedule_id, options_from_collection_for_select(
-        @filtered_schedules,
-        :id,
-        ->(s) { "#{s.start_time.strftime('%H:%M')}～#{s.end_time.strftime('%H:%M')}" }
-      ) %>
+    <div class="detail-panel">
+      <div class="detail-panel__header">
+        <div class="movie-card__meta">
+          <span class="badge <%= @movie.is_showing ? 'badge--showing' : 'badge--upcoming' %>">
+            <%= @movie.is_showing ? '上映中' : '上映予定' %>
+          </span>
+          <span>公開年 <strong class="text-soft"><%= @movie.year || '未設定' %></strong></span>
+          <span>作品ID <%= @movie.id %></span>
+        </div>
+        <h1 class="page-hero__title"><%= @movie.name %></h1>
+        <div class="detail-panel__meta">
+          <span>上映時間: <strong class="text-soft"><%= @schedules.any? ? @schedules.first.start_time.strftime('%H:%M') : '--:--' %></strong></span>
+          <span>登録日: <%= @movie.created_at.strftime('%Y年%-m月%-d日 %H:%M') %></span>
+          <span>最終更新: <%= @movie.updated_at.strftime('%Y年%-m月%-d日 %H:%M') %></span>
+        </div>
+      </div>
+
+      <div class="detail-panel__body">
+        <h2 class="text-lg font-semibold text-soft">作品情報</h2>
+        <%= simple_format(@movie.description.to_s, {}, wrapper_tag: 'p') %>
+      </div>
+
+      <hr class="divider">
+
+      <div class="schedule-card">
+        <h2 class="text-lg font-semibold text-soft">上映スケジュール</h2>
+        <% available_dates = @schedules.map { |s| s.start_time.to_date }
+                                      .select { |d| d >= Date.today && d <= Date.today + 6 }
+                                      .uniq
+                                      .sort %>
+        <% selected_date = @selected_date.present? ? @selected_date.to_s : available_dates.first&.to_s %>
+
+        <% if available_dates.any? %>
+          <%= form_with url: movie_path(@movie), method: :get, local: true, class: 'form-stack' do %>
+            <div class="form-field">
+              <%= label_tag :date, '日付（1週間以内）', class: 'form-label' %>
+              <%= select_tag :date,
+                             options_for_select(available_dates.map { |d| [d.strftime('%Y年%m月%d日'), d.to_s] }, selected_date),
+                             class: 'form-select' %>
+            </div>
+            <div class="flex flex-wrap gap-3">
+              <%= submit_tag 'この日付のスケジュールを見る', class: 'btn-secondary w-full sm:w-auto justify-center' %>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-soft text-sm">上映スケジュールはまだ登録されていません。</p>
+        <% end %>
+
+        <% if @filtered_schedules.present? %>
+          <%= form_with url: reservation_movie_path(@movie), method: :get, local: true, class: 'form-stack' do %>
+            <%= hidden_field_tag :date, selected_date %>
+
+            <div class="form-field">
+              <%= label_tag :schedule_id, 'スケジュールを選択', class: 'form-label' %>
+              <%= select_tag :schedule_id,
+                             options_from_collection_for_select(
+                               @filtered_schedules,
+                               :id,
+                               ->(s) { "#{s.start_time.strftime('%H:%M')}～#{s.end_time.strftime('%H:%M')}" }
+                             ),
+                             class: 'form-select' %>
+            </div>
+
+            <div class="flex flex-wrap gap-3">
+              <%= submit_tag '座席を選ぶ', class: 'btn-primary w-full sm:w-auto justify-center' %>
+            </div>
+          <% end %>
+
+          <div class="schedule-list">
+            <% @filtered_schedules.each do |schedule| %>
+              <div class="schedule-item">
+                <strong><%= schedule.start_time.strftime('%H:%M') %>〜<%= schedule.end_time.strftime('%H:%M') %></strong>
+                <span>スクリーンID: <%= schedule.screen_id %></span>
+              </div>
+            <% end %>
+          </div>
+        <% elsif available_dates.any? %>
+          <div class="empty-state">
+            <strong class="text-accent">選択した日付の上映はありません</strong>
+            <p class="text-soft text-sm">別の日付を選択すると、座席予約ができる上映スケジュールが表示されます。</p>
+          </div>
+        <% end %>
+      </div>
     </div>
-
-    <%= submit_tag "座席を予約する" %>
-  <% end %>
-<% end %>
-
+  </section>
+</div>

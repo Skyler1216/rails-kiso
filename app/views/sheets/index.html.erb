@@ -1,13 +1,32 @@
-<h1>座席表</h1>
-<p>※スクリーンはこちら側です</p>
+<div class="page-shell">
+  <section class="page-hero">
+    <div class="page-hero__content">
+      <span class="page-hero__kicker">Seat Map</span>
+      <h1 class="page-hero__title">座席表</h1>
+      <p class="page-hero__description">
+        スクリーンとの距離感をイメージしながら、各列・各座席の配置を確認できます。
+        実際の予約ページでも同じレイアウトで表示されるので、事前にじっくり検討しましょう。
+      </p>
+    </div>
+  </section>
 
-<table border="1">
-  <% ['a', 'b', 'c'].each do |row| %>
-    <tr>
-      <% sheets_in_row = @sheets && @sheets[row.to_s] || [] %>
-      <% sheets_in_row.sort_by(&:column).each do |sheet| %>
-        <td><%= "#{sheet.row}-#{sheet.column}" %></td>
+  <section class="seat-board">
+    <div class="seat-screen">Screen</div>
+
+    <div class="seat-grid">
+      <% grouped_rows = (@sheets || {}).sort_by { |row, _| row } %>
+      <% grouped_rows.each do |row, seats| %>
+        <div class="seat-row" aria-label="row <%= row.upcase %>">
+          <% seats.sort_by(&:column).each do |sheet| %>
+            <span class="seat seat--available"><%= "#{sheet.row.upcase}-#{sheet.column}" %></span>
+          <% end %>
+        </div>
       <% end %>
-    </tr>
-  <% end %>
-</table>
+    </div>
+
+    <div class="seat-legend">
+      <span><span class="sample available"></span> 座席</span>
+      <span><span class="sample reserved"></span> 予約席（サンプル）</span>
+    </div>
+  </section>
+</div>

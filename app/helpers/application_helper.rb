@@ -4,8 +4,10 @@ module ApplicationHelper
   # ================================
   # 右肩上がりで同じクラス指定が散らからないよう、ここでまとめて管理する。
   # ビュー側では helper 経由で呼び出すだけにして、レイアウトを読みやすくする狙い。
-  def header_nav_link_class
-    'nav-link'
+  def header_nav_link_class(path)
+    classes = ['nav-link']
+    classes << 'nav-link--active' if current_page?(path)
+    classes.join(' ')
   end
 
   # ヘッダー内のプライマリボタン（例: 新規登録）で使うクラスを返す。

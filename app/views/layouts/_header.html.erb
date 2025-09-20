@@ -28,9 +28,9 @@
       <% end %>
 
       <%# 🧭 グローバルナビゲーション: 主要ページへのリンク %>
-      <nav class="flex items-center gap-4 text-sm md:gap-5">
-        <%= link_to '上映作品', movies_path, class: header_nav_link_class %>
-        <%= link_to '座席一覧', sheets_path, class: header_nav_link_class %>
+      <nav class="flex items-center gap-2 md:gap-3">
+        <%= link_to '上映作品', movies_path, class: header_nav_link_class(movies_path) %>
+        <%= link_to '座席一覧', sheets_path, class: header_nav_link_class(sheets_path) %>
       </nav>
     </div>
 

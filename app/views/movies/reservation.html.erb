@@ -1,29 +1,69 @@
-<h1>座席予約 - <%= @movie.name %></h1>
-<p>日付：<%= @date %></p>
-<p>時間：<%= @schedule.start_time.strftime('%H:%M') %>〜<%= @schedule.end_time.strftime('%H:%M') %></p>
+<div class="page-shell">
+  <div>
+    <%= link_to '← 作品詳細に戻る', movie_path(@movie), class: 'btn-secondary text-xs sm:text-sm' %>
+  </div>
 
-<h2>座席表</h2>
-<table>
-  <% ['a', 'b', 'c'].each do |row| %>
-    <tr>
-      <% @sheets.select { |s| s.row == row }.each do |sheet| %>
-        <td style="padding: 5px;">
-          <% reserved = Reservation.exists?(
-            schedule_id: @schedule.id,
-            screen_id: @schedule.screen_id,
-            sheet_id: sheet.id,
-            date: @date
-          ) %>
+  <section class="reservation-layout">
+    <aside class="reservation-summary">
+      <h2>座席予約</h2>
+      <dl>
+        <div>
+          <dt>作品</dt>
+          <dd><%= @movie.name %></dd>
+        </div>
+        <div>
+          <dt>上映日</dt>
+          <dd><%= Date.parse(@date.to_s).strftime('%Y年%-m月%-d日') rescue @date %></dd>
+        </div>
+        <div>
+          <dt>上映時間</dt>
+          <dd><%= @schedule.start_time.strftime('%H:%M') %>〜<%= @schedule.end_time.strftime('%H:%M') %></dd>
+        </div>
+        <div>
+          <dt>スクリーン</dt>
+          <dd>スクリーン <%= @schedule.screen_id %></dd>
+        </div>
+      </dl>
+      <p class="text-soft text-sm">
+        空いている座席をクリックすると予約フォームへ進みます。予約済みの座席には「済」表示があり選択できません。
+      </p>
+    </aside>
 
-          <% if reserved %>
-            <span style="color: gray;"><%= "#{sheet.row.upcase}-#{sheet.column}" %></span>
-          <% else %>
-            <%= link_to "#{sheet.row.upcase}-#{sheet.column}",
-                        new_movie_schedule_reservation_path(@movie, @schedule,
-                          date: @date, sheet_id: sheet.id) %>
+    <div class="seat-board">
+      <div class="seat-screen">Screen</div>
+
+      <% if @sheets.present? %>
+        <div class="seat-grid">
+          <% grouped_sheets = @sheets.group_by(&:row).sort_by { |row, _| row } %>
+          <% grouped_sheets.each do |row, sheets| %>
+            <div class="seat-row" aria-label="row <%= row.upcase %>">
+              <% sheets.sort_by(&:column).each do |sheet| %>
+                <% seat_label = "#{row.upcase}-#{sheet.column}" %>
+                <% reserved = @reserved_sheets.include?(sheet.id) %>
+
+                <% if reserved %>
+                  <span class="seat seat--reserved" aria-disabled="true"><%= seat_label %></span>
+                <% else %>
+                  <%= link_to seat_label,
+                              new_movie_schedule_reservation_path(@movie, @schedule, date: @date, sheet_id: sheet.id),
+                              class: 'seat seat--available',
+                              data: { turbo: false } %>
+                <% end %>
+              <% end %>
+            </div>
           <% end %>
-        </td>
+        </div>
+      <% else %>
+        <div class="empty-state">
+          <strong class="text-accent">座席情報が見つかりません</strong>
+          <p class="text-soft text-sm">スクリーンに紐づく座席が未登録の可能性があります。管理画面から座席を追加してください。</p>
+        </div>
       <% end %>
-    </tr>
-  <% end %>
-</table>
+
+      <div class="seat-legend">
+        <span><span class="sample available"></span> 選択可能</span>
+        <span><span class="sample reserved"></span> 予約済み</span>
+      </div>
+    </div>
+  </section>
+</div>
