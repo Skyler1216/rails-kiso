@@ -15,6 +15,14 @@ export default [
     },
   },
   {
+    // 設定ファイル（ESモジュール形式）
+    files: ["tailwind.config.js", "*.config.js"],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: "module",
+    },
+  },
+  {
     ignores: [
       "node_modules/**",
       "vendor/**",

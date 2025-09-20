@@ -8,8 +8,10 @@
   },
   "scripts": {
     "login:techtrain": "techtrain-railway login",
-    "lint": "npx eslint --ext .js,.jsx,.ts,.tsx .",
-    "lint:fix": "npx eslint --ext .js,.jsx,.ts,.tsx . --fix",
+    "lint": "npx eslint --ext .js,.jsx,.ts,.tsx . && npx stylelint \"**/*.css\"",
+    "lint:fix": "npx eslint --ext .js,.jsx,.ts,.tsx . --fix && npx stylelint \"**/*.css\" --fix",
+    "lint:css": "npx stylelint \"**/*.css\"",
+    "lint:css:fix": "npx stylelint \"**/*.css\" --fix",
     "format": "npx prettier --write .",
     "format:check": "npx prettier --check .",
     "tailwind:build": "npx tailwindcss -i app/assets/stylesheets/application.tailwind.css -o app/assets/stylesheets/tailwind.css --minify",
@@ -22,6 +24,9 @@
     "concurrently": "^9.2.1",
     "eslint": "^9.32.0",
     "prettier": "^3.6.2",
+    "stylelint": "^16.24.0",
+    "stylelint-config-standard": "^39.0.0",
+    "stylelint-config-tailwindcss": "^1.0.0",
     "tailwindcss": "^3.4.17"
   }
 }
