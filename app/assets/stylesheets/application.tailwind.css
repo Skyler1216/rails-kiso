@@ -119,12 +119,40 @@
     @apply flash-banner bg-emerald-600/80 text-white;
   }
 
-  /* 
-   * ❌ エラーメッセージ
-   * - 赤色の背景でエラーを表現
-   * - 半透明で背景との調和を図る
-   */
-  .flash-alert {
-    @apply flash-banner bg-rose-600/80 text-white;
-  }
-}
+         /*
+          * ❌ エラーメッセージ
+          * - 赤色の背景でエラーを表現
+          * - 半透明で背景との調和を図る
+          */
+         .flash-alert {
+           @apply flash-banner bg-rose-600/80 text-white;
+         }
+
+         /*
+          * 🔐 管理者ナビゲーションリンク
+          * - 管理者専用のナビゲーションリンクスタイル
+          * - ホバー時に色が変わるアニメーション
+          * - アクティブ状態の表示
+          */
+         .admin-nav-link {
+           @apply inline-flex items-center px-3 py-2 rounded-md text-sm font-medium text-red-300 transition-colors hover:text-red-100 hover:bg-red-800/20;
+         }
+
+         /*
+          * 🔐 管理者ナビゲーションアクティブ状態
+          * - 現在のページを示すアクティブ状態
+          * - 背景色と文字色で強調
+          */
+         .admin-nav-active {
+           @apply bg-red-700/30 text-red-100 border border-red-500/30;
+         }
+
+         /*
+          * 🔐 管理者ログアウトボタン
+          * - 管理者専用のログアウトボタン
+          * - ホバー時に色が変わるアニメーション
+          */
+         .admin-logout-btn {
+           @apply inline-flex items-center justify-center w-8 h-8 rounded-full bg-red-700/30 text-red-300 transition-colors hover:bg-red-600/50 hover:text-red-100;
+         }
+       }

@@ -65,6 +65,6 @@ export default {
   // ========================================
   // Tailwind CSSの機能を拡張するプラグイン
   plugins: [
-    (await import("@tailwindcss/forms")).default  // 📝 フォーム要素のスタイリング改善
+    require("@tailwindcss/forms")  // 📝 フォーム要素のスタイリング改善
   ]
 };

@@ -46,7 +46,9 @@
     <div class="flex min-h-screen flex-col">
       <%# 🎭 ヘッダー: 全ページ共通のナビゲーション %>
       <%= render 'layouts/header' %>
-      <%= render 'layouts/admin_header' %>
+      
+      <%# 🔐 管理者専用ナビゲーション: 管理者ログイン時のみ表示 %>
+      <%= render 'layouts/admin_navigation' %>
 
       <%# ========================================
           📄 メインコンテンツ領域
