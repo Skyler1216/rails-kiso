@@ -1,7 +1,7 @@
 # app/controllers/admin/reservations_controller.rb
 
 module Admin
-  class ReservationsController < ApplicationController
+  class ReservationsController < BaseController
     # def index
     #   @reservations = Reservation
     #                     .includes(:schedule, :sheet)

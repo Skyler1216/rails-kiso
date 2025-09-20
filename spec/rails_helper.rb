@@ -45,6 +45,7 @@ RSpec.configure do |config|
 
   # When using the methods of Factory_bot in the spec test code, the class name can be omitted.
   config.include FactoryBot::Syntax::Methods
+  config.include Devise::Test::ControllerHelpers, type: :controller
 
   # RSpec Rails can automatically mix in different behaviours to your tests
   # based on their file location, for example enabling you to call `get` and

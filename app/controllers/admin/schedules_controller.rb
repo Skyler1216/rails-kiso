@@ -1,5 +1,5 @@
 module Admin
-  class SchedulesController < ApplicationController
+  class SchedulesController < BaseController
     # 一覧表示
     def index
       # スケジュールを1件以上持つ映画だけを取得

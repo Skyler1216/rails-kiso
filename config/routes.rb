@@ -59,10 +59,13 @@ Rails.application.routes.draw do
   resources :sheets, only: [:index]        # GET /sheets → 座席一覧ページ
 
   # ========================================
-  # ⚙️ 管理画面（admin名前空間）
-  # ========================================
-  # 管理者専用の機能を分離
-  namespace :admin do
+        # ⚙️ 管理画面（admin名前空間）
+        # ========================================
+        # 管理者専用の機能を分離
+        namespace :admin do
+          # 管理者ダッシュボード
+          root 'dashboard#index'  # GET /admin → 管理者ダッシュボード
+
     # 映画管理
     resources :movies, only: %i[index new create edit update destroy show] do
       # 映画に紐づくスケジュール作成
