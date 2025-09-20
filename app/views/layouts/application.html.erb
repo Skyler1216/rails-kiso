@@ -1,41 +1,71 @@
 <!DOCTYPE html>
 <html>
+  <!-- #region HEAD SECTION -->
   <head>
-    <%# ================================
-        ページ共通のメタ情報とアセット読み込み
-        - Google Fonts は Tailwind より前に読み込んでフォントを準備
-        - Tailwind / application スタイルは Turbo が差分ロード可能なよう data 属性を付与
+    <%# ========================================
+        🎬 映画館サイト共通ヘッダー
+        ========================================
+        
+        全ページ共通のメタ情報とアセット読み込み
+        - Google Fonts: Tailwindより前に読み込み（フォント準備）
+        - Tailwind CSS: 映画館らしいダークテーマ
+        - Turbo: 差分ロード対応（data-turbo-track属性）
     %>
-    <title>App</title>
+    
+    <title>CineVerse - 映画館サイト</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
+    <%# 🔤 Google Fonts: 日本語対応フォント + 高級感のあるセリフ %>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700&family=Roboto+Slab:wght@600&display=swap" rel="stylesheet">
 
+    <%# 🎨 スタイルシート: Tailwind CSS + カスタムCSS %>
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    
+    <%# ⚡ JavaScript: Rails 7のImportmap %>
     <%= javascript_importmap_tags %>
   </head>
+  <!-- #endregion -->
 
+  <!-- #region BODY SECTION -->
   <body class="min-h-screen bg-brand-night text-gray-100 antialiased">
-    <%# ============================================
-        アプリケーション全体を包むラッパー
-        - 背景色やベースのタイポグラフィをここで指定
-        - ヘッダー + メインコンテンツで縦方向に構成
+    <%# ========================================
+        🌙 映画館らしいダークテーマ
+        ========================================
+        
+        アプリケーション全体のラッパー
+        - 背景: 映画館の暗い夜の色（brand-night）
+        - 文字: 読みやすいグレー（text-gray-100）
+        - アンチエイリアス: フォントの滑らかさ
     %>
+    
     <div class="flex min-h-screen flex-col">
+      <%# 🎭 ヘッダー: 全ページ共通のナビゲーション %>
       <%= render 'layouts/header' %>
 
-      <%# ============================================
-          メインコンテンツ領域
-          - flash メッセージを最上部に表示
-          - 各ページ固有の内容は yield で差し込む
+      <%# ========================================
+          📄 メインコンテンツ領域
+          ========================================
+          
+          各ページの内容を表示するメインエリア
+          - レスポンシブ: モバイル→デスクトップ対応
+          - 最大幅制限: 読みやすい幅（max-w-6xl）
+          - フレックスレイアウト: 縦方向の配置
       %>
       <main class="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-        <%# flash: 空文字を除外しつつ、種別に応じた装飾を適用 %>
+        
+        <%# ========================================
+            📢 フラッシュメッセージ表示
+            ========================================
+            
+            成功・エラー・警告メッセージを表示
+            - 空文字は除外（next if message.blank?）
+            - 種別に応じた装飾（flash_banner_class）
+        %>
         <% flash.each do |type, message| %>
           <% next if message.blank? %>
           <div class="<%= flash_banner_class(type) %>">
@@ -43,8 +73,10 @@
           </div>
         <% end %>
 
+        <%# 🎬 各ページの内容: yieldで差し込み %>
         <%= yield %>
       </main>
     </div>
   </body>
+  <!-- #endregion -->
 </html>
