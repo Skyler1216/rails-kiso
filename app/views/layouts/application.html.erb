@@ -6,30 +6,63 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
+    <!-- Brand fonts sourced via Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700&family=Roboto+Slab:wght@600&display=swap" rel="stylesheet">
+
+    <!-- Tailwind build output is loaded first so utility classes are available app-wide -->
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
-    <!-- ✅ ログイン状態によるナビゲーション -->
-    <div class="nav">
-      <% if user_signed_in? %>
-        <p>ようこそ、<%= current_user.name %> さん！</p>
-        <%= link_to 'ログアウト', destroy_user_session_path, method: :delete, data: { turbo: false } %>
-      <% else %>
-        <%= link_to 'ログイン', new_user_session_path %> |
-        <%= link_to 'ユーザー登録', new_user_registration_path %>
-      <% end %>
+  <body class="min-h-screen bg-brand-night text-gray-100 antialiased">
+    <div class="flex min-h-screen flex-col">
+      <!-- Global navigation refreshed with Tailwind utilities -->
+      <header class="border-b border-white/10 bg-slate-900/80 shadow-md backdrop-blur">
+        <div class="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+          <div class="flex flex-1 items-center justify-between gap-6">
+            <%= link_to root_path, class: "flex items-center gap-3" do %>
+              <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-brand-red text-lg font-bold text-white shadow-glow">C</span>
+              <div class="leading-tight">
+                <p class="font-heading text-lg text-brand-gold">CineVerse</p>
+                <p class="text-xs text-gray-400">Cinema Experience</p>
+              </div>
+            <% end %>
+
+            <nav class="flex items-center gap-4 text-sm md:gap-5">
+              <%= link_to '上映作品', movies_path, class: 'nav-link' %>
+              <%= link_to '座席一覧', sheets_path, class: 'nav-link' %>
+            </nav>
+          </div>
+
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <% if user_signed_in? %>
+              <p class="text-sm text-gray-300"><%= "ようこそ、#{current_user.name} さん！" %></p>
+              <%= link_to 'ログアウト', destroy_user_session_path, method: :delete, data: { turbo: false }, class: 'btn-secondary text-xs sm:text-sm' %>
+            <% else %>
+              <div class="flex items-center gap-3">
+                <%= link_to 'ログイン', new_user_session_path, class: 'btn-secondary text-xs sm:text-sm' %>
+                <%= link_to 'ユーザー登録', new_user_registration_path, class: 'btn-primary text-xs sm:text-sm' %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </header>
+
+      <main class="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+        <!-- Flash messages surface in the main content column -->
+        <% flash.each do |type, message| %>
+          <% next if message.blank? %>
+          <% css_class = type.to_sym == :notice ? 'flash-success' : 'flash-alert' %>
+          <div class="<%= css_class %>">
+            <span><%= message %></span>
+          </div>
+        <% end %>
+
+        <%= yield %>
+      </main>
     </div>
-
-    <%= yield %>
-
-    <% if flash[:notice] %>
-      <div class="flash notice"><%= flash[:notice] %></div>
-    <% end %>
-
-    <% if flash[:alert] %>
-      <div class="flash alert"><%= flash[:alert] %></div>
-    <% end %>
   </body>
 </html>
