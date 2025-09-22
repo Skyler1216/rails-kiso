@@ -6,6 +6,7 @@ class Schedule < ApplicationRecord
   validates :start_time, presence: { message: :blank }
   validates :end_time, presence: { message: :blank }
   validate :end_time_after_start_time
+  validate :no_overlapping_schedule
 
   after_update :sync_reservation_metadata!
 
@@ -33,5 +34,19 @@ class Schedule < ApplicationRecord
       updates[:updated_at] = Time.current
       reservation.update_columns(updates)
     end
+  end
+
+  def no_overlapping_schedule
+    return if start_time.blank? || end_time.blank? || screen_id.blank?
+
+    overlap_exists = Schedule
+                      .where(screen_id: screen_id)
+                      .where.not(id: id)
+                      .where('start_time < ? AND end_time > ?', end_time, start_time)
+                      .exists?
+
+    return unless overlap_exists
+
+    errors.add(:base, '同じスクリーンで日程が重複しています')
   end
 end
