@@ -8,24 +8,6 @@
       </p>
     </header>
 
-    <div class="rounded-2xl border border-white/10 bg-slate-900/60 p-5 text-sm text-slate-300 shadow-lg">
-      <p class="font-semibold text-brand-gold">会員登録でできること</p>
-      <ul class="mt-3 space-y-2">
-        <li class="flex items-start gap-3">
-          <span class="mt-1 inline-block h-2 w-2 rounded-full bg-brand-gold"></span>
-          <span>上映スケジュールの最新情報をリアルタイムでチェック</span>
-        </li>
-        <li class="flex items-start gap-3">
-          <span class="mt-1 inline-block h-2 w-2 rounded-full bg-brand-gold"></span>
-          <span>座席を指定して、事前にスムーズにオンライン予約</span>
-        </li>
-        <li class="flex items-start gap-3">
-          <span class="mt-1 inline-block h-2 w-2 rounded-full bg-brand-gold"></span>
-          <span>お気に入り作品を保存し、推しの上映を逃さない</span>
-        </li>
-      </ul>
-    </div>
-
     <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: 'auth-form' }) do |f| %>
       <%= render 'devise/shared/error_messages', resource: resource %>
 
