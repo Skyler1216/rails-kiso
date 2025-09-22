@@ -1,106 +1,87 @@
-<div class="page-shell">
-  <section class="page-hero">
-    <div class="page-hero__content">
-      <span class="page-hero__kicker">Welcome to CineVerse</span>
-      <h1 class="page-hero__title">映画館で過ごす特別な時間を、もっと身近に。</h1>
-      <p class="page-hero__description">
-        最新の上映作品から話題の予告作品まで、CineVerseはあなたの映画体験を鮮やかに彩ります。
-        気になる作品を検索して、気軽に座席をチェック＆予約しましょう。
-      </p>
-      <div class="flex flex-wrap gap-3">
-        <%= link_to '上映作品を探す', movies_path, class: 'btn-primary text-xs sm:text-sm' %>
-        <%= link_to '座席一覧を見る', sheets_path, class: 'btn-secondary text-xs sm:text-sm' %>
-      </div>
-    </div>
-  </section>
+<div class="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-12">
+  <header class="space-y-3 text-slate-100">
+    <p class="text-xs font-semibold uppercase tracking-[0.45em] text-brand-gold">CineVerse Movies</p>
+    <h1 class="font-heading text-3xl text-white md:text-4xl">上映作品</h1>
+    <p class="text-sm leading-relaxed text-slate-300">
+      CineVerseで上映中・上映予定の作品一覧です。気になるタイトルを絞り込んで、詳細から上映スケジュールをチェックしましょう。
+    </p>
+  </header>
 
-  <section class="filters-section">
-    <aside class="filter-panel">
-      <h2 class="filter-panel__title">作品を探す</h2>
-      <p class="text-soft text-sm">
-        キーワードや上映ステータスで絞り込んで、観たい映画を素早く見つけましょう。
-      </p>
-
-      <%= form_with url: movies_path, method: :get, local: true, class: 'form-stack' do %>
-        <div class="form-field">
-          <%= label_tag :keyword, 'キーワード検索', class: 'form-label' %>
-          <%= text_field_tag :keyword, params[:keyword], class: 'form-input', placeholder: 'タイトルや説明で検索' %>
-        </div>
-
-        <div class="form-field">
-          <span class="form-label">表示状態</span>
-          <div class="filter-choices">
-            <label class="filter-choice">
-              <%= radio_button_tag :is_showing, '', params[:is_showing].blank?, autocomplete: 'off' %>
-              <span>すべて</span>
-            </label>
-            <label class="filter-choice">
-              <%= radio_button_tag :is_showing, '1', params[:is_showing] == '1', autocomplete: 'off' %>
-              <span>上映中</span>
-            </label>
-            <label class="filter-choice">
-              <%= radio_button_tag :is_showing, '0', params[:is_showing] == '0', autocomplete: 'off' %>
-              <span>上映予定</span>
-            </label>
-          </div>
-        </div>
-
-        <div class="flex flex-wrap gap-3 pt-2">
-          <%= submit_tag '検索する', class: 'btn-primary w-full sm:w-auto justify-center' %>
-          <% if params[:keyword].present? || params[:is_showing].present? %>
-            <%= link_to '条件をクリア', movies_path, class: 'btn-secondary w-full sm:w-auto justify-center' %>
-          <% end %>
-        </div>
-      <% end %>
-    </aside>
-
-    <div class="space-y-6">
-      <div class="flex items-center justify-between">
-        <h2 class="text-xl font-semibold text-soft">上映作品一覧</h2>
-        <span class="text-sm text-soft"><%= @movies.size %> 件を表示中</span>
+  <section class="space-y-8">
+    <%= form_with url: movies_path, method: :get, local: true, class: 'grid gap-4 rounded-2xl border border-white/10 bg-slate-900/60 p-6 shadow-lg md:grid-cols-12 md:items-end' do %>
+      <div class="space-y-2 md:col-span-7">
+        <%= label_tag :keyword, 'キーワード検索', class: 'form-label' %>
+        <%= text_field_tag :keyword, params[:keyword], class: 'form-input', placeholder: '作品名・キャスト・説明で検索' %>
       </div>
 
-      <% if @movies.present? %>
-        <div class="movies-grid">
-          <% @movies.each do |movie| %>
-            <article class="movie-card">
-              <div class="movie-card__poster">
-                <% if movie.image_url.present? %>
-                  <%= image_tag movie.image_url, alt: "#{movie.name}のポスター" %>
-                <% else %>
-                  <div class="movie-card__poster--empty">No Poster</div>
-                <% end %>
-              </div>
+      <div class="space-y-2 md:col-span-3">
+        <%= label_tag :is_showing, '上映ステータス', class: 'form-label' %>
+        <%= select_tag :is_showing,
+              options_for_select([
+                ['すべて', ''],
+                ['上映中', '1'],
+                ['上映予定', '0']
+              ], params[:is_showing].presence || ''),
+              class: 'form-select' %>
+      </div>
 
-              <div class="movie-card__body">
-                <div>
-                  <div class="movie-card__meta">
-                    <span class="badge <%= movie.is_showing ? 'badge--showing' : 'badge--upcoming' %>">
-                      <%= movie.is_showing ? '上映中' : '上映予定' %>
-                    </span>
-                    <span>公開年 <strong class="text-soft"><%= movie.year || '未設定' %></strong></span>
-                    <span>ID <%= movie.id %></span>
-                  </div>
-                  <h3 class="movie-card__title"><%= movie.name %></h3>
-                </div>
+      <div class="flex flex-col gap-3 md:col-span-2">
+        <%= submit_tag '検索する', class: 'btn-primary w-full justify-center' %>
+        <% if params[:keyword].present? || params[:is_showing].present? %>
+          <%= link_to '条件をクリア', movies_path, class: 'btn-secondary justify-center' %>
+        <% end %>
+      </div>
+    <% end %>
 
-                <p class="movie-card__description">
-                  <%= truncate(movie.description.to_s, length: 120) %>
-                </p>
-
-                <div class="movie-card__actions">
-                  <%= link_to '詳細を見る', movie_path(movie), class: 'btn-primary justify-center' %>
-                </div>
-              </div>
-            </article>
-          <% end %>
-        </div>
-      <% else %>
-        <div class="empty-state">
-          <strong class="text-accent">該当する作品が見つかりませんでした</strong>
-          <p class="text-soft text-sm">検索条件を変更するか、上映状態のフィルターをリセットして再度お試しください。</p>
-        </div>
-      <% end %>
+    <div class="flex flex-col gap-3 text-slate-200 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-slate-500">Movie List</p>
+        <h2 class="mt-1 text-2xl font-semibold text-white">作品一覧</h2>
+      </div>
+      <span class="text-xs font-semibold tracking-[0.3em] text-slate-500">全 <%= @movies.size %> 作品</span>
     </div>
+
+    <% if @movies.present? %>
+      <div class="movies-grid">
+        <% @movies.each do |movie| %>
+          <article class="movie-card">
+            <div class="movie-card__poster">
+              <% if movie.image_url.present? %>
+                <%= image_tag movie.image_url, alt: "#{movie.name}のポスター" %>
+              <% else %>
+                <div class="movie-card__poster--empty">No Poster</div>
+              <% end %>
+            </div>
+
+            <div class="movie-card__body">
+              <div class="flex flex-col gap-2">
+                <div class="movie-card__meta">
+                  <span class="badge <%= movie.is_showing ? 'badge--showing' : 'badge--upcoming' %>">
+                    <%= movie.is_showing ? '上映中' : '上映予定' %>
+                  </span>
+                  <% if movie.year.present? %>
+                    <span>公開年 <strong class="text-soft"><%= movie.year %></strong></span>
+                  <% end %>
+                </div>
+                <h3 class="movie-card__title"><%= movie.name %></h3>
+              </div>
+
+              <p class="movie-card__description">
+                <%= truncate(movie.description.to_s, length: 110) %>
+              </p>
+
+              <div class="movie-card__actions">
+                <%= link_to '詳細を見る', movie_path(movie), class: 'btn-primary justify-center' %>
+              </div>
+            </div>
+          </article>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="empty-state">
+        <strong class="text-accent">該当する作品が見つかりませんでした</strong>
+        <p class="text-soft text-sm">検索条件を変更するか、フィルターをリセットして再度お試しください。</p>
+      </div>
+    <% end %>
   </section>
 </div>
