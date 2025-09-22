@@ -1254,6 +1254,10 @@ a:hover {
   margin-top: 3rem;
 }
 
+.mt-2 {
+  margin-top: 0.5rem;
+}
+
 .mt-3 {
   margin-top: 0.75rem;
 }
@@ -1264,10 +1268,6 @@ a:hover {
 
 .mt-6 {
   margin-top: 1.5rem;
-}
-
-.mt-2 {
-  margin-top: 0.5rem;
 }
 
 .block {
@@ -1366,6 +1366,10 @@ a:hover {
   width: 100%;
 }
 
+.min-w-full {
+  min-width: 100%;
+}
+
 .max-w-6xl {
   max-width: 72rem;
 }
@@ -1376,6 +1380,10 @@ a:hover {
 
 .max-w-xl {
   max-width: 36rem;
+}
+
+.max-w-\[18rem\] {
+  max-width: 18rem;
 }
 
 .flex-1 {
@@ -1486,6 +1494,10 @@ a:hover {
   gap: 2rem;
 }
 
+.gap-1 {
+  gap: 0.25rem;
+}
+
 .space-y-2 > :not([hidden]) ~ :not([hidden]) {
   --tw-space-y-reverse: 0;
   margin-top: calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));
@@ -1516,9 +1528,32 @@ a:hover {
   margin-bottom: calc(2rem * var(--tw-space-y-reverse));
 }
 
+.divide-y > :not([hidden]) ~ :not([hidden]) {
+  --tw-divide-y-reverse: 0;
+  border-top-width: calc(1px * calc(1 - var(--tw-divide-y-reverse)));
+  border-bottom-width: calc(1px * var(--tw-divide-y-reverse));
+}
+
+.divide-white\/10 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgb(255 255 255 / 0.1);
+}
+
+.divide-white > :not([hidden]) ~ :not([hidden]) {
+  --tw-divide-opacity: 1;
+  border-color: rgb(255 255 255 / var(--tw-divide-opacity, 1));
+}
+
+.overflow-x-auto {
+  overflow-x: auto;
+}
+
 .truncate {
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.whitespace-nowrap {
   white-space: nowrap;
 }
 
@@ -1661,6 +1696,38 @@ a:hover {
   background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
 }
 
+.bg-emerald-300 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(110 231 183 / var(--tw-bg-opacity, 1));
+}
+
+.bg-emerald-500\/20 {
+  background-color: rgb(16 185 129 / 0.2);
+}
+
+.bg-white\/5 {
+  background-color: rgb(255 255 255 / 0.05);
+}
+
+.bg-yellow-300 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(253 224 71 / var(--tw-bg-opacity, 1));
+}
+
+.bg-yellow-500\/20 {
+  background-color: rgb(234 179 8 / 0.2);
+}
+
+.bg-emerald-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(16 185 129 / var(--tw-bg-opacity, 1));
+}
+
+.bg-yellow-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(234 179 8 / var(--tw-bg-opacity, 1));
+}
+
 .bg-gradient-to-r {
   background-image: linear-gradient(to right, var(--tw-gradient-stops));
 }
@@ -1742,6 +1809,11 @@ a:hover {
   padding-bottom: 2rem;
 }
 
+.py-1 {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
 .pb-3 {
   padding-bottom: 0.75rem;
 }
@@ -1752,6 +1824,10 @@ a:hover {
 
 .pt-4 {
   padding-top: 1rem;
+}
+
+.text-left {
+  text-align: left;
 }
 
 .text-center {
@@ -1847,6 +1923,10 @@ a:hover {
 
 .tracking-wide {
   letter-spacing: 0.025em;
+}
+
+.tracking-wider {
+  letter-spacing: 0.05em;
 }
 
 .text-blue-400 {
@@ -1954,8 +2034,22 @@ a:hover {
   color: rgb(250 204 21 / var(--tw-text-opacity, 1));
 }
 
+.text-emerald-300 {
+  --tw-text-opacity: 1;
+  color: rgb(110 231 183 / var(--tw-text-opacity, 1));
+}
+
+.text-yellow-300 {
+  --tw-text-opacity: 1;
+  color: rgb(253 224 71 / var(--tw-text-opacity, 1));
+}
+
 .underline {
   text-decoration-line: underline;
+}
+
+.decoration-dotted {
+  text-decoration-style: dotted;
 }
 
 .antialiased {
@@ -3128,9 +3222,22 @@ a:hover {
   background-color: rgb(185 28 28 / var(--tw-bg-opacity, 1));
 }
 
+.hover\:bg-white\/5:hover {
+  background-color: rgb(255 255 255 / 0.05);
+}
+
 .hover\:text-red-100:hover {
   --tw-text-opacity: 1;
   color: rgb(254 226 226 / var(--tw-text-opacity, 1));
+}
+
+.hover\:text-brand-red:hover {
+  --tw-text-opacity: 1;
+  color: rgb(229 9 20 / var(--tw-text-opacity, 1));
+}
+
+.hover\:underline:hover {
+  text-decoration-line: underline;
 }
 
 @media (min-width: 640px) {
@@ -3194,12 +3301,24 @@ a:hover {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .md\:flex-row {
+    flex-direction: row;
+  }
+
   .md\:items-end {
     align-items: flex-end;
   }
 
+  .md\:items-center {
+    align-items: center;
+  }
+
   .md\:justify-start {
     justify-content: flex-start;
+  }
+
+  .md\:justify-between {
+    justify-content: space-between;
   }
 
   .md\:gap-3 {
@@ -3209,6 +3328,11 @@ a:hover {
   .md\:text-4xl {
     font-size: 2.25rem;
     line-height: 2.5rem;
+  }
+
+  .md\:text-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
   }
 }
 

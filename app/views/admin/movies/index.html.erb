@@ -1,29 +1,96 @@
-<h2>映画一覧（管理画面）</h2>
-<table border="1">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>タイトル</th>
-      <th>公開年</th>
-      <th>上映中か</th>
-      <th>概要</th>
-      <th>画像URL</th>
-      <th>作成日時</th>
-      <th>更新日時</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @movies.each do |movie| %>
-      <tr>
-        <td><%= link_to movie.id, edit_admin_movie_path(movie) %></td>
-        <td><%= movie.name %></td>
-        <td><%= movie.year %></td>
-        <td><%= movie.is_showing ? '上映中' : '上映予定' %></td>
-        <td><%= movie.description %></td>
-        <td>  <img src="<%= movie.image_url %>" alt="movie image"></td>     
-        <td><%= movie.created_at.strftime("%Y-%m-%d %H:%M:%S") %></td>
-        <td><%= movie.updated_at.strftime("%Y-%m-%d %H:%M:%S") %></td>
-      </tr>
+<%= render 'layouts/admin_header' %>
+
+<div class="page-shell">
+  <section class="page-hero">
+    <div class="page-hero__content">
+      <span class="page-hero__kicker">
+        <span class="text-brand-gold">Admin</span>
+        MOVIE MANAGEMENT
+      </span>
+      <h1 class="page-hero__title">映画管理</h1>
+      <p class="page-hero__description">
+        登録済みの上映作品を一覧で確認できます。IDをクリックすると編集画面へ移動し、上映ステータスや作品情報を更新できます。
+      </p>
+    </div>
+  </section>
+
+  <section class="card-surface space-y-6">
+    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-slate-500">Movie Inventory</p>
+        <h2 class="mt-1 text-2xl font-semibold text-white">登録されている映画</h2>
+      </div>
+      <div class="flex flex-wrap items-center gap-3 text-sm">
+        <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
+          全 <%= @movies.size %> 作品
+        </span>
+        <%= link_to '新規登録', new_admin_movie_path, class: 'btn-primary text-xs md:text-sm' %>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-white/10 text-left text-sm text-slate-200">
+        <thead class="bg-white/5 text-xs uppercase tracking-wider text-slate-400">
+          <tr>
+            <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">ID</th>
+            <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">タイトル</th>
+            <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">公開年</th>
+            <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">概要</th>
+            <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">画像URL</th>
+            <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">上映中</th>
+            <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">登録日時</th>
+            <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">更新日時</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-white/10">
+          <% @movies.each do |movie| %>
+            <tr class="transition hover:bg-white/5">
+              <td class="whitespace-nowrap px-4 py-3 font-semibold text-brand-gold">
+                <%= link_to movie.id, edit_admin_movie_path(movie), class: 'hover:underline' %>
+              </td>
+              <td class="max-w-[18rem] px-4 py-3 text-white">
+                <span class="font-semibold"><%= movie.name %></span>
+              </td>
+              <td class="whitespace-nowrap px-4 py-3"><%= movie.year %></td>
+              <td class="px-4 py-3 text-sm leading-relaxed text-slate-300">
+                <%= movie.description.presence || '-' %>
+              </td>
+              <td class="whitespace-nowrap px-4 py-3">
+                <% if movie.image_url.present? %>
+                  <%= link_to '画像', movie.image_url, target: '_blank', rel: 'noopener', class: 'text-brand-gold underline decoration-dotted hover:text-brand-red' %>
+                <% else %>
+                  <span class="text-slate-500">-</span>
+                <% end %>
+              </td>
+              <td class="whitespace-nowrap px-4 py-3">
+                <% if movie.is_showing %>
+                  <span class="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-300">
+                    <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
+                    上映中
+                  </span>
+                <% else %>
+                  <span class="inline-flex items-center gap-1 rounded-full bg-yellow-500/20 px-3 py-1 text-xs font-semibold text-yellow-300">
+                    <span class="h-2 w-2 rounded-full bg-yellow-300"></span>
+                    上映予定
+                  </span>
+                <% end %>
+              </td>
+              <td class="whitespace-nowrap px-4 py-3 text-xs text-slate-400">
+                <%= movie.created_at.strftime('%Y-%m-%d %H:%M:%S') %>
+              </td>
+              <td class="whitespace-nowrap px-4 py-3 text-xs text-slate-400">
+                <%= movie.updated_at.strftime('%Y-%m-%d %H:%M:%S') %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if @movies.blank? %>
+      <div class="rounded-lg border border-white/10 bg-white/5 px-6 py-8 text-center text-sm text-slate-400">
+        現在登録されている映画はありません。<%= link_to '映画を追加', new_admin_movie_path, class: 'text-brand-gold underline decoration-dotted hover:text-brand-red' %> から登録しましょう。
+      </div>
     <% end %>
-  </tbody>
-</table>
+  </section>
+</div>
