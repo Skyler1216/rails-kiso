@@ -7,7 +7,7 @@
       </span>
       <h1 class="page-hero__title">映画管理</h1>
       <p class="page-hero__description">
-        登録済みの上映作品を一覧で確認できます。IDをクリックすると編集画面へ移動し、上映ステータスや作品情報を更新できます。
+        登録済みの上映作品を一覧で確認できます。各作品の「編集」ボタンから、上映ステータスや作品情報を更新しましょう。
       </p>
     </div>
   </section>
@@ -38,13 +38,14 @@
             <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">上映中</th>
             <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">登録日時</th>
             <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">更新日時</th>
+            <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">操作</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-white/10">
           <% @movies.each do |movie| %>
             <tr class="transition hover:bg-white/5">
               <td class="whitespace-nowrap px-4 py-3 font-semibold text-brand-gold">
-                <%= link_to movie.id, admin_movie_path(movie), class: 'hover:underline' %>
+                <%= movie.id %>
               </td>
               <td class="max-w-[18rem] px-4 py-3 text-white">
                 <span class="font-semibold"><%= movie.name %></span>
@@ -78,6 +79,9 @@
               </td>
               <td class="whitespace-nowrap px-4 py-3 text-xs text-slate-400">
                 <%= movie.updated_at.strftime('%Y-%m-%d %H:%M:%S') %>
+              </td>
+              <td class="whitespace-nowrap px-4 py-3">
+                <%= link_to '編集', edit_admin_movie_path(movie), class: 'btn-primary text-xs' %>
               </td>
             </tr>
           <% end %>
