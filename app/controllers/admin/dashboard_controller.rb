@@ -34,21 +34,21 @@ module Admin
       }
 
       @upcoming_schedules = Schedule
-                             .includes(:movie, :screen)
-                             .where('start_time IS NOT NULL AND start_time >= ?', now)
-                             .order(:start_time)
-                             .limit(5)
+                            .includes(:movie, :screen)
+                            .where('start_time IS NOT NULL AND start_time >= ?', now)
+                            .order(:start_time)
+                            .limit(5)
 
       @upcoming_reservations = Reservation
-                                .joins(:schedule)
-                                .includes(schedule: [:movie, :screen], sheet: :screen)
-                                .where('reservations.date >= ?', today)
-                                .order(Arel.sql('reservations.date ASC, schedules.start_time IS NULL ASC, schedules.start_time ASC'))
-                                .limit(5)
+                               .joins(:schedule)
+                               .includes(schedule: %i[movie screen], sheet: :screen)
+                               .where('reservations.date >= ?', today)
+                               .order(Arel.sql('reservations.date ASC, schedules.start_time IS NULL ASC, schedules.start_time ASC'))
+                               .limit(5)
 
       @recent_movies = Movie
-                        .order(updated_at: :desc)
-                        .limit(5)
+                       .order(updated_at: :desc)
+                       .limit(5)
     end
   end
 end

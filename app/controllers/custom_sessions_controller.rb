@@ -15,10 +15,8 @@ class CustomSessionsController < Devise::SessionsController
   #
   def new
     # リファラーがない場合（直接アクセス）は認証エラーメッセージをクリア
-    if request.referer.blank?
-      flash.delete(:alert)
-    end
-    
+    flash.delete(:alert) if request.referer.blank?
+
     super
   end
 
@@ -34,7 +32,7 @@ class CustomSessionsController < Devise::SessionsController
   # 🔐 ログアウト後のリダイレクト先を制御
   # ========================================
   #
-  def after_sign_out_path_for(resource_or_scope)
+  def after_sign_out_path_for(_resource_or_scope)
     root_path
   end
 end

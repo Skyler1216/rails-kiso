@@ -60,11 +60,10 @@ module Admin
 
       if @reservation.save
         admin_flash_success('予約を作成しました')
-        redirect_to admin_reservations_path
       else
         admin_flash_error(@reservation.errors.full_messages.to_sentence.presence || '入力内容に誤りがあります')
-        redirect_to admin_reservations_path
       end
+      redirect_to admin_reservations_path
     end
 
     def show; end
@@ -130,12 +129,12 @@ module Admin
                            .order(:start_time)
       @sheets = Sheet.includes(:screen).order(:screen_id, :row, :column)
 
-      if action_name == 'show'
-        @available_sheets = Sheet.where(screen_id: @reservation.screen_id)
-                                  .order(:row, :column)
-      else
-        @available_sheets = @sheets
-      end
+      @available_sheets = if action_name == 'show'
+                            Sheet.where(screen_id: @reservation.screen_id)
+                                 .order(:row, :column)
+                          else
+                            @sheets
+                          end
     end
 
     def duplicate_reservation?(schedule, sheet, date, exclude: nil)

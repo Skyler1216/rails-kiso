@@ -24,13 +24,9 @@ class Schedule < ApplicationRecord
     reservations.find_each do |reservation|
       updates = {}
 
-      if saved_change_to_start_time? && start_time.present?
-        updates[:date] = start_time.in_time_zone.to_date
-      end
+      updates[:date] = start_time.in_time_zone.to_date if saved_change_to_start_time? && start_time.present?
 
-      if saved_change_to_screen_id?
-        updates[:screen_id] = screen_id
-      end
+      updates[:screen_id] = screen_id if saved_change_to_screen_id?
 
       next if updates.empty?
 

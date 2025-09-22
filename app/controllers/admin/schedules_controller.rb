@@ -21,10 +21,13 @@ module Admin
       @schedule_stats = {
         total_schedules: @all_schedules.size,
         total_movies: @movies.size,
-        playing_now: @all_schedules.count { |s| s.start_time.present? && s.end_time.present? && s.start_time <= now && s.end_time >= now },
+        playing_now: @all_schedules.count do |s|
+          s.start_time.present? && s.end_time.present? && s.start_time <= now && s.end_time >= now
+        end,
         today: @all_schedules.count { |s| s.start_time.present? && s.start_time.to_date == today },
         this_week: @all_schedules.count do |s|
           next false unless s.start_time.present?
+
           (today..today + 6.days).cover?(s.start_time.to_date)
         end
       }
