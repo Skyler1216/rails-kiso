@@ -51,7 +51,13 @@
               </td>
               <td class="whitespace-nowrap px-4 py-3"><%= movie.year %></td>
               <td class="px-4 py-3 text-sm leading-relaxed text-slate-300">
-                <%= movie.description.presence || '-' %>
+                <% description = movie.description.to_s.strip %>
+                <% if description.present? %>
+                  <% truncated = description.truncate(90, omission: '…') %>
+                  <span><%= truncated %></span>
+                <% else %>
+                  <span class="text-slate-500">-</span>
+                <% end %>
               </td>
               <td class="whitespace-nowrap px-4 py-3">
                 <% if movie.image_url.present? %>
