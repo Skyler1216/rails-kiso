@@ -14,7 +14,9 @@ Rails.application.routes.draw do
   # 👤 ユーザー認証（Devise）
   # ========================================
   # ログイン・ログアウト・新規登録機能を自動生成
-  devise_for :users
+  devise_for :users, controllers: {
+    sessions: 'custom_sessions'
+  }
   # 生成されるルート例:
   # GET    /users/sign_in     (ログインページ)
   # POST   /users/sign_in     (ログイン処理)
