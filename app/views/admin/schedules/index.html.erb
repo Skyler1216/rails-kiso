@@ -72,21 +72,26 @@
           <tbody class="divide-y divide-white/10">
             <% @all_schedules.each do |schedule| %>
               <% finished = schedule.end_time.present? && schedule.end_time < @now %>
-              <tr class="transition hover:bg-white/5 <%= 'opacity-60' if finished %>">
-                <td class="whitespace-nowrap px-4 py-3 font-semibold text-brand-gold">
-                  #<%= schedule.id %>
+              <tr class="transition hover:bg-white/10 <%= finished ? 'bg-white/[0.02]' : '' %>">
+                <td class="whitespace-nowrap px-4 py-3 font-semibold">
+                  <div class="flex items-center gap-3">
+                    <% if finished %>
+                      <span class="inline-block h-4 w-1 rounded-full bg-rose-400"></span>
+                    <% end %>
+                    <span class="<%= finished ? 'text-rose-200' : 'text-brand-gold' %>">#<%= schedule.id %></span>
+                  </div>
                 </td>
-                <td class="whitespace-nowrap px-4 py-3 text-white">
+                <td class="whitespace-nowrap px-4 py-3">
                   <div class="flex flex-col">
-                    <span class="font-semibold"><%= schedule.movie&.name || '未設定' %></span>
-                    <span class="text-xs text-slate-400">ID: <%= schedule.movie_id %></span>
+                    <span class="font-semibold <%= finished ? 'text-slate-200' : 'text-white' %>"><%= schedule.movie&.name || '未設定' %></span>
+                    <span class="text-xs <%= finished ? 'text-slate-500' : 'text-slate-400' %>">ID: <%= schedule.movie_id %></span>
                   </div>
                 </td>
                 <td class="whitespace-nowrap px-4 py-3">
                   <% if schedule.screen.present? %>
                     <div class="flex flex-col">
-                      <span class="text-white"><%= schedule.screen.name %></span>
-                      <span class="text-xs text-slate-400">ID: <%= schedule.screen_id %></span>
+                      <span class="<%= finished ? 'text-slate-200' : 'text-white' %>"><%= schedule.screen.name %></span>
+                      <span class="text-xs <%= finished ? 'text-slate-500' : 'text-slate-400' %>">ID: <%= schedule.screen_id %></span>
                     </div>
                   <% else %>
                     <span class="text-slate-500">未設定</span>
@@ -94,14 +99,14 @@
                 </td>
                 <td class="whitespace-nowrap px-4 py-3 text-xs text-slate-300">
                   <div class="flex items-center gap-2">
-                    <span><%= schedule.start_time&.strftime('%Y-%m-%d %H:%M') || '-' %></span>
+                    <span class="<%= finished ? 'line-through decoration-rose-400 text-slate-500' : '' %>"><%= schedule.start_time&.strftime('%Y-%m-%d %H:%M') || '-' %></span>
                     <% if finished %>
-                      <span class="rounded-full border border-white/10 bg-white/10 px-2 py-[2px] text-[10px] font-semibold uppercase tracking-[0.25em] text-slate-300">終了済</span>
+                      <span class="rounded-full border border-rose-400 bg-rose-500/10 px-2 py-[2px] text-[10px] font-semibold uppercase tracking-[0.25em] text-rose-100">終了済</span>
                     <% end %>
                   </div>
                 </td>
                 <td class="whitespace-nowrap px-4 py-3 text-xs text-slate-300">
-                  <%= schedule.end_time&.strftime('%Y-%m-%d %H:%M') || '-' %>
+                  <span class="<%= finished ? 'line-through decoration-rose-400 text-slate-500' : '' %>"><%= schedule.end_time&.strftime('%Y-%m-%d %H:%M') || '-' %></span>
                 </td>
                 <td class="whitespace-nowrap px-4 py-3">
                   <%= link_to '詳細・編集', admin_schedule_path(schedule), class: 'btn-secondary text-xs' %>
@@ -142,27 +147,30 @@
           <div class="mt-5 grid gap-3">
             <% schedules.each do |schedule| %>
               <% finished = schedule.end_time.present? && schedule.end_time < @now %>
-              <div class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.04] p-4 text-sm text-slate-200 <%= 'opacity-60' if finished %>">
+              <div class="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4 text-sm <%= finished ? 'border-rose-500 bg-rose-500/10 text-rose-100' : 'border-white/10 bg-white/[0.04] text-slate-200' %>">
                 <div class="flex flex-col">
                   <span class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Schedule</span>
                   <div class="flex items-center gap-2">
-                    <span class="font-semibold text-white">#<%= schedule.id %></span>
                     <% if finished %>
-                      <span class="rounded-full border border-white/10 bg-white/10 px-2 py-[2px] text-[10px] font-semibold uppercase tracking-[0.25em] text-slate-300">終了済</span>
+                      <span class="inline-block h-4 w-1 rounded-full bg-rose-400"></span>
+                    <% end %>
+                    <span class="font-semibold <%= finished ? 'text-rose-50' : 'text-white' %>">#<%= schedule.id %></span>
+                    <% if finished %>
+                      <span class="rounded-full border border-rose-400 bg-rose-500/10 px-2 py-[2px] text-[10px] font-semibold uppercase tracking-[0.25em] text-rose-100">終了済</span>
                     <% end %>
                   </div>
                 </div>
                 <div class="flex flex-col">
                   <span class="text-xs text-slate-500">スクリーン</span>
-                  <span class="text-white"><%= schedule.screen&.name || '-' %> (ID: <%= schedule.screen_id %>)</span>
+                  <span class="<%= finished ? 'text-rose-50' : 'text-white' %>"><%= schedule.screen&.name || '-' %> (ID: <%= schedule.screen_id %>)</span>
                 </div>
                 <div class="flex flex-col">
                   <span class="text-xs text-slate-500">開始</span>
-                  <span><%= schedule.start_time&.strftime('%Y-%m-%d %H:%M') || '-' %></span>
+                  <span class="<%= finished ? 'line-through decoration-rose-400 text-rose-50' : '' %>"><%= schedule.start_time&.strftime('%Y-%m-%d %H:%M') || '-' %></span>
                 </div>
                 <div class="flex flex-col">
                   <span class="text-xs text-slate-500">終了</span>
-                  <span><%= schedule.end_time&.strftime('%Y-%m-%d %H:%M') || '-' %></span>
+                  <span class="<%= finished ? 'line-through decoration-rose-400 text-rose-50' : '' %>"><%= schedule.end_time&.strftime('%Y-%m-%d %H:%M') || '-' %></span>
                 </div>
                 <div>
                   <%= link_to '編集', admin_schedule_path(schedule), class: 'btn-secondary text-xs' %>
