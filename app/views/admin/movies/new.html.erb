@@ -1,36 +1,93 @@
-<h1>映画の新規登録</h1>
+<div class="page-shell space-y-10">
+  <section class="page-hero">
+    <div class="page-hero__content">
+      <span class="page-hero__kicker">
+        <span class="text-brand-gold">Admin</span>
+        MOVIE CREATION
+      </span>
+      <h1 class="page-hero__title">映画の新規登録</h1>
+      <p class="page-hero__description">
+        新しい上映作品を登録します。必要な情報を入力し、送信すると一覧に反映されます。
+      </p>
+      <div class="mt-4 flex flex-wrap gap-3 text-sm">
+        <%= link_to '⟵ 映画一覧に戻る', admin_movies_path, class: 'btn-secondary text-xs sm:text-sm' %>
+      </div>
+    </div>
+  </section>
 
-<% if flash[:alert] %>
-  <p style="color: red;"><%= flash[:alert] %></p>
-<% end %>
+  <section class="card-surface space-y-6">
+    <article class="rounded-xl border border-white/5 bg-white/[0.03] p-6">
+      <header class="flex flex-wrap items-center justify-between gap-3">
+        <h2 class="text-base font-semibold text-white">作品情報の入力</h2>
+        <span class="text-xs uppercase tracking-[0.3em] text-slate-500">必須項目を入力してください</span>
+      </header>
 
-<%= form_with model: @movie, url: admin_movies_path, local: true do |f| %>
-  <div>
-    <label>タイトル</label><br>
-    <%= f.text_field :name %>
-  </div>
+      <% if flash[:alert] %>
+        <div class="mt-4 rounded-lg border border-brand-red/40 bg-brand-red/10 px-4 py-3 text-sm text-brand-red">
+          <%= flash[:alert] %>
+        </div>
+      <% end %>
 
-  <div>
-    <label>公開年</label><br>
-    <%= f.text_field :year %>
-  </div>
+      <% if @movie.errors.any? %>
+        <div class="mt-4 rounded-lg border border-brand-red/40 bg-brand-red/10 px-4 py-3 text-sm text-brand-red">
+          <p class="font-semibold">入力内容を確認してください。</p>
+          <ul class="mt-2 list-disc space-y-1 pl-5">
+            <% @movie.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
 
-  <div>
-    <label>概要</label><br>
-    <%= f.text_area :description, rows: 4 %>
-  </div>
+      <%= form_with model: [:admin, @movie], local: true, class: 'mt-6 space-y-6' do |f| %>
+        <div class="grid gap-6 md:grid-cols-2">
+          <div class="space-y-2">
+            <%= f.label :name, 'タイトル', class: 'text-sm font-semibold text-white' %>
+            <%= f.text_field :name, class: 'form-input', placeholder: '例: サンプル・ムービー', required: true %>
+            <% if @movie.errors[:name].present? %>
+              <p class="text-xs text-brand-red"><%= @movie.errors.full_messages_for(:name).join('、') %></p>
+            <% end %>
+          </div>
+          <div class="space-y-2">
+            <%= f.label :year, '公開年', class: 'text-sm font-semibold text-white' %>
+            <%= f.number_field :year, class: 'form-input', min: 1800, max: 2100, placeholder: '例: 2024', required: true %>
+            <% if @movie.errors[:year].present? %>
+              <p class="text-xs text-brand-red"><%= @movie.errors.full_messages_for(:year).join('、') %></p>
+            <% end %>
+          </div>
+          <div class="space-y-2 md:col-span-2">
+            <%= f.label :description, '概要', class: 'text-sm font-semibold text-white' %>
+            <%= f.text_area :description, rows: 6, class: 'form-textarea', placeholder: "作品のあらすじや見どころを入力してください\n改行も利用できます。" %>
+            <% if @movie.errors[:description].present? %>
+              <p class="text-xs text-brand-red"><%= @movie.errors.full_messages_for(:description).join('、') %></p>
+            <% end %>
+          </div>
+          <div class="space-y-2 md:col-span-2">
+            <%= f.label :image_url, '画像URL', class: 'text-sm font-semibold text-white' %>
+            <%= f.url_field :image_url, class: 'form-input', placeholder: '例: https://example.com/poster.jpg', required: true %>
+            <% if @movie.errors[:image_url].present? %>
+              <p class="text-xs text-brand-red"><%= @movie.errors.full_messages_for(:image_url).join('、') %></p>
+            <% end %>
+          </div>
+          <div class="md:col-span-2">
+            <div class="flex items-start gap-3">
+              <%= f.check_box :is_showing, class: 'mt-1 h-4 w-4' %>
+              <div>
+                <%= f.label :is_showing, '上映中', class: 'text-sm font-semibold text-white' %>
+                <p class="text-xs text-slate-400">チェックすると現在上映中の作品として扱われます。</p>
+                <% if @movie.errors[:is_showing].present? %>
+                  <p class="text-xs text-brand-red"><%= @movie.errors.full_messages_for(:is_showing).join('、') %></p>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
 
-  <div>
-    <label>画像URL</label><br>
-    <%= f.text_field :image_url %>
-  </div>
-
-  <div>
-    <label>上映中</label><br>
-    <%= f.check_box :is_showing %>
-  </div>
-
-  <div>
-    <%= f.submit "登録する", data: { disable_with: "登録中..." } %>
-  </div>
-<% end %>
+        <div class="flex flex-wrap items-center gap-3">
+          <%= f.submit '登録する', class: 'btn-primary' %>
+          <span class="text-xs text-slate-500">送信先: POST /admin/movies</span>
+        </div>
+      <% end %>
+    </article>
+  </section>
+</div>
