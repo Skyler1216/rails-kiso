@@ -1,0 +1,22 @@
+ja:
+  activerecord:
+    models:
+      schedule: スケジュール
+    attributes:
+      schedule:
+        movie: 作品
+        movie_id: 作品ID
+        screen: スクリーン
+        screen_id: スクリーンID
+        start_time: 開始時刻
+        end_time: 終了時刻
+    errors:
+      models:
+        schedule:
+          attributes:
+            screen:
+              required: "スクリーンを選択してください"
+            movie:
+              required: "作品を選択してください"
+            movie_id:
+              required: "作品を選択してください"

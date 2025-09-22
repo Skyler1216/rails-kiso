@@ -1,0 +1,60 @@
+<div class="page-shell space-y-10">
+  <section class="page-hero">
+    <div class="page-hero__content">
+      <span class="page-hero__kicker">
+        <span class="text-brand-gold">Admin</span>
+        SCHEDULE CREATE
+      </span>
+      <h1 class="page-hero__title">上映スケジュールを追加</h1>
+      <p class="page-hero__description">
+        対象作品を選択し、上映の開始・終了時刻を登録できます。
+      </p>
+      <div class="mt-4 flex flex-wrap gap-3 text-sm">
+        <%= link_to '⟵ スケジュール一覧へ戻る', admin_schedules_path, class: 'btn-secondary text-xs sm:text-sm' %>
+      </div>
+    </div>
+  </section>
+
+  <section class="card-surface space-y-8">
+    <div class="rounded-xl border border-white/5 bg-white/[0.03] p-6">
+      <h2 class="text-base font-semibold text-white">上映時間の設定</h2>
+      <%= form_with model: [:admin, @schedule], url: admin_schedules_path, method: :post, local: true, class: 'mt-4 space-y-6' do |f| %>
+        <% if @schedule.errors.any? %>
+          <div class="rounded-lg border border-brand-red/40 bg-brand-red/10 px-4 py-3 text-sm text-brand-red">
+            <p class="font-semibold">入力内容を確認してください。</p>
+            <ul class="mt-2 list-disc space-y-1 pl-5">
+              <% @schedule.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <div class="space-y-4">
+          <div class="space-y-2">
+            <%= f.label :movie_id, '対象作品', class: 'text-sm font-semibold text-white' %>
+            <%= f.collection_select :movie_id, @movies, :id, ->(movie) { "#{movie.id}: #{movie.name}" }, { include_blank: '作品を選択してください' }, class: 'form-select', required: true %>
+          </div>
+          <div class="space-y-2">
+            <%= f.label :screen_id, 'スクリーン', class: 'text-sm font-semibold text-white' %>
+            <%= f.collection_select :screen_id, @screens, :id, ->(screen) { "#{screen.id}: #{screen.name}" }, { include_blank: 'スクリーンを選択してください' }, class: 'form-select', required: true %>
+          </div>
+          <div class="grid gap-4 md:grid-cols-2">
+            <div class="space-y-2">
+              <%= f.label :start_time, '開始時刻', class: 'text-sm font-semibold text-white' %>
+              <%= f.datetime_field :start_time, class: 'form-input' %>
+            </div>
+            <div class="space-y-2">
+              <%= f.label :end_time, '終了時刻', class: 'text-sm font-semibold text-white' %>
+              <%= f.datetime_field :end_time, class: 'form-input' %>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <%= f.submit '登録する', class: 'btn-primary' %>
+        </div>
+      <% end %>
+    </div>
+  </section>
+</div>

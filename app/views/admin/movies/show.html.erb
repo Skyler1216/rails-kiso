@@ -7,23 +7,28 @@
       </span>
       <h1 class="page-hero__title"><%= @movie.name %></h1>
       <p class="page-hero__description">
-        作品ID <%= @movie.id %> の情報を編集できます。
+        作品ID <%= @movie.id %> の情報を編集できます。映画に関する変更はこのページで管理します。
       </p>
       <div class="mt-4 flex flex-wrap gap-3 text-sm">
         <%= link_to '⟵ 映画一覧に戻る', admin_movies_path, class: 'btn-secondary text-xs sm:text-sm' %>
-        <%= link_to 'スケジュールを追加', new_admin_movie_schedule_path(@movie), class: 'btn-primary text-xs sm:text-sm' %>
       </div>
     </div>
   </section>
 
   <section class="card-surface space-y-8">
-    <%= render 'form', movie: @movie,
-                heading: '作品情報の編集',
-                subheading: '登録済みの内容を更新できます',
-                form_url: admin_movie_path(@movie),
-                form_method: :put,
-                submit_label: '更新する',
-                submit_note: "送信先: PUT /admin/movies/#{@movie.id}",
-                show_delete: true %>
+    <div class="space-y-4">
+      <h2 class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">映画管理</h2>
+      <p class="text-sm text-slate-300">
+        作品情報の更新や削除はこのセクションから行えます。
+      </p>
+      <%= render 'form', movie: @movie,
+                  heading: '作品情報の編集',
+                  subheading: '登録済みの内容を更新できます',
+                  form_url: admin_movie_path(@movie),
+                  form_method: :put,
+                  submit_label: '更新する',
+                  submit_note: "送信先: PUT /admin/movies/#{@movie.id}",
+                  show_delete: true %>
+    </div>
   </section>
 </div>

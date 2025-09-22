@@ -9,6 +9,9 @@
       <p class="page-hero__description">
         作品ごとの上映スケジュールを確認・編集できます。作品名を見出しに、各スケジュールへのリンクを一覧で表示しています。
       </p>
+      <div class="mt-4 flex flex-wrap gap-3 text-sm">
+        <%= link_to 'スケジュールを追加', new_admin_schedule_path, class: 'btn-primary text-xs sm:text-sm' %>
+      </div>
     </div>
   </section>
 
@@ -22,7 +25,10 @@
             <h2 class="text-lg font-semibold text-white">
               作品ID: <%= movie.id %> / <%= movie.name %>
             </h2>
-            <%= link_to '作品詳細', admin_movie_path(movie), class: 'text-sm text-brand-gold underline decoration-dotted underline-offset-4 hover:text-brand-red' %>
+            <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+              <%= link_to '作品詳細', admin_movie_path(movie), class: 'btn-secondary text-xs sm:text-sm' %>
+              <%= link_to 'この作品にスケジュールを追加', new_admin_schedule_path(movie_id: movie.id), class: 'btn-primary text-xs sm:text-sm' %>
+            </div>
           </header>
 
           <ul class="mt-5 space-y-3">
@@ -34,7 +40,7 @@
       <% end %>
     <% else %>
       <div class="rounded-lg border border-dashed border-white/10 bg-white/[0.02] px-6 py-10 text-center text-sm text-slate-400">
-        表示できる上映スケジュールがまだありません。映画詳細ページからスケジュールを追加してください。
+        表示できる上映スケジュールがまだありません。上の「スケジュールを追加」ボタンから登録を開始してください。
       </div>
     <% end %>
   </section>

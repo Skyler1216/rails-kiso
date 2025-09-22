@@ -10,6 +10,14 @@
         <dd class="font-medium text-white"><%= schedule.movie_id %></dd>
       </div>
       <div>
+        <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">スクリーンID</dt>
+        <dd class="font-medium text-white"><%= schedule.screen_id %></dd>
+      </div>
+      <div>
+        <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">スクリーン名</dt>
+        <dd class="font-medium text-white"><%= schedule.screen&.name || '-' %></dd>
+      </div>
+      <div>
         <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">開始時刻</dt>
         <dd class="font-medium text-white"><%= schedule.start_time.strftime('%Y-%m-%d %H:%M') %></dd>
       </div>

@@ -11,6 +11,7 @@
       </p>
       <div class="mt-4 flex flex-wrap gap-3 text-sm">
         <%= link_to '⟵ スケジュール一覧へ', admin_schedules_path, class: 'btn-secondary text-xs sm:text-sm' %>
+        <%= link_to 'この作品にスケジュールを追加', new_admin_schedule_path(movie_id: @movie.id), class: 'btn-primary text-xs sm:text-sm' %>
         <%= link_to '作品ページへ', admin_movie_path(@movie), class: 'btn-secondary text-xs sm:text-sm' %>
       </div>
     </div>
@@ -27,6 +28,14 @@
         <div>
           <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">作品ID</dt>
           <dd class="font-medium text-white"><%= @schedule.movie_id %></dd>
+        </div>
+        <div>
+          <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">スクリーンID</dt>
+          <dd class="font-medium text-white"><%= @schedule.screen_id %></dd>
+        </div>
+        <div>
+          <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">スクリーン名</dt>
+          <dd class="font-medium text-white"><%= @schedule.screen&.name || '-' %></dd>
         </div>
         <div>
           <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">開始時刻</dt>
@@ -61,7 +70,12 @@
           </div>
         <% end %>
 
-        <div class="grid gap-4 md:grid-cols-2">
+        <div class="space-y-4">
+          <div class="space-y-2">
+            <%= f.label :screen_id, 'スクリーン', class: 'text-sm font-semibold text-white' %>
+            <%= f.collection_select :screen_id, @screens, :id, ->(screen) { "#{screen.id}: #{screen.name}" }, {}, class: 'form-select', required: true %>
+          </div>
+          <div class="grid gap-4 md:grid-cols-2">
           <div class="space-y-2">
             <%= f.label :start_time, '開始時刻', class: 'text-sm font-semibold text-white' %>
             <%= f.datetime_field :start_time, class: 'form-input' %>
@@ -69,6 +83,7 @@
           <div class="space-y-2">
             <%= f.label :end_time, '終了時刻', class: 'text-sm font-semibold text-white' %>
             <%= f.datetime_field :end_time, class: 'form-input' %>
+          </div>
           </div>
         </div>
 

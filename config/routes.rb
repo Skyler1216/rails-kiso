@@ -69,10 +69,7 @@ Rails.application.routes.draw do
     root 'dashboard#index' # GET /admin → 管理者ダッシュボード
 
     # 映画管理
-    resources :movies, only: %i[index new create edit update destroy show] do
-      # 映画に紐づくスケジュール作成
-      resources :schedules, only: %i[new create]
-    end
+    resources :movies, only: %i[index new create edit update destroy show]
     # 生成されるルート例:
     # GET    /admin/movies           (映画一覧)
     # GET    /admin/movies/new       (映画新規作成)
@@ -83,11 +80,12 @@ Rails.application.routes.draw do
     # GET    /admin/movies/:id       (映画詳細)
 
     # スケジュール管理（独立）
-    resources :schedules, only: %i[index show edit update destroy]
+    resources :schedules, only: %i[index show new create update destroy]
     # 生成されるルート例:
     # GET    /admin/schedules        (スケジュール一覧)
-    # GET    /admin/schedules/:id    (スケジュール詳細)
-    # GET    /admin/schedules/:id/edit (スケジュール編集)
+    # GET    /admin/schedules/new    (スケジュール新規作成)
+    # POST   /admin/schedules        (スケジュール作成処理)
+    # GET    /admin/schedules/:id    (スケジュール詳細・編集フォーム)
     # PATCH  /admin/schedules/:id   (スケジュール更新)
     # DELETE /admin/schedules/:id   (スケジュール削除)
 
