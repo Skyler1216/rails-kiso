@@ -23,7 +23,7 @@ module Admin
     end
 
     def edit
-      @movie = Movie.find(params[:id])
+      redirect_to admin_movie_path(params[:id])
     end
 
     def update
@@ -33,11 +33,13 @@ module Admin
         redirect_to admin_movies_path
       else
         flash.now[:alert] = "更新に失敗しました（#{@movie.errors.full_messages.join('、')}）"
-        render :edit, status: :unprocessable_entity
+        @schedules = @movie.schedules.sort_by(&:start_time)
+        render :show, status: :unprocessable_entity
       end
     rescue StandardError => e
       flash.now[:alert] = "エラーが発生しました: #{e.message}"
-      render :edit, status: :internal_server_error
+      @schedules = @movie.schedules.sort_by(&:start_time)
+      render :show, status: :internal_server_error
     end
 
     def destroy

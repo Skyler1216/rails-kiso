@@ -1,0 +1,91 @@
+<% heading = local_assigns.fetch(:heading, '作品情報') %>
+<% subheading = local_assigns.fetch(:subheading, nil) %>
+<% form_url = local_assigns.fetch(:form_url, nil) %>
+<% form_method = local_assigns.fetch(:form_method, nil) %>
+<% submit_label = local_assigns.fetch(:submit_label, '送信する') %>
+<% submit_note = local_assigns.fetch(:submit_note, nil) %>
+<% show_delete = local_assigns.fetch(:show_delete, false) %>
+
+<article class="rounded-xl border border-white/5 bg-white/[0.03] p-6">
+  <header class="flex flex-wrap items-center justify-between gap-3">
+    <h2 class="text-base font-semibold text-white"><%= heading %></h2>
+    <% if subheading.present? %>
+      <span class="text-xs uppercase tracking-[0.3em] text-slate-500"><%= subheading %></span>
+    <% end %>
+  </header>
+
+  <% if flash[:alert] %>
+    <div class="mt-4 rounded-lg border border-brand-red/40 bg-brand-red/10 px-4 py-3 text-sm text-brand-red">
+      <%= flash[:alert] %>
+    </div>
+  <% end %>
+
+  <% if movie.errors.any? %>
+    <div class="mt-4 rounded-lg border border-brand-red/40 bg-brand-red/10 px-4 py-3 text-sm text-brand-red">
+      <p class="font-semibold">入力内容を確認してください。</p>
+      <ul class="mt-2 list-disc space-y-1 pl-5">
+        <% movie.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form_with model: [:admin, movie], url: form_url, method: form_method, local: true, class: 'mt-6 space-y-6' do |f| %>
+    <div class="grid gap-6 md:grid-cols-2">
+      <div class="space-y-2">
+        <%= f.label :name, 'タイトル', class: 'text-sm font-semibold text-white' %>
+        <%= f.text_field :name, class: 'form-input', placeholder: '例: サンプル・ムービー', required: true %>
+        <% if movie.errors[:name].present? %>
+          <p class="text-xs text-brand-red"><%= movie.errors.full_messages_for(:name).join('、') %></p>
+        <% end %>
+      </div>
+      <div class="space-y-2">
+        <%= f.label :year, '公開年', class: 'text-sm font-semibold text-white' %>
+        <%= f.number_field :year, class: 'form-input', min: 1800, max: 2100, placeholder: '例: 2024', required: true %>
+        <% if movie.errors[:year].present? %>
+          <p class="text-xs text-brand-red"><%= movie.errors.full_messages_for(:year).join('、') %></p>
+        <% end %>
+      </div>
+      <div class="space-y-2 md:col-span-2">
+        <%= f.label :description, '概要', class: 'text-sm font-semibold text-white' %>
+        <%= f.text_area :description, rows: 6, class: 'form-textarea', placeholder: "作品のあらすじや見どころを入力してください\n改行も利用できます。" %>
+        <% if movie.errors[:description].present? %>
+          <p class="text-xs text-brand-red"><%= movie.errors.full_messages_for(:description).join('、') %></p>
+        <% end %>
+      </div>
+      <div class="space-y-2 md:col-span-2">
+        <%= f.label :image_url, '画像URL', class: 'text-sm font-semibold text-white' %>
+        <%= f.url_field :image_url, class: 'form-input', placeholder: '例: https://example.com/poster.jpg', required: true %>
+        <% if movie.errors[:image_url].present? %>
+          <p class="text-xs text-brand-red"><%= movie.errors.full_messages_for(:image_url).join('、') %></p>
+        <% end %>
+      </div>
+      <div class="md:col-span-2">
+        <div class="flex items-start gap-3">
+          <%= f.check_box :is_showing, class: 'mt-1 h-4 w-4' %>
+          <div>
+            <%= f.label :is_showing, '上映中', class: 'text-sm font-semibold text-white' %>
+            <p class="text-xs text-slate-400">チェックすると現在上映中の作品として扱われます。</p>
+            <% if movie.errors[:is_showing].present? %>
+              <p class="text-xs text-brand-red"><%= movie.errors.full_messages_for(:is_showing).join('、') %></p>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <%= f.submit submit_label, class: 'btn-primary' %>
+      <% if submit_note.present? %>
+        <span class="text-xs text-slate-500"><%= submit_note %></span>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if show_delete %>
+    <div class="mt-4">
+      <%= button_to '削除する', admin_movie_path(movie), method: :delete, data: { confirm: '本当に削除してもよろしいですか？' }, class: 'btn-secondary border border-red-400/50 text-red-200 hover:bg-red-500/20 hover:text-white' %>
+    </div>
+  <% end %>
+</article>

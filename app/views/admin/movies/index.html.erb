@@ -44,7 +44,7 @@
           <% @movies.each do |movie| %>
             <tr class="transition hover:bg-white/5">
               <td class="whitespace-nowrap px-4 py-3 font-semibold text-brand-gold">
-                <%= link_to movie.id, edit_admin_movie_path(movie), class: 'hover:underline' %>
+                <%= link_to movie.id, admin_movie_path(movie), class: 'hover:underline' %>
               </td>
               <td class="max-w-[18rem] px-4 py-3 text-white">
                 <span class="font-semibold"><%= movie.name %></span>
