@@ -103,12 +103,39 @@ module Admin
       selected_id = schedule_id.presence&.to_i
       @selected_schedule = selected_id && @schedules.find { |schedule| schedule.id == selected_id }
 
+      @reserved_seat_map = build_reserved_seat_map(selected_id)
+
       @available_sheets =
         if @selected_schedule
           Sheet.where(screen_id: @selected_schedule.screen_id).order(:row, :column)
         else
           @sheets
         end
+    end
+
+    def build_reserved_seat_map(_selected_id)
+      map = Hash.new { |h, k| h[k] = [] }
+
+      schedule_dates = {}
+      @schedules.each do |schedule|
+        date = schedule.start_time&.in_time_zone&.to_date
+        schedule_dates[schedule.id] = date if date
+      end
+
+      reservations = Reservation.where(schedule_id: schedule_dates.keys)
+
+      reservations.find_each do |reservation|
+        start_date = schedule_dates[reservation.schedule_id]
+        next unless start_date && reservation.date == start_date
+
+        map[reservation.schedule_id] << reservation.sheet_id
+      end
+
+      if @reservation&.persisted? && @reservation.sheet_id.present?
+        map[@reservation.schedule_id] = map[@reservation.schedule_id] - [@reservation.sheet_id]
+      end
+
+      map
     end
 
     def upcoming_reservation_scope(now)

@@ -23,6 +23,7 @@
            start_label = schedule.start_time&.strftime('%Y-%m-%d %H:%M') || '-'
            end_label = schedule.end_time&.strftime('%H:%M') || '-'
            label = "##{schedule.id} | #{movie_title} | #{screen_name} | #{start_label}〜#{end_label}"
+           reserved_ids = Array(@reserved_seat_map[schedule.id]).join(',')
            [
              label,
              schedule.id,
@@ -31,7 +32,8 @@
                'data-screen-name': screen_name,
                'data-movie-title': movie_title,
                'data-start-time': start_label,
-               'data-end-time': end_label
+               'data-end-time': end_label,
+               'data-reserved-seats': reserved_ids
              }
            ]
          end %>
@@ -45,11 +47,16 @@
     </div>
     <div class="space-y-2">
       <%= f.label :sheet_id, '座席', class: 'text-sm font-semibold text-white' %>
+      <% reserved_set = Array(@reserved_seat_map[@selected_schedule&.id]).map(&:to_s) if @selected_schedule %>
       <% seat_options = @available_sheets.map do |sheet|
            [
              "#{sheet.row.to_s.upcase}-#{sheet.column}",
              sheet.id,
-             { 'data-screen-id': sheet.screen_id }
+             {
+               'data-screen-id': sheet.screen_id,
+               'data-seat-id': sheet.id,
+               'data-reserved': reserved_set&.include?(sheet.id.to_s) ? 'true' : 'false'
+             }
            ]
          end %>
       <%= f.select :sheet_id,
@@ -60,6 +67,7 @@
                    data: { reservation_seat: true },
                    disabled: seat_select_disabled %>
       <p class="text-xs text-slate-500">スクリーンに紐づく座席のみ選択できます。</p>
+      <p class="text-xs text-brand-red mt-1 hidden" data-no-seats>選択できる座席がありません。別の上映スケジュールを選択してください。</p>
     </div>
   </div>
 
@@ -125,11 +133,12 @@
 
     function setupReservationFormEnhancements() {
       const scheduleSelect = document.querySelector('[data-reservation-schedule]');
-      const seatSelect = document.querySelector('[data-reservation-seat]');
-      const screenDisplay = document.querySelector('[data-screen-display]');
-      const timeslotDisplay = document.querySelector('[data-timeslot-display]');
+    const seatSelect = document.querySelector('[data-reservation-seat]');
+    const screenDisplay = document.querySelector('[data-screen-display]');
+    const timeslotDisplay = document.querySelector('[data-timeslot-display]');
+    const noSeatsNotice = document.querySelector('[data-no-seats]');
 
-      if (!scheduleSelect || !seatSelect || !screenDisplay || !timeslotDisplay) return;
+    if (!scheduleSelect || !seatSelect || !screenDisplay || !timeslotDisplay || !noSeatsNotice) return;
 
       const renderScreenInfo = (name, id) => {
         screenDisplay.innerHTML = '';
@@ -166,24 +175,36 @@
 
       const updateFormState = () => {
         const selectedOption = scheduleSelect.options[scheduleSelect.selectedIndex];
-        const screenId = selectedOption ? selectedOption.dataset.screenId : null;
-        const screenName = selectedOption ? selectedOption.dataset.screenName : null;
-        const movieTitle = selectedOption ? selectedOption.dataset.movieTitle : null;
-        const startTime = selectedOption ? selectedOption.dataset.startTime : null;
-        const endTime = selectedOption ? selectedOption.dataset.endTime : null;
+      const screenId = selectedOption ? selectedOption.dataset.screenId : null;
+      const screenName = selectedOption ? selectedOption.dataset.screenName : null;
+      const movieTitle = selectedOption ? selectedOption.dataset.movieTitle : null;
+      const startTime = selectedOption ? selectedOption.dataset.startTime : null;
+      const endTime = selectedOption ? selectedOption.dataset.endTime : null;
+      const reservedSeats = selectedOption ? (selectedOption.dataset.reservedSeats || '') : '';
+      const reservedSet = new Set(reservedSeats.split(',').filter(Boolean));
 
-        let shouldResetSeat = false;
+      let shouldResetSeat = false;
 
-        Array.from(seatSelect.options).forEach((option) => {
-          if (!option.value) return;
-          const matches = screenId && option.dataset.screenId === screenId;
-          option.hidden = !matches;
-          option.disabled = !matches;
-          if (!matches && option.selected) {
-            option.selected = false;
-            shouldResetSeat = true;
-          }
-        });
+      let hasVisibleSeat = false;
+
+      Array.from(seatSelect.options).forEach((option) => {
+        if (!option.value) return;
+        const matches = screenId && option.dataset.screenId === screenId;
+        const isReserved = reservedSet.has(option.value);
+        const shouldHide = !matches || isReserved;
+
+        option.hidden = shouldHide;
+        option.disabled = shouldHide;
+
+        if (!shouldHide) {
+          hasVisibleSeat = true;
+        }
+
+        if (shouldHide && option.selected) {
+          option.selected = false;
+          shouldResetSeat = true;
+        }
+      });
 
         if (screenId) {
           seatSelect.disabled = false;
@@ -191,15 +212,21 @@
           if (shouldResetSeat || !seatSelect.value) {
             seatSelect.selectedIndex = 0;
           }
-          renderScreenInfo(screenName, screenId);
-          renderTimeslotInfo(movieTitle, startTime, endTime);
-        } else {
+        renderScreenInfo(screenName, screenId);
+        renderTimeslotInfo(movieTitle, startTime, endTime);
+        noSeatsNotice.classList.toggle('hidden', hasVisibleSeat);
+        if (!hasVisibleSeat) {
           seatSelect.disabled = true;
           seatSelect.setAttribute('disabled', 'disabled');
-          seatSelect.selectedIndex = 0;
-          renderPlaceholders();
         }
-      };
+      } else {
+        seatSelect.disabled = true;
+        seatSelect.setAttribute('disabled', 'disabled');
+        seatSelect.selectedIndex = 0;
+        renderPlaceholders();
+        noSeatsNotice.classList.add('hidden');
+      }
+    };
 
       scheduleSelect.addEventListener('change', updateFormState);
       updateFormState();
