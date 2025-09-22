@@ -2,7 +2,7 @@ class Reservation < ApplicationRecord
   belongs_to :schedule
   belongs_to :sheet
   belongs_to :screen
-  belongs_to :user
+  belongs_to :user, optional: true
 
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
 

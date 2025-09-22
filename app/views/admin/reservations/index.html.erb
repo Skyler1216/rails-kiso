@@ -1,35 +1,73 @@
-<h1>予約一覧</h1>
+<div class="page-shell space-y-10">
+  <section class="page-hero">
+    <div class="page-hero__content">
+      <span class="page-hero__kicker">
+        <span class="text-brand-gold">Admin</span>
+        RESERVATION MANAGEMENT
+      </span>
+      <h1 class="page-hero__title">予約一覧</h1>
+      <p class="page-hero__description">
+        これから上映予定の映画に関する予約だけを表示しています。作品や座席の変更が必要な場合は各行から詳細画面に移動してください。
+      </p>
+      <div class="mt-4 flex flex-wrap gap-3 text-sm">
+        <%= link_to '⟵ 管理ダッシュボード', admin_root_path, class: 'btn-secondary text-xs sm:text-sm' %>
+        <%= link_to '予約を追加', new_admin_reservation_path, class: 'btn-primary text-xs sm:text-sm' %>
+      </div>
+    </div>
+  </section>
 
-<% if @reservations.any? %>
-  <table border="1" cellspacing="0" cellpadding="6">
-    <thead>
-      <tr>
-        <th>映画</th>
-        <th>日時</th>
-        <th>座席</th>
-        <th>予約者名</th>
-        <th>メールアドレス</th>
-        <th>操作</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @reservations.each do |r| %>
-        <tr>
-          <td><%= r.schedule.movie.name %></td>
-          <td><%= r.schedule.start_time.strftime('%Y-%m-%d %H:%M') %></td>
-          <td><%= "#{r.sheet.row}-#{r.sheet.column}" %></td>
-          <td><%= r.name %></td>
-          <td><%= r.email %></td>
-          <td>
-            <%= link_to "詳細", admin_reservation_path(r) %> |
-            <%= button_to "削除", admin_reservation_path(r), method: :delete, data: { confirm: "削除しますか？" } %>
-          </td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-<% else %>
-  <p>予約はまだありません。</p>
-<% end %>
-
-<p><%= link_to "新規予約", new_admin_reservation_path %></p>
+  <section class="card-surface space-y-6">
+    <% if @reservations.any? %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-white/10 text-left text-sm text-slate-200">
+          <thead class="bg-white/5 text-xs uppercase tracking-wider text-slate-400">
+            <tr>
+              <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">作品</th>
+              <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">上映日時</th>
+              <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">座席</th>
+              <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">予約者</th>
+              <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">操作</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-white/10">
+            <% @reservations.each do |reservation| %>
+              <tr class="transition hover:bg-white/5">
+                <td class="whitespace-nowrap px-4 py-3">
+                  <div class="flex flex-col">
+                    <span class="font-semibold text-white"><%= reservation.schedule&.movie&.name || '未設定' %></span>
+                    <span class="text-xs text-slate-400">予約ID: <%= reservation.id %></span>
+                  </div>
+                </td>
+                <td class="whitespace-nowrap px-4 py-3 text-xs text-slate-300">
+                  <div class="flex flex-col gap-1">
+                    <span><%= reservation.date&.strftime('%Y-%m-%d') || '-' %></span>
+                    <span><%= reservation.schedule&.start_time&.strftime('%H:%M') %>〜<%= reservation.schedule&.end_time&.strftime('%H:%M') %></span>
+                  </div>
+                </td>
+                <td class="whitespace-nowrap px-4 py-3 text-xs text-slate-300">
+                  <div class="flex flex-col">
+                    <span>スクリーン <%= reservation.screen_id || '-' %></span>
+                    <span>座席 <%= reservation.sheet.row.to_s.upcase %>-<%= reservation.sheet.column %></span>
+                  </div>
+                </td>
+                <td class="whitespace-nowrap px-4 py-3 text-xs text-slate-300">
+                  <div class="flex flex-col">
+                    <span class="text-white"><%= reservation.name %></span>
+                    <span class="text-slate-400"><%= reservation.email %></span>
+                  </div>
+                </td>
+                <td class="whitespace-nowrap px-4 py-3 text-xs">
+                  <%= link_to '詳細・編集', admin_reservation_path(reservation), class: 'btn-secondary text-xs' %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="rounded-lg border border-dashed border-white/10 bg-white/[0.02] px-6 py-10 text-center text-sm text-slate-400">
+        これから上映予定の予約はまだありません。右上の「予約を追加」から登録できます。
+      </div>
+    <% end %>
+  </section>
+</div>
