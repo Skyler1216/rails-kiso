@@ -7,7 +7,7 @@
       </span>
       <h1 class="page-hero__title">上映スケジュール</h1>
       <p class="page-hero__description">
-        作品ごとの上映スケジュールを確認・編集できます。作品名を見出しに、各スケジュールへのリンクを一覧で表示しています。
+        スケジュール全体の状況を集計し、時刻順の一覧で確認できます。映画別のまとまりも下部に掲載しています。
       </p>
       <div class="mt-4 flex flex-wrap gap-3 text-sm">
         <%= link_to 'スケジュールを追加', new_admin_schedule_path, class: 'btn-primary text-xs sm:text-sm' %>
@@ -16,32 +16,150 @@
   </section>
 
   <section class="card-surface space-y-6">
-    <% if @movies.any? %>
-      <% @movies.each do |movie| %>
-        <% schedules = movie.schedules.sort_by(&:start_time) %>
-        <% next if schedules.blank? %>
-        <article class="rounded-xl border border-white/5 bg-white/[0.03] p-6">
-          <header class="flex flex-wrap items-center justify-between gap-3">
-            <h2 class="text-lg font-semibold text-white">
-              作品ID: <%= movie.id %> / <%= movie.name %>
-            </h2>
-            <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
-              <%= link_to '作品詳細', admin_movie_path(movie), class: 'btn-secondary text-xs sm:text-sm' %>
-              <%= link_to 'この作品にスケジュールを追加', new_admin_schedule_path(movie_id: movie.id), class: 'btn-primary text-xs sm:text-sm' %>
-            </div>
-          </header>
+    <% if @schedule_stats[:total_schedules].positive? %>
+      <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div class="rounded-xl border border-white/10 bg-white/[0.05] p-4">
+          <p class="text-xs uppercase tracking-[0.35em] text-slate-500">TOTAL</p>
+          <p class="mt-2 text-3xl font-semibold text-white"><%= @schedule_stats[:total_schedules] %></p>
+          <p class="text-xs text-slate-400">登録されている上映スケジュール</p>
+        </div>
+        <div class="rounded-xl border border-white/10 bg-white/[0.05] p-4">
+          <p class="text-xs uppercase tracking-[0.35em] text-slate-500">MOVIES</p>
+          <p class="mt-2 text-3xl font-semibold text-white"><%= @schedule_stats[:total_movies] %></p>
+          <p class="text-xs text-slate-400">スケジュールがある作品</p>
+        </div>
+        <div class="rounded-xl border border-white/10 bg-white/[0.05] p-4">
+          <p class="text-xs uppercase tracking-[0.35em] text-slate-500">NOW</p>
+          <p class="mt-2 text-3xl font-semibold text-white"><%= @schedule_stats[:playing_now] %></p>
+          <p class="text-xs text-slate-400">現在上映中（開始〜終了内）</p>
+        </div>
+        <div class="rounded-xl border border-white/10 bg-white/[0.05] p-4">
+          <p class="text-xs uppercase tracking-[0.35em] text-slate-500">WEEK</p>
+          <p class="mt-2 text-3xl font-semibold text-white"><%= @schedule_stats[:this_week] %></p>
+          <p class="text-xs text-slate-400">今後7日以内に開始予定</p>
+          <p class="mt-1 text-[11px] text-slate-500">本日開始: <span class="text-white font-semibold"><%= @schedule_stats[:today] %></span></p>
+        </div>
+      </div>
+    <% end %>
+  </section>
 
-          <ul class="mt-5 space-y-3">
-            <% schedules.each do |schedule| %>
-              <%= render partial: 'admin/schedules/schedule_summary', locals: { schedule: schedule } %>
-            <% end %>
-          </ul>
-        </article>
+  <section class="card-surface space-y-6">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <p class="text-xs uppercase tracking-[0.35em] text-slate-500">Timeline</p>
+        <h2 class="text-xl font-semibold text-white">時刻順スケジュール一覧</h2>
+      </div>
+      <% if @schedule_stats[:total_schedules].positive? %>
+        <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
+          全 <%= @schedule_stats[:total_schedules] %> 件
+        </span>
       <% end %>
+    </div>
+
+    <% if @all_schedules.any? %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-white/10 text-left text-sm text-slate-200">
+          <thead class="bg-white/5 text-xs uppercase tracking-wider text-slate-400">
+            <tr>
+              <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">ID</th>
+              <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">作品</th>
+              <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">スクリーン</th>
+              <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">開始時刻</th>
+              <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">終了時刻</th>
+              <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">操作</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-white/10">
+            <% @all_schedules.each do |schedule| %>
+              <tr class="transition hover:bg-white/5">
+                <td class="whitespace-nowrap px-4 py-3 font-semibold text-brand-gold">
+                  #<%= schedule.id %>
+                </td>
+                <td class="whitespace-nowrap px-4 py-3 text-white">
+                  <div class="flex flex-col">
+                    <span class="font-semibold"><%= schedule.movie&.name || '未設定' %></span>
+                    <span class="text-xs text-slate-400">ID: <%= schedule.movie_id %></span>
+                  </div>
+                </td>
+                <td class="whitespace-nowrap px-4 py-3">
+                  <% if schedule.screen.present? %>
+                    <div class="flex flex-col">
+                      <span class="text-white"><%= schedule.screen.name %></span>
+                      <span class="text-xs text-slate-400">ID: <%= schedule.screen_id %></span>
+                    </div>
+                  <% else %>
+                    <span class="text-slate-500">未設定</span>
+                  <% end %>
+                </td>
+                <td class="whitespace-nowrap px-4 py-3 text-xs text-slate-300">
+                  <%= schedule.start_time&.strftime('%Y-%m-%d %H:%M') || '-' %>
+                </td>
+                <td class="whitespace-nowrap px-4 py-3 text-xs text-slate-300">
+                  <%= schedule.end_time&.strftime('%Y-%m-%d %H:%M') || '-' %>
+                </td>
+                <td class="whitespace-nowrap px-4 py-3">
+                  <%= link_to '詳細・編集', admin_schedule_path(schedule), class: 'btn-secondary text-xs' %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
     <% else %>
       <div class="rounded-lg border border-dashed border-white/10 bg-white/[0.02] px-6 py-10 text-center text-sm text-slate-400">
         表示できる上映スケジュールがまだありません。上の「スケジュールを追加」ボタンから登録を開始してください。
       </div>
     <% end %>
   </section>
+
+  <% if @movie_schedules.present? %>
+    <section class="card-surface space-y-6">
+      <div>
+        <p class="text-xs uppercase tracking-[0.35em] text-slate-500">By Movie</p>
+        <h2 class="text-xl font-semibold text-white">作品別スケジュール</h2>
+      </div>
+
+      <% @movie_schedules.each do |movie, schedules| %>
+        next if schedules.blank?
+        <article class="rounded-xl border border-white/5 bg-white/[0.03] p-6">
+          <header class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 class="text-lg font-semibold text-white"><%= movie.name %></h3>
+              <p class="text-xs text-slate-400">作品ID: <%= movie.id %></p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+              <%= link_to '作品詳細', admin_movie_path(movie), class: 'btn-secondary text-xs sm:text-sm' %>
+              <%= link_to 'スケジュールを追加', new_admin_schedule_path(movie_id: movie.id), class: 'btn-primary text-xs sm:text-sm' %>
+            </div>
+          </header>
+
+          <div class="mt-5 grid gap-3">
+            <% schedules.each do |schedule| %>
+              <div class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.04] p-4 text-sm text-slate-200">
+                <div class="flex flex-col">
+                  <span class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Schedule</span>
+                  <span class="font-semibold text-white">#<%= schedule.id %></span>
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-xs text-slate-500">スクリーン</span>
+                  <span class="text-white"><%= schedule.screen&.name || '-' %> (ID: <%= schedule.screen_id %>)</span>
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-xs text-slate-500">開始</span>
+                  <span><%= schedule.start_time&.strftime('%Y-%m-%d %H:%M') || '-' %></span>
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-xs text-slate-500">終了</span>
+                  <span><%= schedule.end_time&.strftime('%Y-%m-%d %H:%M') || '-' %></span>
+                </div>
+                <div>
+                  <%= link_to '編集', admin_schedule_path(schedule), class: 'btn-secondary text-xs' %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </article>
+      <% end %>
+    </section>
+  <% end %>
 </div>

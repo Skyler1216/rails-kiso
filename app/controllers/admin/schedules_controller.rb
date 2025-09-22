@@ -2,10 +2,27 @@ module Admin
   class SchedulesController < BaseController
     # 一覧表示
     def index
-      # スケジュールを1件以上持つ映画のみを表示
+      @all_schedules = Schedule.includes(:movie, :screen).order(:start_time)
+
       @movies = Movie.includes(schedules: :screen)
-                     .where(id: Schedule.select(:movie_id).distinct)
+                     .where(id: @all_schedules.map(&:movie_id).uniq)
                      .order(:id)
+      @movie_schedules = @movies.index_with do |movie|
+        movie.schedules.sort_by(&:start_time)
+      end
+
+      today = Time.zone.today
+      now = Time.zone.now
+      @schedule_stats = {
+        total_schedules: @all_schedules.size,
+        total_movies: @movies.size,
+        playing_now: @all_schedules.count { |s| s.start_time.present? && s.end_time.present? && s.start_time <= now && s.end_time >= now },
+        today: @all_schedules.count { |s| s.start_time.present? && s.start_time.to_date == today },
+        this_week: @all_schedules.count do |s|
+          next false unless s.start_time.present?
+          (today..today + 6.days).cover?(s.start_time.to_date)
+        end
+      }
     end
 
     # 編集フォーム表示
