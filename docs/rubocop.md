@@ -334,3 +334,55 @@ git add .rubocop_todo.yml && git commit -m "chore: refresh rubocop_todo after fi
 
 **RuboCopの警告が完全に解消され、コードベースが最高品質になりました！**
 
+---
+
+# バッチ7：.rubocop_todo.yml（最終クリーンアップ計画）
+
+**現状（2025-09-22 時点の TODO 抜粋）**
+
+- Layout/LineLength: Max: 132（重複記載あり → 片方削除）
+- Metrics/AbcSize: Exclude: admin 各 Controller
+- Metrics/CyclomaticComplexity: Max: 13
+- Metrics/MethodLength: Exclude: spec 以外に admin 各 Controller
+- Metrics/PerceivedComplexity: Max: 14
+- Style/MultilineBlockChain: Exclude: admin/reservations_controller.rb
+
+**方針**
+
+1. 重複定義の解消
+   - Layout/LineLength の重複レコードを 1 つに統一（Max: 132 は維持）。
+2. Metrics 系は段階的に解消
+   - ダッシュボード/予約/スケジュール各 Controller を対象に、小さなメソッド抽出で `MethodLength` を先に解消。
+   - 分岐の見直し（早期 return、guard clause）で `Cyclomatic/Perceived` を縮小。
+   - `AbcSize` は読みやすさを優先しつつ、責務分割（サービス/クエリオブジェクト）で改善。難所は一時的に Max 緩和で吸収し、継続リファクタを前提とする。
+3. Style/MultilineBlockChain は局所対応
+   - 対象箇所を明示的な中間変数へ分解し、チェーンの多段化を回避。
+
+**実施ステップ**
+
+```bash
+# 1) 重複定義の削除（Layout/LineLength を1つに統一）
+git add .rubocop_todo.yml && git commit -m "chore(rubocop): unify duplicate Layout/LineLength entry"
+
+# 2) Controller ごとに段階適用（安全な抽出→rubocop）
+bundle exec rubocop -A app/controllers/admin/dashboard_controller.rb
+bundle exec rubocop -A app/controllers/admin/schedules_controller.rb
+bundle exec rubocop -A app/controllers/admin/reservations_controller.rb
+# 3) まだ残る Metrics は小リファクタ → rubocop 再実行
+bundle exec rubocop
+```
+
+**DONE 判定**
+
+- `.rubocop_todo.yml` から以下キーが消えていること：
+  - `Metrics/MethodLength` の `Exclude`（spec 以外）
+  - `Metrics/CyclomaticComplexity`、`Metrics/PerceivedComplexity`
+  - `Metrics/AbcSize` の `Exclude` 行（Max は `.rubocop.yml` 側で運用）
+  - `Style/MultilineBlockChain` の `Exclude`
+- `bundle exec rubocop` が No offenses もしくは Metrics は `.rubocop.yml` の上限内で安定
+
+**ロールバック方針**
+
+- 業務優先で改修難易度が高い箇所は、`.rubocop.yml` に限定スコープで上限緩和（対象ファイルを絞る）。
+- 影響範囲が読みにくくなる変更は PR を分割し、E2E/動作確認を優先。
+
