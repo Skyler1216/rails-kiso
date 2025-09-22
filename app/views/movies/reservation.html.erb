@@ -1,69 +1,82 @@
-<div class="page-shell">
-  <div>
-    <%= link_to '← 作品詳細に戻る', movie_path(@movie), class: 'btn-secondary text-xs sm:text-sm' %>
+<div class="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-12">
+  <div class="flex flex-wrap items-center justify-between gap-4 text-slate-200">
+    <div class="space-y-2">
+      <p class="text-xs font-semibold uppercase tracking-[0.45em] text-brand-gold">Seat Selection</p>
+      <h1 class="font-heading text-3xl text-white md:text-4xl"><%= @movie.name %></h1>
+      <div class="flex flex-wrap items-center gap-4 text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
+        <span><%= Date.parse(@date.to_s).strftime('%Y.%m.%d') rescue @date %></span>
+        <span><%= @schedule.start_time.strftime('%H:%M') %> - <%= @schedule.end_time.strftime('%H:%M') %></span>
+        <span>Screen <%= @schedule.screen_id %></span>
+      </div>
+    </div>
+    <%= link_to '上映スケジュールに戻る', movie_path(@movie, date: @date), class: 'btn-secondary text-xs sm:text-sm' %>
   </div>
 
-  <section class="reservation-layout">
-    <aside class="reservation-summary">
-      <h2>座席予約</h2>
-      <dl>
-        <div>
-          <dt>作品</dt>
-          <dd><%= @movie.name %></dd>
+  <div class="grid gap-6 lg:grid-cols-3">
+    <aside class="rounded-2xl border border-white/10 bg-slate-900/60 p-6 text-sm text-slate-300 shadow-lg">
+      <p class="font-semibold text-brand-gold">予約概要</p>
+      <dl class="mt-4 space-y-3 text-slate-200">
+        <div class="flex justify-between gap-3 text-xs uppercase tracking-[0.25em] text-slate-500">
+          <span>作品</span>
+          <span><%= @movie.name %></span>
         </div>
-        <div>
-          <dt>上映日</dt>
-          <dd><%= Date.parse(@date.to_s).strftime('%Y年%-m月%-d日') rescue @date %></dd>
+        <div class="flex justify-between gap-3 text-xs uppercase tracking-[0.25em] text-slate-500">
+          <span>上映日</span>
+          <span><%= Date.parse(@date.to_s).strftime('%Y/%m/%d') rescue @date %></span>
         </div>
-        <div>
-          <dt>上映時間</dt>
-          <dd><%= @schedule.start_time.strftime('%H:%M') %>〜<%= @schedule.end_time.strftime('%H:%M') %></dd>
+        <div class="flex justify-between gap-3 text-xs uppercase tracking-[0.25em] text-slate-500">
+          <span>時間</span>
+          <span><%= @schedule.start_time.strftime('%H:%M') %>〜<%= @schedule.end_time.strftime('%H:%M') %></span>
         </div>
-        <div>
-          <dt>スクリーン</dt>
-          <dd>スクリーン <%= @schedule.screen_id %></dd>
+        <div class="flex justify-between gap-3 text-xs uppercase tracking-[0.25em] text-slate-500">
+          <span>スクリーン</span>
+          <span><%= @schedule.screen_id %></span>
         </div>
       </dl>
-      <p class="text-soft text-sm">
-        空いている座席をクリックすると予約フォームへ進みます。予約済みの座席には「済」表示があり選択できません。
+      <p class="mt-6 leading-relaxed text-slate-400">
+        空席を選択すると予約フォームに進みます。予約済みの座席は選択できません。
       </p>
     </aside>
 
-    <div class="seat-board">
-      <div class="seat-screen">Screen</div>
+    <div class="lg:col-span-2 space-y-6">
+      <div class="rounded-2xl border border-white/10 bg-slate-900/60 p-6 shadow-lg">
+        <p class="text-center text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">Screen</p>
+        <% if @sheets.present? %>
+          <div class="seat-grid mt-6">
+            <% grouped_sheets = @sheets.group_by(&:row).sort_by { |row, _| row } %>
+            <% grouped_sheets.each do |row, sheets| %>
+              <div class="seat-row" aria-label="row <%= row.upcase %>">
+                <span class="seat-row__label"><%= row.upcase %></span>
+                <div class="seat-row__grid">
+                  <% sheets.sort_by(&:column).each do |sheet| %>
+                    <% seat_label = "#{row.upcase}-#{sheet.column}" %>
+                    <% reserved = @reserved_sheets.include?(sheet.id) %>
 
-      <% if @sheets.present? %>
-        <div class="seat-grid">
-          <% grouped_sheets = @sheets.group_by(&:row).sort_by { |row, _| row } %>
-          <% grouped_sheets.each do |row, sheets| %>
-            <div class="seat-row" aria-label="row <%= row.upcase %>">
-              <% sheets.sort_by(&:column).each do |sheet| %>
-                <% seat_label = "#{row.upcase}-#{sheet.column}" %>
-                <% reserved = @reserved_sheets.include?(sheet.id) %>
+                    <% if reserved %>
+                      <span class="seat-pill seat-pill--reserved" aria-disabled="true"><%= seat_label %></span>
+                    <% else %>
+                      <%= link_to seat_label,
+                                  new_movie_schedule_reservation_path(@movie, @schedule, date: @date, sheet_id: sheet.id),
+                                  class: 'seat-pill seat-pill--available',
+                                  data: { turbo: false } %>
+                    <% end %>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="empty-state mt-6">
+            <strong class="text-accent">座席情報が見つかりません</strong>
+            <p class="text-soft text-sm">スクリーンに紐づく座席が未登録の可能性があります。管理画面から座席を追加してください。</p>
+          </div>
+        <% end %>
+      </div>
 
-                <% if reserved %>
-                  <span class="seat seat--reserved" aria-disabled="true"><%= seat_label %></span>
-                <% else %>
-                  <%= link_to seat_label,
-                              new_movie_schedule_reservation_path(@movie, @schedule, date: @date, sheet_id: sheet.id),
-                              class: 'seat seat--available',
-                              data: { turbo: false } %>
-                <% end %>
-              <% end %>
-            </div>
-          <% end %>
-        </div>
-      <% else %>
-        <div class="empty-state">
-          <strong class="text-accent">座席情報が見つかりません</strong>
-          <p class="text-soft text-sm">スクリーンに紐づく座席が未登録の可能性があります。管理画面から座席を追加してください。</p>
-        </div>
-      <% end %>
-
-      <div class="seat-legend">
-        <span><span class="sample available"></span> 選択可能</span>
-        <span><span class="sample reserved"></span> 予約済み</span>
+      <div class="flex flex-wrap gap-3 text-xs text-slate-400">
+        <span class="inline-flex items-center gap-2"><span class="seat-pill seat-pill--sample-available"></span> 選択可能</span>
+        <span class="inline-flex items-center gap-2"><span class="seat-pill seat-pill--sample-reserved"></span> 予約済み</span>
       </div>
     </div>
-  </section>
+  </div>
 </div>

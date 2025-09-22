@@ -1,62 +1,70 @@
-<div class="page-shell">
-  <div>
-    <%= link_to '← 座席選択に戻る', reservation_movie_path(@movie, schedule_id: @schedule.id, date: @date), class: 'btn-secondary text-xs sm:text-sm' %>
+<div class="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-12">
+  <div class="flex flex-wrap items-center justify-between gap-4 text-slate-200">
+    <div class="space-y-2">
+      <p class="text-xs font-semibold uppercase tracking-[0.45em] text-brand-gold">Confirm Reservation</p>
+      <h1 class="font-heading text-3xl text-white md:text-4xl"><%= @movie.name %></h1>
+      <div class="flex flex-wrap items-center gap-4 text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
+        <span><%= Date.parse(@date.to_s).strftime('%Y.%m.%d') rescue @date %></span>
+        <span><%= @schedule.start_time.strftime('%H:%M') %> - <%= @schedule.end_time.strftime('%H:%M') %></span>
+        <span>Screen <%= @schedule.screen_id %></span>
+        <span>Seat <%= "#{@sheet.row.upcase}-#{@sheet.column}" %></span>
+      </div>
+    </div>
+    <%= link_to '座席選択に戻る', reservation_movie_path(@movie, schedule_id: @schedule.id, date: @date), class: 'btn-secondary text-xs sm:text-sm' %>
   </div>
 
-  <section class="reservation-layout">
-    <aside class="reservation-summary">
-      <h2>予約内容の確認</h2>
-      <dl>
-        <div>
-          <dt>作品</dt>
-          <dd><%= @movie.name %></dd>
+  <div class="grid gap-6 lg:grid-cols-3">
+    <aside class="rounded-2xl border border-white/10 bg-slate-900/60 p-6 text-sm text-slate-300 shadow-lg">
+      <p class="font-semibold text-brand-gold">予約内容</p>
+      <dl class="mt-4 space-y-3 text-slate-200">
+        <div class="flex justify-between gap-3 text-xs uppercase tracking-[0.25em] text-slate-500">
+          <span>座席</span>
+          <span><%= "#{@sheet.row.upcase}-#{@sheet.column}" %></span>
         </div>
-        <div>
-          <dt>上映日</dt>
-          <dd><%= Date.parse(@date.to_s).strftime('%Y年%-m月%-d日') rescue @date %></dd>
+        <div class="flex justify-between gap-3 text-xs uppercase tracking-[0.25em] text-slate-500">
+          <span>上映日</span>
+          <span><%= Date.parse(@date.to_s).strftime('%Y/%m/%d') rescue @date %></span>
         </div>
-        <div>
-          <dt>上映時間</dt>
-          <dd><%= @schedule.start_time.strftime('%H:%M') %>〜<%= @schedule.end_time.strftime('%H:%M') %></dd>
+        <div class="flex justify-between gap-3 text-xs uppercase tracking-[0.25em] text-slate-500">
+          <span>時間</span>
+          <span><%= @schedule.start_time.strftime('%H:%M') %>〜<%= @schedule.end_time.strftime('%H:%M') %></span>
         </div>
-        <div>
-          <dt>スクリーン</dt>
-          <dd>スクリーン <%= @schedule.screen_id %></dd>
-        </div>
-        <div>
-          <dt>座席</dt>
-          <dd><%= "#{@sheet.row.upcase}-#{@sheet.column}" %></dd>
+        <div class="flex justify-between gap-3 text-xs uppercase tracking-[0.25em] text-slate-500">
+          <span>スクリーン</span>
+          <span><%= @schedule.screen_id %></span>
         </div>
       </dl>
-      <p class="text-soft text-sm">
-        予約者情報はログイン中のアカウントで自動入力されます。内容を確認して問題がなければ「予約を確定する」ボタンを押してください。
+      <p class="mt-6 leading-relaxed text-slate-400">
+        予約を確定すると登録済みメールアドレスへ確認メールをお送りします。内容に誤りがないかご確認ください。
       </p>
     </aside>
 
-    <div class="reservation-form">
-      <h2 class="reservation-form__title">予約者情報</h2>
-      <p class="text-soft text-sm">入力内容は予約確定後に確認メールとして送信されます。</p>
+    <div class="lg:col-span-2 space-y-6">
+      <div class="rounded-2xl border border-white/10 bg-slate-900/60 p-6 shadow-lg">
+        <h2 class="text-lg font-semibold text-soft">予約者情報</h2>
+        <p class="mt-2 text-sm text-slate-400">ログイン中のアカウント情報を使用します。変更が必要な場合はプロフィールを更新してください。</p>
 
-      <%= form_with model: @reservation, url: reservations_path, local: true, class: 'form-stack' do |f| %>
-        <%= f.hidden_field :schedule_id, value: @schedule.id %>
-        <%= f.hidden_field :sheet_id, value: @sheet.id %>
-        <%= f.hidden_field :date, value: @date %>
-        <%= f.hidden_field :screen_id, value: @schedule.screen_id %>
+        <%= form_with model: @reservation, url: reservations_path, local: true, class: 'form-stack mt-6' do |f| %>
+          <%= f.hidden_field :schedule_id, value: @schedule.id %>
+          <%= f.hidden_field :sheet_id, value: @sheet.id %>
+          <%= f.hidden_field :date, value: @date %>
+          <%= f.hidden_field :screen_id, value: @schedule.screen_id %>
 
-        <div class="form-field">
-          <%= f.label :name, '予約者氏名', class: 'form-label' %>
-          <%= f.text_field :name, value: current_user.name, readonly: true, class: 'form-input' %>
-        </div>
+          <div class="form-field">
+            <%= f.label :name, '予約者氏名', class: 'form-label' %>
+            <%= f.text_field :name, value: current_user.name, readonly: true, class: 'form-input' %>
+          </div>
 
-        <div class="form-field">
-          <%= f.label :email, '予約者メールアドレス', class: 'form-label' %>
-          <%= f.email_field :email, value: current_user.email, readonly: true, class: 'form-input' %>
-        </div>
+          <div class="form-field">
+            <%= f.label :email, '予約者メールアドレス', class: 'form-label' %>
+            <%= f.email_field :email, value: current_user.email, readonly: true, class: 'form-input' %>
+          </div>
 
-        <div class="flex flex-wrap gap-3 pt-2">
-          <%= f.submit '予約を確定する', class: 'btn-primary w-full sm:w-auto justify-center' %>
-        </div>
-      <% end %>
+          <div class="flex flex-wrap gap-3 pt-4">
+            <%= f.submit '予約を確定する', class: 'btn-primary w-full sm:w-auto justify-center' %>
+          </div>
+        <% end %>
+      </div>
     </div>
-  </section>
+  </div>
 </div>
