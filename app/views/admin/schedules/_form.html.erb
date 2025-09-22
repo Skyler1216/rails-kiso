@@ -1,0 +1,173 @@
+<% schedule       = local_assigns.fetch(:schedule) %>
+<% movies         = local_assigns.fetch(:movies, []) %>
+<% screens        = local_assigns.fetch(:screens, []) %>
+<% form_url       = local_assigns.fetch(:form_url, admin_schedules_path) %>
+<% form_method    = local_assigns.fetch(:form_method, :post) %>
+<% submit_label   = local_assigns.fetch(:submit_label, '登録する') %>
+<% show_delete    = local_assigns.fetch(:show_delete, false) %>
+<% lock_movie     = local_assigns.fetch(:lock_movie, false) %>
+
+<article class="rounded-xl border border-white/5 bg-white/[0.03] p-6">
+  <h2 class="text-base font-semibold text-white">上映時間の設定</h2>
+
+  <%= form_with model: [:admin, schedule], url: form_url, method: form_method, local: true, class: 'mt-4 space-y-6' do |f| %>
+    <% if schedule.errors.any? %>
+      <div class="rounded-lg border border-brand-red/40 bg-brand-red/10 px-4 py-3 text-sm text-brand-red">
+        <p class="font-semibold">入力内容を確認してください。</p>
+        <ul class="mt-2 list-disc space-y-1 pl-5">
+          <% schedule.errors.each do |error| %>
+            <li><%= error.message.delete_prefix('^') %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="space-y-4">
+      <div class="space-y-2">
+        <%= f.label :movie_id, '対象作品', class: 'text-sm font-semibold text-white' %>
+        <% if lock_movie %>
+          <%= f.hidden_field :movie_id, value: schedule.movie_id, data: { running_minutes: schedule.movie&.running_minutes } %>
+          <div class="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-slate-200">
+            <span class="text-white font-semibold"><%= schedule.movie&.name || '未設定' %></span>
+            <% if schedule.movie&.running_minutes.present? %>
+              <span class="ml-2 text-xs text-slate-400"><%= schedule.movie.running_minutes %>分</span>
+            <% end %>
+          </div>
+        <% else %>
+          <% movie_options = movies.map do |movie|
+               duration = movie.running_minutes
+               label = "#{movie.id}: #{movie.name}"
+               label += " (#{duration}分)" if duration.present?
+               [label, movie.id, { 'data-running-minutes': duration }]
+             end %>
+          <%= f.select :movie_id,
+                       options_for_select(movie_options, schedule.movie_id),
+                       { include_blank: '作品を選択してください' },
+                       class: 'form-select',
+                       required: true,
+                       data: { schedule_movie_select: true } %>
+          <p class="text-xs text-slate-500">上映時間が登録された作品を選ぶと終了時刻が自動入力されます。</p>
+        <% end %>
+      </div>
+
+      <div class="space-y-2">
+        <%= f.label :screen_id, 'スクリーン', class: 'text-sm font-semibold text-white' %>
+        <%= f.collection_select :screen_id, screens, :id, ->(screen) { "#{screen.id}: #{screen.name}" }, { include_blank: 'スクリーンを選択してください' }, class: 'form-select', required: true %>
+      </div>
+
+      <div class="grid gap-4 md:grid-cols-2">
+        <div class="space-y-2">
+          <%= f.label :start_time, '開始時刻', class: 'text-sm font-semibold text-white' %>
+          <%= f.datetime_field :start_time, class: 'form-input', data: { schedule_start_field: true } %>
+        </div>
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <%= f.label :end_time, '終了時刻', class: 'text-sm font-semibold text-white' %>
+            <% running = lock_movie ? schedule.movie&.running_minutes : nil %>
+            <button type="button" class="text-xs text-brand-gold underline decoration-dotted hover:text-brand-red" data-schedule-reset-end data-running-minutes="<%= running %>">再計算</button>
+          </div>
+          <%= f.datetime_field :end_time, class: 'form-input', data: { schedule_end_field: true } %>
+          <p class="text-xs text-slate-500">開始時刻と上映時間から自動計算されます。必要に応じて調整できます。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <%= f.submit submit_label, class: 'btn-primary' %>
+      <% if submit_note = local_assigns[:submit_note] %>
+        <span class="text-xs text-slate-500"><%= submit_note %></span>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if show_delete %>
+    <div class="mt-4">
+      <%= button_to '削除', admin_schedule_path(schedule), method: :delete, data: { confirm: '本当に削除しますか？' }, class: 'btn-secondary border border-red-400/50 text-red-200 hover:bg-red-500/20 hover:text-white' %>
+    </div>
+  <% end %>
+</article>
+
+<% unless content_for?(:schedule_form_script_loaded) %>
+  <% content_for :schedule_form_script_loaded, true %>
+  <%= javascript_tag do %>
+    document.addEventListener('turbo:load', setupScheduleFormAutofill);
+    document.addEventListener('turbo:frame-load', setupScheduleFormAutofill);
+    document.addEventListener('DOMContentLoaded', setupScheduleFormAutofill);
+
+    function setupScheduleFormAutofill() {
+      const movieSelect = document.querySelector('[data-schedule-movie-select]');
+      const startInput = document.querySelector('[data-schedule-start-field]');
+      const endInput = document.querySelector('[data-schedule-end-field]');
+      const resetButton = document.querySelector('[data-schedule-reset-end]');
+
+      if (!startInput || !endInput || !resetButton) return;
+
+      const getRunningMinutes = () => {
+        if (movieSelect) {
+          const selectedOption = movieSelect.options[movieSelect.selectedIndex];
+          if (selectedOption && selectedOption.dataset.runningMinutes) {
+            const minutes = parseInt(selectedOption.dataset.runningMinutes, 10);
+            if (!Number.isNaN(minutes)) return minutes;
+          }
+        }
+
+        const manualValue = resetButton.dataset.runningMinutes;
+        if (manualValue) {
+          const minutes = parseInt(manualValue, 10);
+          if (!Number.isNaN(minutes)) return minutes;
+        }
+
+        const hiddenField = document.querySelector('input[name="schedule[movie_id]"][type="hidden"]');
+        if (hiddenField && hiddenField.dataset.runningMinutes) {
+          const minutes = parseInt(hiddenField.dataset.runningMinutes, 10);
+          if (!Number.isNaN(minutes)) return minutes;
+        }
+
+        return null;
+      };
+
+      const formatDateTimeLocal = (date) => {
+        const pad = (num) => String(num).padStart(2, '0');
+        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+      };
+
+      const computeEndTime = () => {
+        const minutes = getRunningMinutes();
+        const startValue = startInput.value;
+
+        if (!startValue || !minutes || minutes <= 0) {
+          return null;
+        }
+
+        const startDate = new Date(startValue);
+        if (Number.isNaN(startDate.getTime())) {
+          return null;
+        }
+
+        const result = new Date(startDate.getTime() + minutes * 60000);
+        return formatDateTimeLocal(result);
+      };
+
+      const applyAutofill = (force = false) => {
+        const computed = computeEndTime();
+        if (!computed) return;
+
+        if (force || !endInput.value) {
+          endInput.value = computed;
+        }
+      };
+
+      if (movieSelect) {
+        movieSelect.addEventListener('change', () => applyAutofill());
+      }
+
+      startInput.addEventListener('change', () => applyAutofill(true));
+      resetButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        applyAutofill(true);
+      });
+
+      applyAutofill();
+    }
+  <% end %>
+<% end %>
