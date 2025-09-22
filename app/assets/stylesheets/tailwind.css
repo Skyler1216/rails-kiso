@@ -2292,8 +2292,23 @@ a:hover {
   filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
 }
 
+.drop-shadow {
+  --tw-drop-shadow: drop-shadow(0 1px 2px rgb(0 0 0 / 0.1)) drop-shadow(0 1px 1px rgb(0 0 0 / 0.06));
+  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
 .grayscale {
   --tw-grayscale: grayscale(100%);
+  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.invert {
+  --tw-invert: invert(100%);
+  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.sepia {
+  --tw-sepia: sepia(100%);
   filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
 }
 
@@ -2550,6 +2565,39 @@ a:hover {
   outline: none;
   border-color: rgba(229, 9, 20, 0.65);
   box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.28);
+}
+
+.form-input[type="date"],
+.form-input[type="time"],
+.form-input[type="datetime-local"] {
+  padding-right: 2.75rem;
+  color-scheme: dark;
+}
+
+.form-input[type="date"]::-webkit-calendar-picker-indicator,
+.form-input[type="time"]::-webkit-calendar-picker-indicator,
+.form-input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  width: 1.6rem;
+  height: 1.6rem;
+  margin-left: 0.4rem;
+  border-radius: 999px;
+  background-color: rgba(249, 178, 52, 0.9);
+  border: 1px solid rgba(249, 178, 52, 0.95);
+  padding: 0.2rem;
+  box-shadow: 0 0 0 2px rgba(10, 12, 22, 0.8), 0 0 12px rgba(249, 178, 52, 0.45);
+  filter: none;
+  opacity: 1;
+  cursor: pointer;
+  -webkit-transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.form-input[type="date"]::-webkit-calendar-picker-indicator:hover,
+.form-input[type="time"]::-webkit-calendar-picker-indicator:hover,
+.form-input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+  background-color: rgba(229, 62, 62, 0.92);
+  border-color: rgba(229, 62, 62, 0.95);
+  box-shadow: 0 0 0 2px rgba(10, 12, 22, 0.8), 0 0 14px rgba(229, 62, 62, 0.55);
 }
 
 /* Textarea specific tweaks */
