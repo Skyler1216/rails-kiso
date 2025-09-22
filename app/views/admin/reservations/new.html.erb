@@ -1,19 +1,7 @@
 <div class="page-shell space-y-10">
-  <section class="page-hero">
-    <div class="page-hero__content">
-      <span class="page-hero__kicker">
-        <span class="text-brand-gold">Admin</span>
-        RESERVATION CREATE
-      </span>
-      <h1 class="page-hero__title">予約を追加</h1>
-      <p class="page-hero__description">
-        上映スケジュールを選ぶと、対応するスクリーンと座席候補が自動で表示されます。重複している座席は登録できません。
-      </p>
-      <div class="mt-4 flex flex-wrap gap-3 text-sm">
-        <%= link_to '⟵ 予約一覧へ戻る', admin_reservations_path, class: 'btn-secondary text-xs sm:text-sm' %>
-      </div>
-    </div>
-  </section>
+  <div class="flex flex-wrap gap-3 text-sm">
+    <%= link_to '⟵ 予約一覧へ戻る', admin_reservations_path, class: 'btn-secondary text-xs sm:text-sm' %>
+  </div>
 
   <section class="card-surface space-y-8">
     <div class="rounded-xl border border-white/5 bg-white/[0.03] p-6">

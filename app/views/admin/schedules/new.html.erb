@@ -1,19 +1,7 @@
 <div class="page-shell space-y-10">
-  <section class="page-hero">
-    <div class="page-hero__content">
-      <span class="page-hero__kicker">
-        <span class="text-brand-gold">Admin</span>
-        SCHEDULE CREATE
-      </span>
-      <h1 class="page-hero__title">上映スケジュールを追加</h1>
-      <p class="page-hero__description">
-        対象作品を選択し、上映の開始・終了時刻を登録できます。
-      </p>
-      <div class="mt-4 flex flex-wrap gap-3 text-sm">
-        <%= link_to '⟵ スケジュール一覧へ戻る', admin_schedules_path, class: 'btn-secondary text-xs sm:text-sm' %>
-      </div>
-    </div>
-  </section>
+  <div class="flex flex-wrap gap-3 text-sm">
+    <%= link_to '⟵ スケジュール一覧へ戻る', admin_schedules_path, class: 'btn-secondary text-xs sm:text-sm' %>
+  </div>
 
   <section class="card-surface space-y-8">
     <div class="rounded-xl border border-white/5 bg-white/[0.03] p-6">
