@@ -2,17 +2,22 @@ module Admin
   class SchedulesController < BaseController
     # 一覧表示
     def index
-      @all_schedules = Schedule.includes(:movie, :screen).order(:start_time)
+      now = Time.zone.now
+      @now = now
+
+      @all_schedules = Schedule.includes(:movie, :screen)
+                               .order(:start_time)
+                               .to_a
+      @all_schedules = reorder_schedules(@all_schedules, now)
 
       @movies = Movie.includes(schedules: :screen)
                      .where(id: @all_schedules.map(&:movie_id).uniq)
                      .order(:id)
       @movie_schedules = @movies.index_with do |movie|
-        movie.schedules.sort_by(&:start_time)
+        reorder_schedules(movie.schedules, now)
       end
 
       today = Time.zone.today
-      now = Time.zone.now
       @schedule_stats = {
         total_schedules: @all_schedules.size,
         total_movies: @movies.size,
@@ -70,6 +75,16 @@ module Admin
     end
 
     private
+
+    def reorder_schedules(schedules, now)
+      schedules.sort_by do |schedule|
+        [schedule_finished?(schedule, now) ? 1 : 0, schedule.start_time || Time.zone.at(0)]
+      end
+    end
+
+    def schedule_finished?(schedule, now)
+      schedule.end_time.present? && schedule.end_time < now
+    end
 
     def schedule_update_params
       params.require(:schedule).permit(:start_time, :end_time, :screen_id)

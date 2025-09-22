@@ -1823,6 +1823,10 @@ a:hover {
   background-color: rgb(255 255 255 / 0.05);
 }
 
+.bg-white\/10 {
+  background-color: rgb(255 255 255 / 0.1);
+}
+
 .bg-gradient-to-r {
   background-image: linear-gradient(to right, var(--tw-gradient-stops));
 }
@@ -1914,6 +1918,16 @@ a:hover {
   padding-bottom: 2rem;
 }
 
+.px-2 {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.py-\[2px\] {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
 .pb-3 {
   padding-bottom: 0.75rem;
 }
@@ -1992,6 +2006,10 @@ a:hover {
 
 .text-\[11px\] {
   font-size: 11px;
+}
+
+.text-\[10px\] {
+  font-size: 10px;
 }
 
 .font-bold {
@@ -2177,6 +2195,10 @@ a:hover {
 .antialiased {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.opacity-60 {
+  opacity: 0.6;
 }
 
 .shadow-glow {
