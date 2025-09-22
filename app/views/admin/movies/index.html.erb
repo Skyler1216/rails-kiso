@@ -36,8 +36,7 @@
             <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">概要</th>
             <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">画像URL</th>
             <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">上映中</th>
-            <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">登録日時</th>
-            <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">更新日時</th>
+              <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">上映時間</th>
             <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">操作</th>
           </tr>
         </thead>
@@ -74,11 +73,15 @@
                   </span>
                 <% end %>
               </td>
-              <td class="whitespace-nowrap px-4 py-3 text-xs text-slate-400">
-                <%= movie.created_at.strftime('%Y-%m-%d %H:%M:%S') %>
-              </td>
-              <td class="whitespace-nowrap px-4 py-3 text-xs text-slate-400">
-                <%= movie.updated_at.strftime('%Y-%m-%d %H:%M:%S') %>
+              <td class="whitespace-nowrap px-4 py-3">
+                <% if movie.running_minutes.present? %>
+                  <span class="inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white">
+                    <span class="h-2 w-2 rounded-full bg-brand-gold"></span>
+                    <%= movie.running_minutes %>分
+                  </span>
+                <% else %>
+                  <span class="text-xs text-slate-500">未設定</span>
+                <% end %>
               </td>
               <td class="whitespace-nowrap px-4 py-3">
                 <%= link_to '詳細・編集', edit_admin_movie_path(movie), class: 'btn-secondary text-xs' %>

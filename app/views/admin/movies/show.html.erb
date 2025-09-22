@@ -16,6 +16,17 @@
   </section>
 
   <section class="card-surface space-y-8">
+    <div class="grid gap-4 rounded-xl border border-white/5 bg-white/[0.03] p-6 text-sm text-slate-200 md:grid-cols-2">
+      <div>
+        <p class="text-xs uppercase tracking-[0.3em] text-slate-500">登録日時</p>
+        <p class="mt-1 font-semibold text-white"><%= @movie.created_at.strftime('%Y-%m-%d %H:%M:%S') %></p>
+      </div>
+      <div>
+        <p class="text-xs uppercase tracking-[0.3em] text-slate-500">更新日時</p>
+        <p class="mt-1 font-semibold text-white"><%= @movie.updated_at.strftime('%Y-%m-%d %H:%M:%S') %></p>
+      </div>
+    </div>
+
     <div class="space-y-4">
       <h2 class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">映画管理</h2>
       <p class="text-sm text-slate-300">
