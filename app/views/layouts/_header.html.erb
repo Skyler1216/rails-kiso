@@ -44,7 +44,9 @@
       <% else %>
         <%# 🔐 未ログイン: ログイン + 新規登録ボタン %>
         <div class="flex items-center gap-3">
-          <%= link_to 'ログイン', new_user_session_path, class: header_secondary_button_class %>
+          <% unless controller_path == 'devise/sessions' && action_name == 'new' %>
+            <%= link_to 'ログイン', new_user_session_path, class: header_secondary_button_class %>
+          <% end %>
           <%= link_to 'ユーザー登録', new_user_registration_path, class: header_primary_button_class %>
         </div>
       <% end %>

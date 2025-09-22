@@ -1,50 +1,48 @@
-<div class="auth-shell">
-  <div class="auth-layout">
-    <section class="auth-hero">
-      <h1 class="auth-hero__title">CineVerseへようこそ</h1>
-      <p class="auth-hero__description">
-        映画の世界へようこそ。<br>
-        ログインして、お気に入りの映画を予約し、<br>
-        特別な体験をお楽しみください。
+<div class="auth-page">
+  <div class="auth-panel">
+    <header class="auth-panel__header">
+      <p class="text-xs font-semibold uppercase tracking-[0.45em] text-brand-gold">CineVerse</p>
+      <h1 class="auth-panel__title">ログイン</h1>
+      <p class="auth-panel__description">
+        映画館予約サービス「CineVerse」のアカウントでログインし、上映スケジュールの確認や座席予約を行いましょう。
       </p>
-    </section>
+    </header>
 
-    <div class="auth-card">
-      <div class="auth-card__content">
-        <div class="auth-card__header">
-          <h2>アカウントにアクセス</h2>
-          <p>必要な情報を入力し、「ログインする」で続行します。</p>
-        </div>
+    <%= render 'devise/shared/error_messages', resource: resource %>
 
-        <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: 'auth-form' }) do |f| %>
-          <div class="form-field">
-            <%= f.label :email, 'メールアドレス', class: 'form-label' %>
-            <%= f.email_field :email, autofocus: true, autocomplete: 'email', class: 'form-input', placeholder: 'メールアドレスを入力してください' %>
-          </div>
+    <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: 'auth-form' }) do |f| %>
+      <div class="form-field">
+        <%= f.label :email, 'メールアドレス', class: 'form-label' %>
+        <%= f.email_field :email, autofocus: true, autocomplete: 'email', class: 'form-input', placeholder: 'メールアドレスを入力してください' %>
+      </div>
 
-          <div class="form-field">
-            <%= f.label :password, 'パスワード', class: 'form-label' %>
-            <%= f.password_field :password, autocomplete: 'current-password', class: 'form-input', placeholder: 'パスワードを入力してください' %>
-          </div>
+      <div class="form-field">
+        <%= f.label :password, 'パスワード', class: 'form-label' %>
+        <%= f.password_field :password, autocomplete: 'current-password', class: 'form-input', placeholder: 'パスワードを入力してください' %>
+      </div>
 
+      <% if devise_mapping.rememberable? || devise_mapping.recoverable? %>
+        <div class="auth-panel__options">
           <% if devise_mapping.rememberable? %>
-            <div class="auth-remember">
-              <label>
-                <%= f.check_box :remember_me %>
-                <span>次回から自動的にログイン</span>
-              </label>
-            </div>
+            <label class="auth-remember">
+              <%= f.check_box :remember_me %>
+              <span>次回から自動的にログイン</span>
+            </label>
           <% end %>
 
-          <div class="auth-actions">
-            <%= f.submit 'ログインする', class: 'btn-primary w-full justify-center' %>
-          </div>
-        <% end %>
-
-        <div class="auth-links">
-          <%= render 'devise/shared/links' %>
+          <% if devise_mapping.recoverable? %>
+            <%= link_to 'パスワードをお忘れですか？', new_password_path(resource_name), class: 'auth-panel__link' %>
+          <% end %>
         </div>
+      <% end %>
+
+      <div class="auth-actions">
+        <%= f.submit 'ログインする', class: 'btn-primary w-full justify-center' %>
       </div>
+    <% end %>
+
+    <div class="auth-links">
+      <%= render 'devise/shared/links' %>
     </div>
   </div>
 </div>
