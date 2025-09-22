@@ -42,36 +42,36 @@
     </div>
 
     <% if @movies.present? %>
-      <div class="movies-grid">
+      <div class="movie-table">
         <% @movies.each do |movie| %>
-          <article class="movie-card">
-            <div class="movie-card__poster">
+          <article class="movie-row">
+            <div class="movie-row__poster">
               <% if movie.image_url.present? %>
                 <%= image_tag movie.image_url, alt: "#{movie.name}のポスター" %>
               <% else %>
-                <div class="movie-card__poster--empty">No Poster</div>
+                <div class="movie-row__poster--empty">No Poster</div>
               <% end %>
             </div>
 
-            <div class="movie-card__body">
-              <div class="flex flex-col gap-2">
-                <div class="movie-card__meta">
+            <div class="movie-row__body">
+              <div class="movie-row__header">
+                <div class="movie-row__labels">
                   <span class="badge <%= movie.is_showing ? 'badge--showing' : 'badge--upcoming' %>">
                     <%= movie.is_showing ? '上映中' : '上映予定' %>
                   </span>
                   <% if movie.year.present? %>
-                    <span>公開年 <strong class="text-soft"><%= movie.year %></strong></span>
+                    <span class="movie-row__meta">公開年 <strong><%= movie.year %></strong></span>
                   <% end %>
                 </div>
-                <h3 class="movie-card__title"><%= movie.name %></h3>
+                <h3 class="movie-row__title"><%= movie.name %></h3>
               </div>
 
-              <p class="movie-card__description">
-                <%= truncate(movie.description.to_s, length: 110) %>
+              <p class="movie-row__description">
+                <%= truncate(movie.description.to_s, length: 150) %>
               </p>
 
-              <div class="movie-card__actions">
-                <%= link_to '詳細を見る', movie_path(movie), class: 'btn-primary justify-center' %>
+              <div class="movie-row__footer">
+                <%= link_to '詳細を見る', movie_path(movie), class: 'btn-primary w-full justify-center md:w-auto md:justify-start' %>
               </div>
             </div>
           </article>
