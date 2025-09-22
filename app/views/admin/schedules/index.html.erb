@@ -9,9 +9,6 @@
       <p class="page-hero__description">
         スケジュール全体の状況を集計し、時刻順の一覧で確認できます。映画別のまとまりも下部に掲載しています。
       </p>
-      <div class="mt-4 flex flex-wrap gap-3 text-sm">
-        <%= link_to 'スケジュールを追加', new_admin_schedule_path, class: 'btn-primary text-xs sm:text-sm' %>
-      </div>
     </div>
   </section>
 
@@ -44,16 +41,19 @@
   </section>
 
   <section class="card-surface space-y-6">
-    <div class="flex flex-wrap items-center justify-between gap-3">
+    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div>
         <p class="text-xs uppercase tracking-[0.35em] text-slate-500">Timeline</p>
         <h2 class="text-xl font-semibold text-white">時刻順スケジュール一覧</h2>
       </div>
-      <% if @schedule_stats[:total_schedules].positive? %>
-        <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
-          全 <%= @schedule_stats[:total_schedules] %> 件
-        </span>
-      <% end %>
+      <div class="flex flex-wrap items-center gap-3 text-xs sm:text-sm">
+        <% if @schedule_stats[:total_schedules].positive? %>
+          <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
+            全 <%= @schedule_stats[:total_schedules] %> 件
+          </span>
+        <% end %>
+        <%= link_to 'スケジュールを追加', new_admin_schedule_path, class: 'btn-primary text-xs sm:text-sm' %>
+      </div>
     </div>
 
     <% if @all_schedules.any? %>

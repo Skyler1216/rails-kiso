@@ -9,14 +9,23 @@
       <p class="page-hero__description">
         これから上映予定の映画に関する予約だけを表示しています。作品や座席の変更が必要な場合は各行から詳細画面に移動してください。
       </p>
-      <div class="mt-4 flex flex-wrap gap-3 text-sm">
-        <%= link_to '⟵ 管理ダッシュボード', admin_root_path, class: 'btn-secondary text-xs sm:text-sm' %>
-        <%= link_to '予約を追加', new_admin_reservation_path, class: 'btn-primary text-xs sm:text-sm' %>
-      </div>
     </div>
   </section>
 
   <section class="card-surface space-y-6">
+    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div>
+        <p class="text-xs uppercase tracking-[0.35em] text-slate-500">Reservation Timeline</p>
+        <h2 class="text-xl font-semibold text-white">これからの予約一覧</h2>
+      </div>
+      <div class="flex flex-wrap items-center gap-3 text-xs sm:text-sm">
+        <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
+          全 <%= @reservations.size %> 件
+        </span>
+        <%= link_to '予約を追加', new_admin_reservation_path, class: 'btn-primary text-xs sm:text-sm' %>
+      </div>
+    </div>
+
     <% if @reservations.any? %>
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-white/10 text-left text-sm text-slate-200">
@@ -67,6 +76,9 @@
     <% else %>
       <div class="rounded-lg border border-dashed border-white/10 bg-white/[0.02] px-6 py-10 text-center text-sm text-slate-400">
         これから上映予定の予約はまだありません。右上の「予約を追加」から登録できます。
+        <div class="mt-6 flex justify-center">
+          <%= link_to '予約を追加', new_admin_reservation_path, class: 'btn-primary text-xs sm:text-sm' %>
+        </div>
       </div>
     <% end %>
   </section>
