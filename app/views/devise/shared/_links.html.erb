@@ -1,4 +1,4 @@
-<%- if controller_name != 'sessions' %>
+<%- if controller_path != 'devise/sessions' && controller_path != 'custom_sessions' %>
   <%= link_to "ログイン", new_session_path(resource_name) %><br />
 <% end %>
 
