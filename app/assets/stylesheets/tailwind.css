@@ -2484,20 +2484,6 @@ a:hover {
   color: rgba(148, 163, 184, 0.85);
 }
 
-.movie-row__meta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-size: 0.75rem;
-  letter-spacing: 0.04em;
-  color: rgba(203, 213, 225, 0.76);
-}
-
-.movie-row__meta strong {
-  font-weight: 700;
-  color: #f8fafc;
-}
-
 .movie-row__title {
   margin: 0;
   font-family: 'Roboto Slab', serif;

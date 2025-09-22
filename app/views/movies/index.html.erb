@@ -59,9 +59,6 @@
                   <span class="badge <%= movie.is_showing ? 'badge--showing' : 'badge--upcoming' %>">
                     <%= movie.is_showing ? '上映中' : '上映予定' %>
                   </span>
-                  <% if movie.year.present? %>
-                    <span class="movie-row__meta">公開年 <strong><%= movie.year %></strong></span>
-                  <% end %>
                 </div>
                 <h3 class="movie-row__title"><%= movie.name %></h3>
               </div>
