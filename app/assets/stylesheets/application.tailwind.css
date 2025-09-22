@@ -1036,11 +1036,44 @@
 }
 
 .auth-remember input[type='checkbox'] {
-  width: 1.1rem;
-  height: 1.1rem;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+       appearance: none;
+  display: grid;
+  place-content: center;
+  width: 1.2rem;
+  height: 1.2rem;
   border-radius: 6px;
-  border: 1px solid rgba(148, 163, 184, 0.45);
-  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(148, 163, 184, 0.55);
+  background: rgba(15, 23, 42, 0.85);
+  box-shadow: 0 0 0 0 rgba(249, 178, 52, 0.28);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.auth-remember input[type='checkbox']::before {
+  content: '';
+  width: 0.55rem;
+  height: 0.55rem;
+  clip-path: polygon(14% 44%, 0 60%, 50% 100%, 100% 16%, 84% 0, 43% 62%);
+  transform: scale(0);
+  transform-origin: center;
+  transition: transform 0.2s ease;
+  background: #0f172a;
+}
+
+.auth-remember input[type='checkbox']:checked {
+  border-color: #f9b234;
+  background: #f9b234;
+  box-shadow: 0 0 0 3px rgba(249, 178, 52, 0.25);
+}
+
+.auth-remember input[type='checkbox']:checked::before {
+  transform: scale(1);
+}
+
+.auth-remember input[type='checkbox']:focus-visible {
+  outline: 2px solid rgba(56, 189, 248, 0.6);
+  outline-offset: 2px;
 }
 
 .auth-panel__link {
