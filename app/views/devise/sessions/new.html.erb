@@ -21,18 +21,12 @@
         <%= f.password_field :password, autocomplete: 'current-password', class: 'form-input', placeholder: 'パスワードを入力してください' %>
       </div>
 
-      <% if devise_mapping.rememberable? || devise_mapping.recoverable? %>
+      <% if devise_mapping.rememberable? %>
         <div class="auth-panel__options">
-          <% if devise_mapping.rememberable? %>
-            <label class="auth-remember">
-              <%= f.check_box :remember_me %>
-              <span>次回から自動的にログイン</span>
-            </label>
-          <% end %>
-
-          <% if devise_mapping.recoverable? %>
-            <%= link_to 'パスワードをお忘れですか？', new_password_path(resource_name), class: 'auth-panel__link' %>
-          <% end %>
+          <label class="auth-remember">
+            <%= f.check_box :remember_me %>
+            <span>次回から自動的にログイン</span>
+          </label>
         </div>
       <% end %>
 
