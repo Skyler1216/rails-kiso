@@ -2,13 +2,16 @@ module Admin
   class SchedulesController < BaseController
     # 一覧表示
     def index
-      # スケジュールを1件以上持つ映画だけを取得
-      @movies = Movie.includes(:schedules).where.not(schedules: { id: nil })
+      # スケジュールを1件以上持つ映画のみを表示
+      @movies = Movie.includes(:schedules)
+                     .where(id: Schedule.select(:movie_id).distinct)
+                     .order(:id)
     end
 
     # 編集フォーム表示
     def show
       @schedule = Schedule.find(params[:id])
+      @movie = @schedule.movie
     end
 
     # 編集フォームの送信（更新）

@@ -1,24 +1,84 @@
-<h1>スケジュール編集</h1>
+<div class="page-shell space-y-10">
+  <section class="page-hero">
+    <div class="page-hero__content">
+      <span class="page-hero__kicker">
+        <span class="text-brand-gold">Admin</span>
+        SCHEDULE DETAIL
+      </span>
+      <h1 class="page-hero__title">スケジュール編集</h1>
+      <p class="page-hero__description">
+        作品ID <%= @movie.id %> / <%= @movie.name %> の上映スケジュール詳細です。開始・終了時刻を更新できます。
+      </p>
+      <div class="mt-4 flex flex-wrap gap-3 text-sm">
+        <%= link_to '⟵ スケジュール一覧へ', admin_schedules_path, class: 'btn-secondary text-xs sm:text-sm' %>
+        <%= link_to '作品ページへ', admin_movie_path(@movie), class: 'btn-secondary text-xs sm:text-sm' %>
+      </div>
+    </div>
+  </section>
 
-<p>作品ID: <%= @schedule.movie_id %></p>
+  <section class="card-surface space-y-8">
+    <div class="rounded-xl border border-white/5 bg-white/[0.03] p-6">
+      <h2 class="text-base font-semibold text-white">スケジュール情報</h2>
+      <dl class="mt-4 grid gap-4 text-sm text-slate-300 md:grid-cols-2">
+        <div>
+          <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">ID</dt>
+          <dd class="font-medium text-white">#<%= @schedule.id %></dd>
+        </div>
+        <div>
+          <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">作品ID</dt>
+          <dd class="font-medium text-white"><%= @schedule.movie_id %></dd>
+        </div>
+        <div>
+          <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">開始時刻</dt>
+          <dd class="font-medium text-white"><%= @schedule.start_time.strftime('%Y-%m-%d %H:%M') %></dd>
+        </div>
+        <div>
+          <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">終了時刻</dt>
+          <dd class="font-medium text-white"><%= @schedule.end_time.strftime('%Y-%m-%d %H:%M') %></dd>
+        </div>
+        <div>
+          <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">作成日時</dt>
+          <dd class="font-medium text-white"><%= @schedule.created_at.strftime('%Y-%m-%d %H:%M') %></dd>
+        </div>
+        <div>
+          <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">更新日時</dt>
+          <dd class="font-medium text-white"><%= @schedule.updated_at.strftime('%Y-%m-%d %H:%M') %></dd>
+        </div>
+      </dl>
+    </div>
 
-<%= form_with model: [:admin, @schedule], url: admin_schedule_path(@schedule), method: :put, local: true do |f| %>
+    <div class="rounded-xl border border-white/5 bg-white/[0.03] p-6">
+      <h2 class="text-base font-semibold text-white">上映時間の編集</h2>
+      <%= form_with model: [:admin, @schedule], url: admin_schedule_path(@schedule), method: :put, local: true, class: 'mt-4 space-y-6' do |f| %>
+        <% if @schedule.errors.any? %>
+          <div class="rounded-lg border border-brand-red/40 bg-brand-red/10 px-4 py-3 text-sm text-brand-red">
+            <p class="font-semibold">入力内容を確認してください。</p>
+            <ul class="mt-2 list-disc space-y-1 pl-5">
+              <% @schedule.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
 
-  <div>
-    <%= form.label :start_time, "開始時刻" %><br>
-    <%= form.datetime_select :start_time %>
-  </div>
+        <div class="grid gap-4 md:grid-cols-2">
+          <div class="space-y-2">
+            <%= f.label :start_time, '開始時刻', class: 'text-sm font-semibold text-white' %>
+            <%= f.datetime_field :start_time, class: 'form-input' %>
+          </div>
+          <div class="space-y-2">
+            <%= f.label :end_time, '終了時刻', class: 'text-sm font-semibold text-white' %>
+            <%= f.datetime_field :end_time, class: 'form-input' %>
+          </div>
+        </div>
 
-  <div>
-    <%= form.label :end_time, "終了時刻" %><br>
-    <%= form.datetime_select :end_time %>
-  </div>
-
-  <div>
-    <%= form.submit "更新" %>
-  </div>
-<% end %>
-
-<hr>
-
-<%= button_to "削除", admin_schedule_path(@schedule), method: :delete, data: { confirm: "本当に削除しますか？" } %>
+        <div class="flex flex-wrap items-center gap-3">
+          <%= f.submit '更新', class: 'btn-primary' %>
+        </div>
+      <% end %>
+      <div class="mt-4">
+        <%= button_to '削除', admin_schedule_path(@schedule), method: :delete, data: { confirm: '本当に削除しますか？' }, class: 'btn-secondary border border-red-400/50 text-red-200 hover:bg-red-500/20 hover:text-white' %>
+      </div>
+    </div>
+  </section>
+</div>

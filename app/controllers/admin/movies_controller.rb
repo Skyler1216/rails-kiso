@@ -48,7 +48,8 @@ module Admin
     end
 
     def show
-      @movie = Movie.find(params[:id])
+      @movie = Movie.includes(:schedules).find(params[:id])
+      @schedules = @movie.schedules.sort_by(&:start_time)
     end
 
     private
