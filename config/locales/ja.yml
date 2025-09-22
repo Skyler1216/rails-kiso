@@ -1,4 +1,7 @@
 ja:
+  errors:
+    messages:
+      blank: "入力してください"
   activerecord:
     models:
       schedule: スケジュール
@@ -15,8 +18,12 @@ ja:
         schedule:
           attributes:
             screen:
-              required: "スクリーンを選択してください"
+              required: "^スクリーンを選択してください"
             movie:
-              required: "作品を選択してください"
+              required: "^作品を選択してください"
             movie_id:
-              required: "作品を選択してください"
+              required: "^作品を選択してください"
+            start_time:
+              blank: "^開始時刻を入力してください"
+            end_time:
+              blank: "^終了時刻を入力してください"

@@ -3,9 +3,11 @@ class Schedule < ApplicationRecord
   belongs_to :screen
   has_many :reservations, dependent: :destroy
 
+  validates :start_time, presence: { message: :blank }
+  validates :end_time, presence: { message: :blank }
   validate :end_time_after_start_time
 
-  after_update :sync_reservation_dates!, if: :saved_change_to_start_time?
+  after_update :sync_reservation_metadata!
 
   private
 
@@ -16,12 +18,24 @@ class Schedule < ApplicationRecord
     errors.add(:end_time, 'は開始時刻より後の時刻を指定してください')
   end
 
-  def sync_reservation_dates!
-    return if start_time.blank?
+  def sync_reservation_metadata!
+    return unless saved_change_to_start_time? || saved_change_to_screen_id?
 
-    new_date = start_time.in_time_zone.to_date
     reservations.find_each do |reservation|
-      reservation.update_columns(date: new_date, updated_at: Time.current)
+      updates = {}
+
+      if saved_change_to_start_time? && start_time.present?
+        updates[:date] = start_time.in_time_zone.to_date
+      end
+
+      if saved_change_to_screen_id?
+        updates[:screen_id] = screen_id
+      end
+
+      next if updates.empty?
+
+      updates[:updated_at] = Time.current
+      reservation.update_columns(updates)
     end
   end
 end

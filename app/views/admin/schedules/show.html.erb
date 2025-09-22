@@ -63,8 +63,8 @@
           <div class="rounded-lg border border-brand-red/40 bg-brand-red/10 px-4 py-3 text-sm text-brand-red">
             <p class="font-semibold">入力内容を確認してください。</p>
             <ul class="mt-2 list-disc space-y-1 pl-5">
-              <% @schedule.errors.full_messages.each do |message| %>
-                <li><%= message %></li>
+              <% @schedule.errors.each do |error| %>
+                <li><%= error.message.delete_prefix('^') %></li>
               <% end %>
             </ul>
           </div>
