@@ -2,7 +2,6 @@ module Admin
   class ReservationsController < BaseController
     before_action :set_reservation, only: %i[show update destroy]
     before_action :ensure_reservation_upcoming, only: %i[show update]
-    before_action :prepare_form_resources, only: %i[show]
 
     def index
       now = Time.zone.now
@@ -13,12 +12,12 @@ module Admin
 
     def new
       @reservation = Reservation.new
-      prepare_form_resources
+      prepare_form_resources(@reservation.schedule_id)
     end
 
     def create
       @reservation = Reservation.new(reservation_params)
-      prepare_form_resources
+      prepare_form_resources(@reservation.schedule_id)
 
       schedule = find_schedule(@reservation.schedule_id)
       sheet = find_sheet(@reservation.sheet_id)
@@ -44,12 +43,15 @@ module Admin
       end
     end
 
-    def show; end
+    def show
+      prepare_form_resources(@reservation.schedule_id)
+    end
 
     def update
-      prepare_form_resources
+      schedule_id = reservation_params[:schedule_id]
+      prepare_form_resources(schedule_id)
 
-      schedule = find_schedule(reservation_params[:schedule_id])
+      schedule = find_schedule(schedule_id)
       sheet = find_sheet(reservation_params[:sheet_id])
 
       validate_schedule_presence(schedule)
@@ -91,20 +93,18 @@ module Admin
       @reservation = Reservation.find(params[:id])
     end
 
-    def prepare_form_resources
+    def prepare_form_resources(schedule_id)
       now = Time.zone.now
       @schedules = Schedule.includes(:movie, :screen)
                            .where('schedules.end_time IS NULL OR schedules.end_time >= ?', now)
                            .order(:start_time)
       @sheets = Sheet.includes(:screen).order(:screen_id, :row, :column)
 
-      selected_id = @reservation&.schedule_id.presence&.to_i
+      selected_id = schedule_id.presence&.to_i
       @selected_schedule = selected_id && @schedules.find { |schedule| schedule.id == selected_id }
 
       @available_sheets =
-        if action_name == 'show'
-          Sheet.where(screen_id: @reservation.screen_id).order(:row, :column)
-        elsif %w[new create].include?(action_name) && @selected_schedule
+        if @selected_schedule
           Sheet.where(screen_id: @selected_schedule.screen_id).order(:row, :column)
         else
           @sheets
@@ -234,13 +234,13 @@ module Admin
     end
 
     def render_new_with_errors
-      prepare_form_resources
+      prepare_form_resources(@reservation.schedule_id)
       flash.now[:alert] = '❌ 入力内容に誤りがあります'
       render :new, status: :unprocessable_entity
     end
 
     def render_edit_with_errors(message)
-      prepare_form_resources
+      prepare_form_resources(@reservation.schedule_id)
       flash.now[:alert] = message
       render :show, status: :unprocessable_entity
     end
