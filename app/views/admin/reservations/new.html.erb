@@ -29,25 +29,18 @@
                                     { include_blank: '上映スケジュールを選択してください' },
                                     class: 'form-select',
                                     required: true %>
-            <p class="text-xs text-slate-500">上映日時・スクリーンに紐づく座席を選択してください。</p>
+            <p class="text-xs text-slate-500">上映日時・スクリーンに紐づく座席を選択してください。上映日はスケジュールの開始日時に合わせて自動設定されます。</p>
           </div>
           <div class="space-y-2">
             <%= f.label :sheet_id, '座席', class: 'text-sm font-semibold text-white' %>
             <%= f.collection_select :sheet_id,
-                                    @sheets,
+                                    @available_sheets,
                                     :id,
                                     ->(sheet) { "スクリーン#{sheet.screen_id} | #{sheet.row.to_s.upcase}-#{sheet.column}" },
                                     { include_blank: '座席を選択してください' },
                                     class: 'form-select',
                                     required: true %>
             <p class="text-xs text-slate-500">スクリーンが異なる座席を選択するとエラーになります。</p>
-          </div>
-        </div>
-
-        <div class="grid gap-6 md:grid-cols-2">
-          <div class="space-y-2">
-            <%= f.label :date, '上映日', class: 'text-sm font-semibold text-white' %>
-            <%= f.date_field :date, class: 'form-input', required: true %>
           </div>
         </div>
 

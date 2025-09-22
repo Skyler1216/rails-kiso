@@ -11,7 +11,6 @@
       </p>
       <div class="mt-4 flex flex-wrap gap-3 text-sm">
         <%= link_to '⟵ 予約一覧へ戻る', admin_reservations_path, class: 'btn-secondary text-xs sm:text-sm' %>
-        <%= button_to 'この予約を削除', admin_reservation_path(@reservation), method: :delete, data: { confirm: 'この予約を削除しますか？' }, class: 'btn-secondary text-xs sm:text-sm' %>
       </div>
     </div>
   </section>
@@ -23,30 +22,22 @@
         <div class="grid gap-6 md:grid-cols-2">
           <div class="space-y-2">
             <%= f.label :schedule_id, '上映スケジュール', class: 'text-sm font-semibold text-white' %>
-            <%= f.collection_select :schedule_id,
-                                    @schedules,
-                                    :id,
-                                    ->(schedule) { "##{schedule.id} | #{schedule.movie&.name || '未設定'} | #{schedule.start_time&.strftime('%Y-%m-%d %H:%M')}" },
-                                    {},
-                                    class: 'form-select',
-                                    required: true %>
+            <%= f.hidden_field :schedule_id %>
+            <div class="rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-slate-200">
+              <div class="font-semibold text-white">#<%= @reservation.schedule_id %> | <%= @reservation.schedule&.movie&.name || '未設定' %></div>
+              <div class="text-xs text-slate-400 mt-1"><%= @reservation.schedule&.start_time&.strftime('%Y-%m-%d %H:%M') %>〜<%= @reservation.schedule&.end_time&.strftime('%Y-%m-%d %H:%M') %></div>
+            </div>
+            <p class="text-xs text-slate-500">上映日時を変更する場合はスケジュール管理から更新してください。</p>
           </div>
           <div class="space-y-2">
             <%= f.label :sheet_id, '座席', class: 'text-sm font-semibold text-white' %>
             <%= f.collection_select :sheet_id,
-                                    @sheets,
+                                    @available_sheets,
                                     :id,
                                     ->(sheet) { "スクリーン#{sheet.screen_id} | #{sheet.row.to_s.upcase}-#{sheet.column}" },
                                     {},
                                     class: 'form-select',
                                     required: true %>
-          </div>
-        </div>
-
-        <div class="grid gap-6 md:grid-cols-2">
-          <div class="space-y-2">
-            <%= f.label :date, '上映日', class: 'text-sm font-semibold text-white' %>
-            <%= f.date_field :date, class: 'form-input', required: true %>
           </div>
         </div>
 
@@ -63,6 +54,11 @@
 
         <div class="flex flex-wrap items-center gap-3">
           <%= f.submit '予約を更新する', class: 'btn-primary' %>
+          <%= button_to 'この予約を削除', admin_reservation_path(@reservation),
+                        method: :delete,
+                        data: { confirm: 'この予約を削除しますか？' },
+                        form: { class: 'inline' },
+                        class: 'btn-secondary text-xs sm:text-sm' %>
         </div>
       <% end %>
     </div>

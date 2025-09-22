@@ -1,6 +1,7 @@
 module Admin
   class ReservationsController < BaseController
     before_action :set_reservation, only: %i[show update destroy]
+    before_action :ensure_reservation_upcoming, only: %i[show update]
     before_action :prepare_form_resources, only: %i[new show]
 
     def index
@@ -30,7 +31,7 @@ module Admin
     end
 
     def new
-      @reservation = Reservation.new(date: Date.today)
+      @reservation = Reservation.new
     end
 
     def create
@@ -48,7 +49,7 @@ module Admin
         redirect_to admin_reservations_path and return
       end
 
-      reservation_date = @reservation.date.presence || schedule.start_time&.to_date
+      reservation_date = schedule.start_time&.in_time_zone&.to_date || Time.zone.today
       @reservation.date = reservation_date
       @reservation.screen = schedule.screen
 
@@ -84,7 +85,7 @@ module Admin
         render :show, status: :unprocessable_entity and return
       end
 
-      reservation_date = reservation_params[:date].presence || schedule.start_time&.to_date
+      reservation_date = schedule.start_time&.in_time_zone&.to_date || @reservation.date
 
       if duplicate_reservation?(schedule, sheet, reservation_date, exclude: @reservation.id)
         prepare_form_resources
@@ -114,7 +115,7 @@ module Admin
     private
 
     def reservation_params
-      params.require(:reservation).permit(:name, :email, :schedule_id, :sheet_id, :date)
+      params.require(:reservation).permit(:name, :email, :schedule_id, :sheet_id)
     end
 
     def set_reservation
@@ -123,8 +124,18 @@ module Admin
 
     def prepare_form_resources
       @movies = Movie.order(:name)
-      @schedules = Schedule.includes(:movie, :screen).order(:start_time)
+      now = Time.zone.now
+      @schedules = Schedule.includes(:movie, :screen)
+                           .where('schedules.end_time IS NULL OR schedules.end_time >= ?', now)
+                           .order(:start_time)
       @sheets = Sheet.includes(:screen).order(:screen_id, :row, :column)
+
+      if action_name == 'show'
+        @available_sheets = Sheet.where(screen_id: @reservation.screen_id)
+                                  .order(:row, :column)
+      else
+        @available_sheets = @sheets
+      end
     end
 
     def duplicate_reservation?(schedule, sheet, date, exclude: nil)
@@ -152,6 +163,25 @@ module Admin
         time.min,
         time.sec
       )
+    end
+
+    def ensure_reservation_upcoming
+      now = Time.zone.now
+      start_at = occurrence_datetime(@reservation)
+      end_at = occurrence_datetime(@reservation, :end_time)
+
+      finished = if end_at.present?
+                   end_at < now
+                 elsif start_at.present?
+                   start_at < now
+                 else
+                   false
+                 end
+
+      return unless finished
+
+      admin_flash_error('終了した予約は編集できません')
+      redirect_to admin_reservations_path
     end
   end
 end
