@@ -16,7 +16,7 @@ class MoviesController < ApplicationController
 
     available_dates = @schedules
                       .map { |s| s.start_time.to_date }
-                      .select { |d| d >= Date.today && d <= Date.today + 6 }
+                      .select { |d| d >= Date.today }
                       .uniq
 
     selected_date = params[:date].presence || available_dates.first

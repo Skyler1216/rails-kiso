@@ -39,7 +39,7 @@
       <div class="schedule-card">
         <h2 class="text-lg font-semibold text-soft">上映スケジュール</h2>
         <% available_dates = @schedules.map { |s| s.start_time.to_date }
-                                      .select { |d| d >= Date.today && d <= Date.today + 6 }
+                                      .select { |d| d >= Date.today }
                                       .uniq
                                       .sort %>
         <% selected_date = @selected_date.present? ? @selected_date.to_s : available_dates.first&.to_s %>
@@ -47,7 +47,7 @@
         <% if available_dates.any? %>
           <%= form_with url: movie_path(@movie), method: :get, local: true, class: 'form-stack' do %>
             <div class="form-field">
-              <%= label_tag :date, '日付（1週間以内）', class: 'form-label' %>
+              <%= label_tag :date, '日付を選択', class: 'form-label' %>
               <%= select_tag :date,
                              options_for_select(available_dates.map { |d| [d.strftime('%Y年%m月%d日'), d.to_s] }, selected_date),
                              class: 'form-select' %>
