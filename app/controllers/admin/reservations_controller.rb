@@ -2,7 +2,7 @@ module Admin
   class ReservationsController < BaseController
     before_action :set_reservation, only: %i[show update destroy]
     before_action :ensure_reservation_upcoming, only: %i[show update]
-    before_action :prepare_form_resources, only: %i[new show]
+    before_action :prepare_form_resources, only: %i[show]
 
     def index
       now = Time.zone.now
@@ -13,6 +13,7 @@ module Admin
 
     def new
       @reservation = Reservation.new
+      prepare_form_resources
     end
 
     def create

@@ -7,7 +7,7 @@
       </span>
       <h1 class="page-hero__title">予約詳細・編集</h1>
       <p class="page-hero__description">
-        予約内容を更新または削除できます。座席や上映スケジュールを変更する場合は重複に注意してください。
+        上映スケジュールと座席の整合を確認しながら予約内容を更新できます。不要になった予約は削除してください。
       </p>
       <div class="mt-4 flex flex-wrap gap-3 text-sm">
         <%= link_to '⟵ 予約一覧へ戻る', admin_reservations_path, class: 'btn-secondary text-xs sm:text-sm' %>
@@ -18,49 +18,7 @@
   <section class="card-surface space-y-8">
     <div class="rounded-xl border border-white/5 bg-white/[0.03] p-6">
       <h2 class="text-base font-semibold text-white">予約情報を編集</h2>
-      <%= form_with model: [:admin, @reservation], url: admin_reservation_path(@reservation), method: :put, local: true, class: 'mt-4 space-y-6' do |f| %>
-        <div class="grid gap-6 md:grid-cols-2">
-          <div class="space-y-2">
-            <%= f.label :schedule_id, '上映スケジュール', class: 'text-sm font-semibold text-white' %>
-            <%= f.hidden_field :schedule_id %>
-            <div class="rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-slate-200">
-              <div class="font-semibold text-white">#<%= @reservation.schedule_id %> | <%= @reservation.schedule&.movie&.name || '未設定' %></div>
-              <div class="text-xs text-slate-400 mt-1"><%= @reservation.schedule&.start_time&.strftime('%Y-%m-%d %H:%M') %>〜<%= @reservation.schedule&.end_time&.strftime('%Y-%m-%d %H:%M') %></div>
-            </div>
-            <p class="text-xs text-slate-500">上映日時を変更する場合はスケジュール管理から更新してください。</p>
-          </div>
-          <div class="space-y-2">
-            <%= f.label :sheet_id, '座席', class: 'text-sm font-semibold text-white' %>
-            <%= f.collection_select :sheet_id,
-                                    @available_sheets,
-                                    :id,
-                                    ->(sheet) { "スクリーン#{sheet.screen_id} | #{sheet.row.to_s.upcase}-#{sheet.column}" },
-                                    {},
-                                    class: 'form-select',
-                                    required: true %>
-          </div>
-        </div>
-
-        <div class="grid gap-6 md:grid-cols-2">
-          <div class="space-y-2">
-            <%= f.label :name, '予約者氏名', class: 'text-sm font-semibold text-white' %>
-            <%= f.text_field :name, class: 'form-input', required: true %>
-          </div>
-          <div class="space-y-2">
-            <%= f.label :email, '予約者メールアドレス', class: 'text-sm font-semibold text-white' %>
-            <%= f.email_field :email, class: 'form-input', required: true %>
-          </div>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-3">
-          <%= f.submit '予約を更新する', class: 'btn-primary' %>
-          <%= button_to 'この予約を削除', admin_reservation_path(@reservation),
-                        method: :delete,
-                        data: { confirm: 'この予約を削除しますか？' },
-                        form: { class: 'inline' },
-                        class: 'btn-secondary text-xs sm:text-sm' %>
-        </div>
-      <% end %>
+      <%= render 'form', reservation: @reservation, show_delete: true %>
     </div>
   </section>
 </div>
