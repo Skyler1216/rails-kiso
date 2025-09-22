@@ -1438,6 +1438,10 @@ a:hover {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.grid-cols-5 {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
 .flex-row {
   flex-direction: row;
 }
@@ -1868,6 +1872,10 @@ a:hover {
 .object-cover {
   -o-object-fit: cover;
      object-fit: cover;
+}
+
+.p-3 {
+  padding: 0.75rem;
 }
 
 .p-4 {
@@ -3462,10 +3470,6 @@ a:hover {
   }
 }
 
-.last\:border-b-0:last-child {
-  border-bottom-width: 0px;
-}
-
 .hover\:bg-red-500\/20:hover {
   background-color: rgb(239 68 68 / 0.2);
 }
@@ -3618,7 +3622,15 @@ a:hover {
 }
 
 @media (min-width: 1280px) {
+  .xl\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .xl\:grid-cols-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .xl\:grid-cols-5 {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }

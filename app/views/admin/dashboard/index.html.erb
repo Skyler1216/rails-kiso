@@ -1,129 +1,138 @@
-<!-- ========================================
-    🎬 管理者ダッシュボード
-    ========================================
-    
-    管理者専用のトップページ
-    - 映画館の運営状況を一目で確認
-    - 各管理機能へのクイックアクセス
-    - 統計情報と最近の活動を表示
--->
-
-<!-- ページヘッダー -->
-<div class="text-center mb-12">
-  <h1 class="text-4xl font-bold text-brand-gold mb-4">🎬 管理者ダッシュボード</h1>
-  <p class="text-gray-300 text-lg">映画館の運営状況を管理しましょう</p>
-</div>
-
-<!-- 統計情報カード -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-  <!-- 映画統計 -->
-  <div class="card-surface">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-xl font-semibold text-brand-gold">🎭 映画管理</h2>
-      <span class="text-3xl">🎬</span>
-    </div>
-    <div class="space-y-2">
-      <p class="text-gray-300"><span class="font-semibold">総映画数:</span> <%= @stats[:total_movies] %> 作品</p>
-      <p class="text-green-400"><span class="font-semibold">上映中:</span> <%= @stats[:showing_movies] %> 作品</p>
-      <p class="text-yellow-400"><span class="font-semibold">上映予定:</span> <%= @stats[:upcoming_movies] %> 作品</p>
-    </div>
-    <div class="mt-4">
-      <%= link_to '映画一覧', admin_movies_path, class: "btn-primary w-full text-center" %>
-    </div>
-  </div>
-
-  <!-- スケジュール統計 -->
-  <div class="card-surface">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-xl font-semibold text-brand-gold">📅 スケジュール管理</h2>
-      <span class="text-3xl">📆</span>
-    </div>
-    <div class="space-y-2">
-      <p class="text-gray-300"><span class="font-semibold">総スケジュール数:</span> <%= @stats[:total_schedules] %> 件</p>
-    </div>
-    <div class="mt-4">
-      <%= link_to 'スケジュール一覧', admin_schedules_path, class: "btn-primary w-full text-center" %>
-    </div>
-  </div>
-
-  <!-- 予約統計 -->
-  <div class="card-surface">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-xl font-semibold text-brand-gold">🎫 予約管理</h2>
-      <span class="text-3xl">🎟️</span>
-    </div>
-    <div class="space-y-2">
-      <p class="text-gray-300"><span class="font-semibold">総予約数:</span> <%= @stats[:total_reservations] %> 件</p>
-      <p class="text-blue-400"><span class="font-semibold">今日の予約:</span> <%= @stats[:today_reservations] %> 件</p>
-    </div>
-    <div class="mt-4">
-      <%= link_to '予約一覧', admin_reservations_path, class: "btn-primary w-full text-center" %>
-    </div>
-  </div>
-</div>
-
-<!-- 最近の活動 -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-  <!-- 最近の予約 -->
-  <div class="card-surface">
-    <h2 class="text-xl font-semibold text-brand-gold mb-6">📋 最近の予約</h2>
-    <% if @recent_reservations.any? %>
-      <div class="space-y-4">
-        <% @recent_reservations.each do |reservation| %>
-          <div class="border-b border-gray-700 pb-3 last:border-b-0">
-            <div class="flex justify-between items-start">
-              <div>
-                <p class="font-semibold text-white"><%= reservation.name %></p>
-                <p class="text-sm text-gray-400"><%= reservation.email %></p>
-                <p class="text-xs text-gray-500">
-                  <%= reservation.schedule.movie.name %> - 
-                  <%= reservation.schedule.start_time.strftime("%m/%d %H:%M") %>
-                </p>
-              </div>
-              <span class="text-xs text-gray-400">
-                <%= reservation.created_at.strftime("%m/%d") %>
-              </span>
-            </div>
-          </div>
-        <% end %>
+<div class="page-shell space-y-10">
+  <section class="page-hero">
+    <div class="page-hero__content">
+      <span class="page-hero__kicker">
+        <span class="text-brand-gold">Admin</span>
+        CONTROL CENTER
+      </span>
+      <h1 class="page-hero__title">ダッシュボード</h1>
+      <p class="page-hero__description">
+        最新の稼働状況と次のアクションをシンプルに確認できます。
+      </p>
+      <div class="mt-4 flex flex-wrap gap-3 text-xs sm:text-sm">
+        <%= link_to '映画一覧', admin_movies_path, class: 'btn-secondary' %>
+        <%= link_to '上映スケジュール', admin_schedules_path, class: 'btn-secondary' %>
+        <%= link_to '予約一覧', admin_reservations_path, class: 'btn-secondary' %>
       </div>
-    <% else %>
-      <p class="text-gray-400 text-center py-8">まだ予約がありません</p>
-    <% end %>
-  </div>
+    </div>
+  </section>
 
-  <!-- 上映中の映画 -->
-  <div class="card-surface">
-    <h2 class="text-xl font-semibold text-brand-gold mb-6">🎭 上映中の映画</h2>
-    <% if @showing_movies.any? %>
-      <div class="space-y-4">
-        <% @showing_movies.each do |movie| %>
-          <div class="border-b border-gray-700 pb-3 last:border-b-0">
-            <div class="flex items-center gap-3">
-              <img src="<%= movie.image_url %>" 
-                   alt="<%= movie.name %>" 
-                   class="w-12 h-16 object-cover rounded">
-              <div class="flex-1">
-                <h3 class="font-semibold text-white"><%= movie.name %></h3>
-                <p class="text-sm text-gray-400"><%= movie.year %>年</p>
-                <p class="text-xs text-green-400">上映中</p>
-              </div>
-            </div>
-          </div>
-        <% end %>
+  <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+    <div class="card-surface space-y-3">
+      <h2 class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">Movies</h2>
+      <p class="text-3xl font-semibold text-white"><%= @stats[:movies][:total] %></p>
+      <div class="flex items-center gap-4 text-xs text-slate-400">
+        <span>上映中 <strong class="text-white"><%= @stats[:movies][:showing] %></strong></span>
+        <span>上映予定 <strong class="text-white"><%= @stats[:movies][:upcoming] %></strong></span>
       </div>
-    <% else %>
-      <p class="text-gray-400 text-center py-8">上映中の映画がありません</p>
-    <% end %>
-  </div>
-</div>
+      <%= link_to '作品を追加', new_admin_movie_path, class: 'btn-primary w-full text-xs sm:text-sm' %>
+    </div>
 
-<!-- クイックアクション -->
-<div class="mt-12 text-center">
-  <h2 class="text-2xl font-semibold text-brand-gold mb-6">⚡ クイックアクション</h2>
-  <div class="flex flex-wrap justify-center gap-4">
-    <%= link_to '🎬 映画を追加', new_admin_movie_path, class: "btn-primary px-6 py-3" %>
-    <%= link_to '📅 スケジュールを追加', admin_schedules_path, class: "btn-secondary px-6 py-3" %>
-    <%= link_to '🎫 予約を追加', new_admin_reservation_path, class: "btn-primary px-6 py-3" %>
-  </div>
+    <div class="card-surface space-y-3">
+      <h2 class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">Schedules</h2>
+      <p class="text-3xl font-semibold text-white"><%= @stats[:schedules][:total] %></p>
+      <div class="flex items-center gap-4 text-xs text-slate-400">
+        <span>本日 <strong class="text-white"><%= @stats[:schedules][:today] %></strong></span>
+        <span>今後 <strong class="text-white"><%= @stats[:schedules][:upcoming] %></strong></span>
+      </div>
+      <%= link_to 'スケジュールを追加', new_admin_schedule_path, class: 'btn-primary w-full text-xs sm:text-sm' %>
+    </div>
+
+    <div class="card-surface space-y-3">
+      <h2 class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">Reservations</h2>
+      <p class="text-3xl font-semibold text-white"><%= @stats[:reservations][:total] %></p>
+      <div class="flex items-center gap-4 text-xs text-slate-400">
+        <span>本日 <strong class="text-white"><%= @stats[:reservations][:today] %></strong></span>
+        <span>今後 <strong class="text-white"><%= @stats[:reservations][:upcoming] %></strong></span>
+      </div>
+      <%= link_to '予約を追加', new_admin_reservation_path, class: 'btn-primary w-full text-xs sm:text-sm' %>
+    </div>
+  </section>
+
+  <section class="grid gap-6 lg:grid-cols-2">
+    <div class="card-surface space-y-4">
+      <header class="flex items-center justify-between text-sm">
+        <div>
+          <p class="uppercase tracking-[0.3em] text-slate-500">Upcoming Schedules</p>
+          <h2 class="text-lg font-semibold text-white">これからの上映</h2>
+        </div>
+        <%= link_to '一覧を見る', admin_schedules_path, class: 'text-xs text-slate-400 hover:text-white transition' %>
+      </header>
+      <% if @upcoming_schedules.any? %>
+        <ul class="space-y-3 text-sm">
+          <% @upcoming_schedules.each do |schedule| %>
+            <li class="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3">
+              <div class="flex flex-col">
+                <span class="text-white font-semibold"><%= schedule.movie&.name || '未設定' %></span>
+                <span class="text-xs text-slate-400">スクリーン <%= schedule.screen&.name || schedule.screen_id %></span>
+              </div>
+              <div class="text-right text-xs text-slate-400">
+                <p class="text-sm text-white font-semibold"><%= schedule.start_time&.strftime('%m/%d %H:%M') || '-' %></p>
+                <p>〜 <%= schedule.end_time&.strftime('%H:%M') || '-' %></p>
+              </div>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="rounded-lg border border-dashed border-white/10 bg-white/[0.02] px-4 py-6 text-center text-xs text-slate-400">
+          予定されている上映がまだありません。
+        </p>
+      <% end %>
+    </div>
+
+    <div class="card-surface space-y-4">
+      <header class="flex items-center justify-between text-sm">
+        <div>
+          <p class="uppercase tracking-[0.3em] text-slate-500">Upcoming Reservations</p>
+          <h2 class="text-lg font-semibold text-white">これからの予約</h2>
+        </div>
+        <%= link_to '一覧を見る', admin_reservations_path, class: 'text-xs text-slate-400 hover:text-white transition' %>
+      </header>
+      <% if @upcoming_reservations.any? %>
+        <ul class="space-y-3 text-sm">
+          <% @upcoming_reservations.each do |reservation| %>
+            <li class="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3">
+              <div class="flex flex-col">
+                <span class="text-white font-semibold"><%= reservation.name %></span>
+                <span class="text-xs text-slate-400"><%= reservation.email %></span>
+              </div>
+              <div class="text-right text-xs text-slate-400">
+                <p class="text-sm text-white font-semibold"><%= reservation.date&.strftime('%m/%d') %> <%= reservation.schedule&.start_time&.strftime('%H:%M') %></p>
+                <p><%= reservation.schedule&.movie&.name || '未設定' %></p>
+              </div>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="rounded-lg border border-dashed border-white/10 bg-white/[0.02] px-4 py-6 text-center text-xs text-slate-400">
+          これからの予約はまだありません。
+        </p>
+      <% end %>
+    </div>
+  </section>
+
+  <section class="card-surface space-y-4">
+    <header class="flex items-center justify-between text-sm">
+      <div>
+        <p class="uppercase tracking-[0.3em] text-slate-500">Recently Updated</p>
+        <h2 class="text-lg font-semibold text-white">最近更新された作品</h2>
+      </div>
+      <%= link_to '映画を管理', admin_movies_path, class: 'text-xs text-slate-400 hover:text-white transition' %>
+    </header>
+    <% if @recent_movies.any? %>
+      <ul class="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <% @recent_movies.each do |movie| %>
+          <li class="rounded-lg border border-white/10 bg-white/[0.04] p-3">
+            <p class="font-semibold text-white truncate"><%= movie.name %></p>
+            <p class="text-xs text-slate-400">更新: <%= movie.updated_at.strftime('%m/%d %H:%M') %></p>
+            <%= link_to '詳細を開く', admin_movie_path(movie), class: 'mt-2 inline-flex text-xs text-brand-gold hover:text-white transition' %>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="rounded-lg border border-dashed border-white/10 bg-white/[0.02] px-4 py-6 text-center text-xs text-slate-400">
+        最近更新された作品はありません。
+      </p>
+    <% end %>
+  </section>
 </div>
