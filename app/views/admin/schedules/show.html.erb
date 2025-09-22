@@ -76,11 +76,15 @@
           <div class="grid gap-4 md:grid-cols-2">
           <div class="space-y-2">
             <%= f.label :start_time, '開始時刻', class: 'text-sm font-semibold text-white' %>
-            <%= f.datetime_field :start_time, class: 'form-input' %>
+            <%= f.datetime_field :start_time, class: 'form-input', data: { schedule_start_field: true } %>
           </div>
           <div class="space-y-2">
-            <%= f.label :end_time, '終了時刻', class: 'text-sm font-semibold text-white' %>
-            <%= f.datetime_field :end_time, class: 'form-input' %>
+            <div class="flex items-center justify-between">
+              <%= f.label :end_time, '終了時刻', class: 'text-sm font-semibold text-white' %>
+              <button type="button" class="text-xs text-brand-gold underline decoration-dotted hover:text-brand-red" data-schedule-reset-end data-running-minutes="<%= @schedule.movie&.running_minutes %>">再計算</button>
+            </div>
+            <%= f.datetime_field :end_time, class: 'form-input', data: { schedule_end_field: true } %>
+            <p class="text-xs text-slate-500">作品の上映時間をもとに終了時刻を自動計算できます。必要に応じて調整してください。</p>
           </div>
           </div>
         </div>
@@ -95,3 +99,64 @@
     </div>
   </section>
 </div>
+
+<%= javascript_tag do %>
+  document.addEventListener('turbo:load', setupScheduleFormAutofill);
+  document.addEventListener('turbo:frame-load', setupScheduleFormAutofill);
+  document.addEventListener('DOMContentLoaded', setupScheduleFormAutofill);
+
+  function setupScheduleFormAutofill() {
+    const movieSelect = document.querySelector('[data-schedule-movie-select]');
+    const startInput = document.querySelector('[data-schedule-start-field]');
+    const endInput = document.querySelector('[data-schedule-end-field]');
+    const resetButton = document.querySelector('[data-schedule-reset-end]');
+
+    if (!startInput || !endInput || !resetButton) return;
+
+    const formatDateTimeLocal = (date) => {
+      const pad = (num) => String(num).padStart(2, '0');
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    };
+
+    const computeEndTime = () => {
+      let minutes = null;
+      if (movieSelect) {
+        const selectedOption = movieSelect.options[movieSelect.selectedIndex];
+        minutes = selectedOption ? parseInt(selectedOption.dataset.runningMinutes, 10) : NaN;
+      } else if (resetButton.dataset.runningMinutes) {
+        minutes = parseInt(resetButton.dataset.runningMinutes, 10);
+      }
+
+      const startValue = startInput.value;
+
+      if (!startValue || isNaN(minutes) || minutes <= 0) {
+        return null;
+      }
+
+      const startDate = new Date(startValue);
+      if (Number.isNaN(startDate.getTime())) {
+        return null;
+      }
+
+      const result = new Date(startDate.getTime() + minutes * 60000);
+      return formatDateTimeLocal(result);
+    };
+
+    const applyAutofill = (force = false) => {
+      const computed = computeEndTime();
+      if (!computed) return;
+
+      if (force || !endInput.value) {
+        endInput.value = computed;
+      }
+    };
+
+    startInput.addEventListener('change', () => applyAutofill(true));
+    resetButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      applyAutofill(true);
+    });
+
+    applyAutofill();
+  }
+<% end %>

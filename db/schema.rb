@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_09_20_210834) do
+ActiveRecord::Schema[7.1].define(version: 2025_09_22_152324) do
   create_table "movies", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", limit: 160, null: false, comment: "映画のタイトル。邦題・洋題は一旦考えなくてOK"
     t.string "year", limit: 45, comment: "公開年"
@@ -19,6 +19,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_20_210834) do
     t.boolean "is_showing", null: false, comment: "上映中かどうか"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "running_minutes", comment: "上映時間（分）"
     t.index ["name"], name: "index_movies_on_name", unique: true
   end
 

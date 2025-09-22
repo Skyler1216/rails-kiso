@@ -7,6 +7,7 @@ class Schedule < ApplicationRecord
   validates :end_time, presence: { message: :blank }
   validate :end_time_after_start_time
   validate :no_overlapping_schedule
+  before_validation :populate_end_time_from_movie
 
   after_update :sync_reservation_metadata!
 
@@ -48,5 +49,15 @@ class Schedule < ApplicationRecord
     return unless overlap_exists
 
     errors.add(:base, '同じスクリーンで日程が重複しています')
+  end
+
+  def populate_end_time_from_movie
+    return unless start_time.present? && movie.present? && movie.running_minutes.present?
+
+    return if will_save_change_to_end_time?
+
+    if end_time.blank? || will_save_change_to_start_time?
+      self.end_time = start_time + movie.running_minutes.minutes
+    end
   end
 end

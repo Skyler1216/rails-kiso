@@ -5,6 +5,7 @@ ja:
   activerecord:
     models:
       schedule: スケジュール
+      movie: 映画
     attributes:
       schedule:
         movie: 作品
@@ -13,6 +14,8 @@ ja:
         screen_id: スクリーンID
         start_time: 開始時刻
         end_time: 終了時刻
+      movie:
+        running_minutes: 上映時間（分）
     errors:
       models:
         schedule:
@@ -27,3 +30,7 @@ ja:
               blank: "^開始時刻を入力してください"
             end_time:
               blank: "^終了時刻を入力してください"
+        movie:
+          attributes:
+            running_minutes:
+              greater_than: "^上映時間は1分以上で入力してください"

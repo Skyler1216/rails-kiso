@@ -54,7 +54,7 @@ module Admin
     private
 
     def movie_params
-      params.require(:movie).permit(:name, :year, :description, :image_url, :is_showing)
+      params.require(:movie).permit(:name, :year, :description, :image_url, :is_showing, :running_minutes)
     end
   end
 end
