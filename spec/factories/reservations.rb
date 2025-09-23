@@ -1,9 +1,11 @@
 FactoryBot.define do
   factory :reservation do
-    date { '2025-05-22' }
+    date { Date.current }
     association :schedule
-    association :sheet
     name { 'Test User' }
     email { 'test@example.com' }
+
+    screen { schedule.screen }
+    sheet { association :sheet, screen: screen }
   end
 end

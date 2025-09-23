@@ -1,6 +1,7 @@
 FactoryBot.define do
   factory :sheet do
-    sequence(:column) { |n| n }
-    sequence(:row) { 'a' }
+    association :screen
+    sequence(:row) { |n| ('A'..'Z').to_a[n % 26] }
+    sequence(:column) { |n| (n % 10) + 1 }
   end
 end

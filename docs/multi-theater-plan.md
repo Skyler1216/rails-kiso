@@ -22,7 +22,8 @@
   （対応ファイル: app/models/theater.rb）
 - [x] `Screen` モデルを更新し、`belongs_to :theater` や `has_many :schedules`、バリデーション（`name` 必須）を追加する。
   （対応ファイル: app/models/screen.rb）
-- [ ] 予約モデルのダブルブッキング防止バリデーションを `theater` を含んだシナリオでも確認できるよう追加テストする。（対応ファイル: ）
+- [x] 予約モデルのダブルブッキング防止バリデーションを `theater` を含んだシナリオでも確認できるよう追加テストする。
+  （対応ファイル: spec/models/reservation_spec.rb, spec/factories/theaters.rb, spec/factories/screens.rb, spec/factories/schedule.rb, spec/factories/sheet.rb, spec/factories/reservations.rb）
 
 ### 管理画面（Admin）
 - [x] スケジュール・予約フォームでスクリーン選択時に劇場名を表示し、コントローラで `screen.theater` を eager load する。

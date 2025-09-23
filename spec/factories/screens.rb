@@ -1,5 +1,6 @@
 FactoryBot.define do
   factory :screen do
-    name { 'MyString' }
+    association :theater
+    sequence(:name) { |n| "スクリーン#{n}" }
   end
 end
