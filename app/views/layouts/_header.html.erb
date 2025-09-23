@@ -66,6 +66,7 @@
 
         <nav class="admin-toolbar__nav">
           <%= link_to 'ダッシュボード', admin_root_path, class: admin_nav_link_class(admin_root_path) %>
+          <%= link_to '劇場管理', admin_theaters_path, class: admin_nav_link_class(admin_theaters_path) %>
           <%= link_to '映画管理', admin_movies_path, class: admin_nav_link_class(admin_movies_path) %>
           <%= link_to 'スケジュール', admin_schedules_path, class: admin_nav_link_class(admin_schedules_path) %>
           <%= link_to '予約管理', admin_reservations_path, class: admin_nav_link_class(admin_reservations_path) %>

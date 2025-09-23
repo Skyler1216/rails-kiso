@@ -1,0 +1,63 @@
+<%# 劇場の詳細ページ
+    構成:
+      - ヘッダー（戻るリンク・IDバッジ）
+      - 劇場の基本情報（住所/電話/ステータス）
+      - 所属スクリーン一覧（あれば）
+      - 下部に更新用フォーム（_form）を再利用し、その場で編集できる構成
+%>
+<div class="page-shell space-y-10">
+  <div class="flex flex-wrap gap-3 text-sm">
+    <%= link_to '⟵ 劇場一覧に戻る', admin_theaters_path, class: 'btn-secondary text-xs sm:text-sm' %>
+    <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-400">
+      ID: <%= @theater.id %>
+    </span>
+  </div>
+
+  <section class="card-surface space-y-6">
+    <div class="space-y-1">
+      <h1 class="text-2xl font-semibold text-white"><%= @theater.name %></h1>
+      <div class="flex flex-wrap items-center gap-3 text-sm text-slate-300">
+        <span><strong>住所:</strong> <%= @theater.address %></span>
+        <% if @theater.phone.present? %>
+          <span><strong>電話:</strong> <%= @theater.phone %></span>
+        <% end %>
+        <span>
+          <strong>ステータス:</strong>
+          <% if @theater.is_active? %>
+            <span class="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-2 py-0.5 text-xs font-semibold text-emerald-300">
+              <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
+              営業中
+            </span>
+          <% else %>
+            <span class="inline-flex items-center gap-1 rounded-full bg-slate-500/20 px-2 py-0.5 text-xs font-semibold text-slate-300">
+              <span class="h-2 w-2 rounded-full bg-slate-300"></span>
+              非稼働
+            </span>
+          <% end %>
+        </span>
+      </div>
+    </div>
+
+    <%# 所属スクリーンがある場合は一覧で表示 %>
+    <% if @theater.screens.any? %>
+      <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+        <h2 class="text-sm font-semibold text-white">所属スクリーン (<%= @theater.screens.size %>面)</h2>
+        <ul class="mt-2 grid gap-2 md:grid-cols-2">
+          <% @theater.screens.order(:id).each do |screen| %>
+            <li class="rounded border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-200">
+              <span class="font-semibold text-white">スクリーン <%= screen.id %>:</span>
+              <span><%= screen.name %></span>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    <% else %>
+      <div class="rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-400">
+        この劇場にはまだスクリーンが割り当てられていません。
+      </div>
+    <% end %>
+
+    <%# 詳細ページ下部で編集可能にする（部分テンプレートを再利用） %>
+    <%= render 'form', theater: @theater, heading: '劇場情報を更新', submit_label: '更新する', submit_note: '送信先: PATCH /admin/theaters/:id', show_delete: true %>
+  </section>
+</div>

@@ -79,7 +79,18 @@ Rails.application.routes.draw do
     # DELETE /admin/movies/:id       (映画削除)
     # GET    /admin/movies/:id       (映画詳細)
 
-    # スケジュール管理（独立）
+    # 劇場管理
+    resources :theaters
+    # 生成されるルート例:
+    # GET    /admin/theaters           (劇場一覧)
+    # GET    /admin/theaters/new       (劇場新規作成)
+    # POST   /admin/theaters           (劇場作成処理)
+    # GET    /admin/theaters/:id/edit  (劇場編集)
+    # PATCH  /admin/theaters/:id       (劇場更新)
+    # DELETE /admin/theaters/:id       (劇場削除)
+    # GET    /admin/theaters/:id       (劇場詳細)
+
+    # スケジュール管理（映画にネストしていない独立リソース）
     resources :schedules, only: %i[index show new create update destroy]
     # 生成されるルート例:
     # GET    /admin/schedules        (スケジュール一覧)

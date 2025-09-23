@@ -28,7 +28,7 @@
 ### 管理画面（Admin）
 - [x] スケジュール・予約フォームでスクリーン選択時に劇場名を表示し、コントローラで `screen.theater` を eager load する。
   （対応ファイル: app/views/admin/schedules/_form.html.erb, app/controllers/admin/schedules_controller.rb, app/controllers/admin/reservations_controller.rb）
-- [ ] 劇場の CRUD 画面を追加し、スクリーン編集時に劇場を選択できるようにする。（対応ファイル: ）
+- [x] 劇場の CRUD 画面を追加し、スクリーン編集時に劇場を選択できるようにする。（対応ファイル: config/routes.rb, app/controllers/admin/theaters_controller.rb, app/views/admin/theaters/index.html.erb, app/views/admin/theaters/new.html.erb, app/views/admin/theaters/show.html.erb, app/views/admin/theaters/_form.html.erb, app/views/layouts/_header.html.erb）
 - [ ] スケジュール一覧／詳細で劇場別フィルタや表示を整備する。（対応ファイル: ）
 
 ### 予約フロー（フロント）

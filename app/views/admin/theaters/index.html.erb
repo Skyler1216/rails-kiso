@@ -1,0 +1,89 @@
+<%# 劇場一覧ページ
+    目的: 登録済みの劇場を一覧表示し、新規作成や詳細/編集に遷移できるようにする。
+    補足: @theaters は TheatersController#index で ID 昇順・スクリーン同時読み込み。
+%>
+<div class="page-shell">
+  <section class="page-hero">
+    <div class="page-hero__content">
+      <span class="page-hero__kicker">
+        <span class="text-brand-gold">Admin</span>
+        THEATER MANAGEMENT
+      </span>
+      <h1 class="page-hero__title">劇場管理</h1>
+      <p class="page-hero__description">
+        複数劇場の運用設定を管理します。劇場を追加してスクリーンを適切な拠点に割り当てましょう。
+      </p>
+    </div>
+  </section>
+
+  <section class="card-surface space-y-6">
+    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-slate-500">Theater Inventory</p>
+        <h2 class="mt-1 text-2xl font-semibold text-white">登録されている劇場</h2>
+      </div>
+      <div class="flex flex-wrap items-center gap-3 text-sm">
+        <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
+          全 <%= @theaters.size %> 劇場
+        </span>
+        <%= link_to '新規登録', new_admin_theater_path, class: 'btn-primary text-xs md:text-sm' %>
+      </div>
+    </div>
+
+    <%# テーブル表示（スマホでも横スクロール可能） %>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-white/10 text-left text-sm text-slate-200">
+        <thead class="bg-white/5 text-xs uppercase tracking-wider text-slate-400">
+          <tr>
+            <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">ID</th>
+            <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">劇場名</th>
+            <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">住所</th>
+            <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">電話番号</th>
+            <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">スクリーン数</th>
+            <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">ステータス</th>
+            <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">操作</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-white/10">
+          <%# 1行につき 1 劇場。スクリーン数やステータスも表示 %>
+          <% @theaters.each do |theater| %>
+            <tr class="transition hover:bg-white/5">
+              <td class="whitespace-nowrap px-4 py-3 font-semibold text-brand-gold"><%= theater.id %></td>
+              <td class="whitespace-nowrap px-4 py-3 text-white font-semibold"><%= theater.name %></td>
+              <td class="max-w-[18rem] px-4 py-3 text-slate-300"><%= theater.address %></td>
+              <td class="whitespace-nowrap px-4 py-3 text-slate-200"><%= theater.phone.presence || '-' %></td>
+              <td class="whitespace-nowrap px-4 py-3">
+                <span class="inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white">
+                  <span class="h-2 w-2 rounded-full bg-brand-gold"></span>
+                  <%= theater.screens.size %> 面
+                </span>
+              </td>
+              <td class="whitespace-nowrap px-4 py-3">
+                <% if theater.is_active? %>
+                  <span class="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-300">
+                    <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
+                    営業中
+                  </span>
+                <% else %>
+                  <span class="inline-flex items-center gap-1 rounded-full bg-slate-500/20 px-3 py-1 text-xs font-semibold text-slate-300">
+                    <span class="h-2 w-2 rounded-full bg-slate-300"></span>
+                    非稼働
+                  </span>
+                <% end %>
+              </td>
+              <td class="whitespace-nowrap px-4 py-3">
+                <%= link_to '詳細・編集', admin_theater_path(theater), class: 'btn-secondary text-xs' %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if @theaters.blank? %>
+      <div class="rounded-lg border border-white/10 bg-white/5 px-6 py-8 text-center text-sm text-slate-400">
+        現在登録されている劇場はありません。<%= link_to '劇場を追加', new_admin_theater_path, class: 'text-brand-gold underline decoration-dotted hover:text-brand-red' %> から登録しましょう。
+      </div>
+    <% end %>
+  </section>
+</div>

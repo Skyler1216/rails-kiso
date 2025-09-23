@@ -1,0 +1,100 @@
+<%# 部分テンプレート: 劇場フォーム
+    使い方: render 'form', theater: @theater, heading: '...', submit_label: '...'
+    受け取るローカル変数:
+      - heading: 見出しテキスト（省略時 '劇場情報'）
+      - subheading: サブ見出し（任意）
+      - submit_label: 送信ボタンの文言（省略時 '保存する'）
+      - submit_note: 送信先の補足表示（任意）
+      - show_delete: 削除ボタンの表示可否（省略時 false）
+%>
+<% heading = local_assigns.fetch(:heading, '劇場情報') %>
+<% subheading = local_assigns.fetch(:subheading, nil) %>
+<% submit_label = local_assigns.fetch(:submit_label, '保存する') %>
+<% submit_note = local_assigns.fetch(:submit_note, nil) %>
+<% show_delete = local_assigns.fetch(:show_delete, false) %>
+
+<article class="rounded-xl border border-white/5 bg-white/[0.03] p-6">
+  <header class="flex flex-wrap items-center justify-between gap-3">
+    <h2 class="text-base font-semibold text-white"><%= heading %></h2>
+    <% if subheading.present? %>
+      <span class="text-xs uppercase tracking-[0.3em] text-slate-500"><%= subheading %></span>
+    <% end %>
+  </header>
+
+  <%# フォーム全体に関するエラー（create/update失敗時のメッセージ） %>
+  <% if flash[:alert].present? %>
+    <div class="mt-4 rounded-lg border border-brand-red/40 bg-brand-red/10 px-4 py-3 text-sm text-brand-red">
+      <%= flash[:alert] %>
+    </div>
+  <% end %>
+
+  <%# バリデーションエラーの一覧表示 %>
+  <% if theater.errors.any? %>
+    <div class="mt-4 rounded-lg border border-brand-red/40 bg-brand-red/10 px-4 py-3 text-sm text-brand-red">
+      <p class="font-semibold">入力内容を確認してください。</p>
+      <ul class="mt-2 list-disc space-y-1 pl-5">
+        <% theater.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%# form_with: admin/theaters の create/update に送信されます %>
+  <%= form_with model: [:admin, theater], local: true, class: 'mt-6 space-y-6' do |f| %>
+    <div class="grid gap-6 md:grid-cols-2">
+      <div class="space-y-2">
+        <%# 劇場名（必須） %>
+        <%= f.label :name, '劇場名', class: 'text-sm font-semibold text-white' %>
+        <%= f.text_field :name, class: 'form-input', placeholder: '例: シネマ中央劇場', required: true %>
+        <% if theater.errors[:name].present? %>
+          <p class="text-xs text-brand-red"><%= theater.errors.full_messages_for(:name).join('、') %></p>
+        <% end %>
+      </div>
+
+      <div class="space-y-2">
+        <%# 電話番号（任意） %>
+        <%= f.label :phone, '電話番号', class: 'text-sm font-semibold text-white' %>
+        <%= f.telephone_field :phone, class: 'form-input', placeholder: '例: 03-1234-5678' %>
+        <% if theater.errors[:phone].present? %>
+          <p class="text-xs text-brand-red"><%= theater.errors.full_messages_for(:phone).join('、') %></p>
+        <% end %>
+      </div>
+
+      <div class="space-y-2 md:col-span-2">
+        <%# 住所（必須） %>
+        <%= f.label :address, '住所', class: 'text-sm font-semibold text-white' %>
+        <%= f.text_area :address, rows: 3, class: 'form-textarea', placeholder: '例: 東京都千代田区1-2-3', required: true %>
+        <% if theater.errors[:address].present? %>
+          <p class="text-xs text-brand-red"><%= theater.errors.full_messages_for(:address).join('、') %></p>
+        <% end %>
+      </div>
+
+      <div class="md:col-span-2">
+        <div class="flex items-start gap-3">
+          <%# 営業中フラグ（チェックONで営業中） %>
+          <%= f.check_box :is_active, class: 'mt-1 h-4 w-4' %>
+          <div>
+            <%= f.label :is_active, '営業中', class: 'text-sm font-semibold text-white' %>
+            <p class="text-xs text-slate-400">チェックを外すと非アクティブ状態として扱われます。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <%# 送信ボタンと補足 %>
+      <%= f.submit submit_label, class: 'btn-primary' %>
+      <% if submit_note.present? %>
+        <span class="text-xs text-slate-500"><%= submit_note %></span>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%# 削除ボタン（詳細ページでのみ表示） %>
+  <% if show_delete %>
+    <div class="mt-4">
+      <%= button_to '劇場を削除', admin_theater_path(theater), method: :delete, data: { confirm: '本当にこの劇場を削除しますか？関連するスクリーンも削除されます。' }, class: 'btn-secondary border border-red-400/50 text-red-200 hover:bg-red-500/20 hover:text-white' %>
+    </div>
+  <% end %>
+</article>

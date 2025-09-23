@@ -1,0 +1,12 @@
+<%# 劇場の新規登録ページ
+    戻るリンクと、共通フォーム(_form)を呼び出すだけのシンプルな構成。
+%>
+<div class="page-shell space-y-10">
+  <div class="flex flex-wrap gap-3 text-sm">
+    <%= link_to '⟵ 劇場一覧に戻る', admin_theaters_path, class: 'btn-secondary text-xs sm:text-sm' %>
+  </div>
+
+  <section class="card-surface space-y-6">
+    <%= render 'form', theater: @theater, heading: '劇場情報の入力', subheading: '必須項目を入力してください', submit_label: '登録する', submit_note: '送信先: POST /admin/theaters' %>
+  </section>
+</div>
