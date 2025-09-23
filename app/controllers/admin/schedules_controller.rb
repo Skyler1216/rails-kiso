@@ -35,7 +35,11 @@ module Admin
       defaults = params.permit(:movie_id, :screen_id)
       @schedule = Schedule.new(defaults)
       @movies = Movie.order(:id)
-      # スクリーン選択のプルダウンで劇場名も表示できるよう、theater を同時ロード
+      # スクリーン一覧の取得方法
+      # - includes(:theater): 劇場データを一緒に取得（N+1クエリの発生を防ぐための事前読み込み）
+      # - order('theater_id ASC, screens.id ASC'):
+      #     劇場ごとにまとまって表示される（セレクトボックスで「劇場名 → スクリーン」の順に並ぶ）
+      #     同じ劇場内ではスクリーンIDの昇順で安定ソート
       @screens = Screen.includes(:theater).order('theater_id ASC, screens.id ASC')
     end
 
@@ -48,8 +52,11 @@ module Admin
         redirect_to admin_schedules_path, notice: 'スケジュールを作成しました'
       else
         @movies = Movie.order(:id)
-        # バリデーション失敗時も同じ選択肢を再表示できるよう再ロード
+        # フォーム再表示時も同じスクリーン一覧を再構築
+        # - includes(:theater) で劇場名をラベルに使える
+        # - 劇場→スクリーンの順でグルーピングされ、UXが一定
         @screens = Screen.includes(:theater).order('theater_id ASC, screens.id ASC')
+        # バリデーション失敗時も同じ選択肢を再表示できるよう再ロード
         render :new, status: :unprocessable_entity
       end
     end
@@ -61,8 +68,11 @@ module Admin
         redirect_to admin_schedules_path, notice: 'スケジュールを更新しました'
       else
         @movie = @schedule.movie
-        # エラー時の再表示でも theater を含めて並び順を統一
+        # 詳細画面の再表示時も、セレクトの内容と順番を統一
+        # - 事前読み込みでパフォーマンス最適化
+        # - 劇場→スクリーンの順で並ぶため、選択しやすい
         @screens = Screen.includes(:theater).order('theater_id ASC, screens.id ASC')
+        # エラー時の再表示でも theater を含めて並び順を統一
         render :show, status: :unprocessable_entity
       end
     end
