@@ -28,6 +28,9 @@ module Admin
       @screens = Screen.includes(:theater).order('theater_id ASC, screens.id ASC')
     end
 
+    # 新規作成フォーム表示
+    # - URLクエリで渡された初期値（movie_id/screen_id）を反映
+    # - 作品一覧(@movies)と、劇場付きのスクリーン一覧(@screens)をフォーム選択肢として用意
     def new
       defaults = params.permit(:movie_id, :screen_id)
       @schedule = Schedule.new(defaults)
@@ -36,6 +39,9 @@ module Admin
       @screens = Screen.includes(:theater).order('theater_id ASC, screens.id ASC')
     end
 
+    # フォーム送信（作成処理）
+    # - Strong Parameters（schedule_create_params）からScheduleを生成
+    # - 成功時は一覧へ、失敗時は同じ候補リスト(@movies/@screens)を再表示
     def create
       @schedule = Schedule.new(schedule_create_params)
       if @schedule.save
