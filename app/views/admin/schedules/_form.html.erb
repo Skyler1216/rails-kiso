@@ -52,7 +52,13 @@
 
       <div class="space-y-2">
         <%= f.label :screen_id, 'スクリーン', class: 'text-sm font-semibold text-white' %>
-        <%= f.collection_select :screen_id, screens, :id, ->(screen) { "#{screen.id}: #{screen.name}" }, { include_blank: 'スクリーンを選択してください' }, class: 'form-select', required: true %>
+        <%= f.collection_select :screen_id,
+                                screens,
+                                :id,
+                                ->(screen) { "#{screen.theater&.name || '劇場未設定'} / #{screen.name}" },
+                                { include_blank: 'スクリーンを選択してください' },
+                                class: 'form-select',
+                                required: true %>
       </div>
 
       <div class="grid gap-4 md:grid-cols-2">

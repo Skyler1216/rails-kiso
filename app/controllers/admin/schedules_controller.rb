@@ -1,12 +1,22 @@
 module Admin
   class SchedulesController < BaseController
+    # 管理画面の「上映スケジュール」を扱います。
+    # 方針: 表示・集計ロジックは小さなプライベートメソッドに分割し、
+    #       読みやすさとテスト容易性を高めています。
+    # データ構造: Schedule は Movie と Screen に紐づく。Screen は Theater に属するため、
+    #             劇場情報は Screen 経由で取得します。
+
     # 一覧表示
     def index
       now = Time.zone.now
       @now = now
 
+      # 一覧用データの用意
+      # 1) 全スケジュールを「終了済みを下・未開始/進行中を上」に並び替え
       @all_schedules = sorted_schedules(now)
+      # 2) 作品ごとのまとまり（movie => schedules[]）を構築
       @movies, @movie_schedules = build_movie_index(@all_schedules, now)
+      # 3) 集計（総件数/本日/今週/上映中）
       @schedule_stats = build_schedule_stats(@all_schedules, @movies, now)
     end
 
@@ -14,14 +24,16 @@ module Admin
     def show
       @schedule = Schedule.find(params[:id])
       @movie = @schedule.movie
-      @screens = Screen.order(:id)
+      # 劇場→スクリーンの順で一覧したいので、theater を同時ロードし、劇場ID→スクリーンIDで並べる
+      @screens = Screen.includes(:theater).order('theater_id ASC, screens.id ASC')
     end
 
     def new
       defaults = params.permit(:movie_id, :screen_id)
       @schedule = Schedule.new(defaults)
       @movies = Movie.order(:id)
-      @screens = Screen.order(:id)
+      # スクリーン選択のプルダウンで劇場名も表示できるよう、theater を同時ロード
+      @screens = Screen.includes(:theater).order('theater_id ASC, screens.id ASC')
     end
 
     def create
@@ -30,7 +42,8 @@ module Admin
         redirect_to admin_schedules_path, notice: 'スケジュールを作成しました'
       else
         @movies = Movie.order(:id)
-        @screens = Screen.order(:id)
+        # バリデーション失敗時も同じ選択肢を再表示できるよう再ロード
+        @screens = Screen.includes(:theater).order('theater_id ASC, screens.id ASC')
         render :new, status: :unprocessable_entity
       end
     end
@@ -42,7 +55,8 @@ module Admin
         redirect_to admin_schedules_path, notice: 'スケジュールを更新しました'
       else
         @movie = @schedule.movie
-        @screens = Screen.order(:id)
+        # エラー時の再表示でも theater を含めて並び順を統一
+        @screens = Screen.includes(:theater).order('theater_id ASC, screens.id ASC')
         render :show, status: :unprocessable_entity
       end
     end
@@ -56,6 +70,7 @@ module Admin
 
     private
 
+    # 全スケジュールを「終了済みを下・未開始/進行中を上」に並べ替える
     def sorted_schedules(now)
       Schedule.includes(:movie, :screen)
               .order(:start_time)
@@ -63,6 +78,7 @@ module Admin
               .then { |list| reorder_schedules(list, now) }
     end
 
+    # 作品ごとにスケジュールをグルーピングし、各グループ内も同じ規則で並べ替える
     def build_movie_index(all_schedules, now)
       movies = Movie.includes(schedules: :screen)
                     .where(id: all_schedules.map(&:movie_id).uniq)
@@ -71,6 +87,7 @@ module Admin
       [movies, movie_schedules]
     end
 
+    # 集計値を作成（総スケジュール数、作品数、今上映中、本日、今週）
     def build_schedule_stats(all_schedules, movies, now)
       today = Time.zone.today
       {
@@ -82,6 +99,7 @@ module Admin
       }
     end
 
+    # ── 以下は小さな述語/集計関数（読みやすさと再利用性のため）
     def count_playing_now(schedules, now)
       schedules.count { |s| playing_now?(s, now) }
     end
@@ -107,9 +125,7 @@ module Admin
     end
 
     def reorder_schedules(schedules, now)
-      schedules.sort_by do |schedule|
-        [schedule_finished?(schedule, now) ? 1 : 0, schedule.start_time || Time.zone.at(0)]
-      end
+      schedules.sort_by { |schedule| [schedule_finished?(schedule, now) ? 1 : 0, schedule.start_time || Time.zone.at(0)] }
     end
 
     def schedule_finished?(schedule, now)

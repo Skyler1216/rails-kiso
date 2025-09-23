@@ -1,33 +1,46 @@
 module Admin
   class ReservationsController < BaseController
+    # 管理画面の「予約」を扱います。
+    # 方針: 入力チェックと関連整合性チェック（schedule/screen/sheet）の責務を
+    #       小さなメソッドに分割し、エラーメッセージを明確化します。
+    # データ構造: Reservation は Schedule/Screen/Sheet に紐づく。
+    #             Schedule は Screen（=どの劇場のスクリーンか）に紐づくため、
+    #             座席の選択とスケジュールのスクリーンが一致するかを検証します。
     before_action :set_reservation, only: %i[show update destroy]
     before_action :ensure_reservation_upcoming, only: %i[show update]
 
     def index
       now = Time.zone.now
       scope = upcoming_reservation_scope(now)
+      # 未来の予約のみを選別 → 表示用に並び替え
       filtered = select_upcoming_reservations(scope, now)
       @reservations = sort_reservations(filtered, now)
     end
 
     def new
       @reservation = Reservation.new
+      # フォーム選択肢（スケジュール/座席/予約済み座席マップ）を事前にロード
       prepare_form_resources(@reservation.schedule_id)
     end
 
     def create
       @reservation = Reservation.new(reservation_params)
+      # バリデーション前に、フォーム選択肢や予約済み座席マップを用意
       prepare_form_resources(@reservation.schedule_id)
 
       schedule = find_schedule(@reservation.schedule_id)
       sheet = find_sheet(@reservation.sheet_id)
 
+      # 以下の検証を段階的に行い、失敗理由を個別にエラーメッセージ化
       validate_schedule_presence(schedule)
       validate_sheet_presence(sheet)
 
       if schedule && sheet
+        # スクリーン整合性: 選んだ座席がそのスケジュールのスクリーンに属しているか
         validate_screen_match(schedule, sheet)
+        # 予約日付: スケジュール開始日に合わせ、スクリーンを紐付け
         assign_reservation_screen_and_date(@reservation, schedule, compute_reservation_date(schedule))
+        # 重複防止: 同じ座席・同じ日・同じスケジュールの重複を拒否
         validate_duplicate_seat(schedule, sheet, @reservation.date)
       end
 
@@ -44,11 +57,13 @@ module Admin
     end
 
     def show
+      # 編集フォーム表示時も、選択肢と予約済み座席マップを事前に用意
       prepare_form_resources(@reservation.schedule_id)
     end
 
     def update
       schedule_id = reservation_params[:schedule_id]
+      # 更新時にも同様にフォーム資材をロード
       prepare_form_resources(schedule_id)
 
       schedule = find_schedule(schedule_id)
@@ -58,6 +73,7 @@ module Admin
       validate_sheet_presence(sheet)
 
       if schedule && sheet
+        # スクリーン整合性 → 予約日付の再計算 → 重複チェック（自分自身は除外）
         validate_screen_match(schedule, sheet)
         assign_reservation_screen_and_date(@reservation, schedule, compute_reservation_date(schedule, @reservation.date))
         validate_duplicate_seat(schedule, sheet, @reservation.date, exclude: @reservation.id)
@@ -95,7 +111,8 @@ module Admin
 
     def prepare_form_resources(schedule_id)
       now = Time.zone.now
-      @schedules = Schedule.includes(:movie, :screen)
+      # 劇場情報までまとめてロードし、ビューでの表示/フィルタを簡単に
+      @schedules = Schedule.includes(:movie, screen: :theater)
                            .where('schedules.end_time IS NULL OR schedules.end_time >= ?', now)
                            .order(:start_time)
       @sheets = Sheet.includes(:screen).order(:screen_id, :row, :column)
@@ -114,6 +131,7 @@ module Admin
     end
 
     def build_reserved_seat_map(_selected_id)
+      # スケジュール毎に予約済み座席IDの配列を持つハッシュを構築
       map = Hash.new { |h, k| h[k] = [] }
 
       schedule_dates = {}

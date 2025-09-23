@@ -1,3 +1,7 @@
+# 日本語ロケール定義（Rails I18n 用）
+# - 画面表示やバリデーションエラーメッセージの日本語文言を管理します。
+# - モデル名/属性名の日本語化、エラーメッセージの上書きが可能です。
+# - 例: I18n.t('activerecord.models.movie')、User.human_attribute_name(:email)
 ja:
   errors:
     messages:
@@ -6,6 +10,8 @@ ja:
     models:
       schedule: スケジュール
       movie: 映画
+      theater: 劇場
+      screen: スクリーン
     attributes:
       schedule:
         movie: 作品
@@ -16,6 +22,9 @@ ja:
         end_time: 終了時刻
       movie:
         running_minutes: 上映時間（分）
+      screen:
+        theater: 劇場
+        theater_id: 劇場
     errors:
       models:
         schedule:

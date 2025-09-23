@@ -7,6 +7,37 @@
 - ダブルブッキング（同一スクリーン・座席・時間帯の重複予約）を確実に防ぐ。
 - RSpec で仕様変更をカバーする。
 
+## 📋 アクションアイテム（2025-09-22 時点）
+
+### データベース / スキーマ
+- [x] `theaters` テーブルを作成し、既存スクリーン移行用のデフォルト劇場を投入する。
+  （対応ファイル: db/migrate/20250922160000_create_theaters_and_extend_screens.rb, db/schema.rb）
+- [x] `screens` テーブルに `theater_id` を追加し、外部キーを設定する。
+  （対応ファイル: db/migrate/20250922160000_create_theaters_and_extend_screens.rb, db/schema.rb）
+- [x] `screens` テーブルから `capacity` / `is_active` を削除する。
+  （対応ファイル: db/migrate/20250922160500_remove_screen_capacity_and_is_active.rb, db/schema.rb）
+
+### モデル / バリデーション
+- [x] `Theater` モデルを追加し、`has_many :screens, dependent: :destroy` を定義する。
+  （対応ファイル: app/models/theater.rb）
+- [x] `Screen` モデルを更新し、`belongs_to :theater` や `has_many :schedules`、バリデーション（`name` 必須）を追加する。
+  （対応ファイル: app/models/screen.rb）
+- [ ] 予約モデルのダブルブッキング防止バリデーションを `theater` を含んだシナリオでも確認できるよう追加テストする。（対応ファイル: ）
+
+### 管理画面（Admin）
+- [x] スケジュール・予約フォームでスクリーン選択時に劇場名を表示し、コントローラで `screen.theater` を eager load する。
+  （対応ファイル: app/views/admin/schedules/_form.html.erb, app/controllers/admin/schedules_controller.rb, app/controllers/admin/reservations_controller.rb）
+- [ ] 劇場の CRUD 画面を追加し、スクリーン編集時に劇場を選択できるようにする。（対応ファイル: ）
+- [ ] スケジュール一覧／詳細で劇場別フィルタや表示を整備する。（対応ファイル: ）
+
+### 予約フロー（フロント）
+- [ ] ユーザー向け予約フローに劇場選択ステップを導入する。（対応ファイル: ）
+- [ ] 劇場によってスケジュールを絞り込んだ座席選択 UI を実装する。（対応ファイル: ）
+
+### テスト
+- [ ] 劇場・スクリーン関連のモデルスペックを追加する。（対応ファイル: ）
+- [ ] 劇場選択〜予約完了までのシステムスペックを追加する。（対応ファイル: ）
+
 ## 🏗️ テーブル設計（現行スキーマを踏まえた変更）
 
 ### theaters（新規）
@@ -24,7 +55,6 @@ end
 ```ruby
 change_table :screens do |t|
   t.references :theater, null: false, foreign_key: true, comment: '劇場ID'
-  t.integer :capacity, null: false, default: 15, comment: '座席数(3x5)'
 end
 ```
 
@@ -62,17 +92,12 @@ end
 > DB制約（既存ユニーク）とアプリ側バリデーションの両方でチェックする。
 
 ## 🛠️ 実装手順案
-1. マイグレーション作成：`theaters` 新規、`screens` に `theater_id` 追加、既存スクリーンをデフォルト劇場に紐付け。
-2. モデル更新：`Theater` モデル作成、`Screen` に関連付けとバリデーション追加。
-3. 管理画面拡張：劇場一覧・作成・編集 UI、スクリーン管理で劇場を選択可能に。
-4. スケジュール管理：劇場フィルタ／表示を追加し、UI 上でスクリーン→劇場を辿れるようにする。
-5. 予約フロー：
-   - ユーザーに劇場選択 → 作品の上映スケジュールを劇場単位で表示。
-   - スクリーンは内部で座席と紐付ける。
-   - 既存の座席選択 UI を劇場対応に改修。
-6. RSpec テスト追加：
-   - モデル：劇場・スクリーン関連、予約の重複防止。
-   - システム：劇場選択から予約完了までのフロー、重複予約警告。
+1. スキーマ拡張とデータ移行（劇場テーブル作成・スクリーンが劇場に属する状態へ移行）。
+2. モデル関連付けとバリデーション整備。
+3. 管理画面での劇場／スクリーン管理 UI の整備。
+4. スケジュール管理に劇場コンテキストを組み込み、表示やフィルタを追加。
+5. 予約フローを劇場選択から座席確定までつなげる。
+6. モデル／システムテストで複数劇場シナリオを担保する。
 
 ## 🔄 既存仕様とのすり合わせ
 - 作品 × 劇場の組み合わせは `screen.theater` を通じて管理可能。必要なら `theater_movies` のような中間テーブルも検討するが初期段階では不要。
