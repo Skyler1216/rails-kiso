@@ -39,7 +39,7 @@ module Admin
       @screens = Screen.includes(:theater).order('theater_id ASC, screens.id ASC')
     end
 
-    # フォーム送信（作成処理）
+    # 新規作成フォーム送信（作成処理）
     # - Strong Parameters（schedule_create_params）からScheduleを生成
     # - 成功時は一覧へ、失敗時は同じ候補リスト(@movies/@screens)を再表示
     def create
