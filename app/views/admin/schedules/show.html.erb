@@ -1,10 +1,18 @@
+<%# スケジュールの詳細・編集ページ
+    構成:
+      - 戻るリンク
+      - スケジュールの属性表示（ID/作品/スクリーン/劇場/開始・終了など）
+      - 下部に編集フォーム（_form）を再利用
+%>
 <div class="page-shell space-y-10">
   <div class="flex flex-wrap gap-3 text-sm">
     <%= link_to '⟵ スケジュール一覧へ', admin_schedules_path, class: 'btn-secondary text-xs sm:text-sm' %>
   </div>
 
   <section class="card-surface space-y-8">
+    <%# 属性表示ブロック %>
     <div class="rounded-xl border border-white/5 bg-white/[0.03] p-6">
+      <% theater = @schedule.screen&.theater %>
       <h2 class="text-base font-semibold text-white">スケジュール情報</h2>
       <dl class="mt-4 grid gap-4 text-sm text-slate-300 md:grid-cols-2">
         <div>
@@ -22,6 +30,14 @@
         <div>
           <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">スクリーン名</dt>
           <dd class="font-medium text-white"><%= @schedule.screen&.name || '-' %></dd>
+        </div>
+        <div>
+          <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">劇場ID</dt>
+          <dd class="font-medium text-white"><%= theater&.id || '-' %></dd>
+        </div>
+        <div>
+          <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">劇場名</dt>
+          <dd class="font-medium text-white"><%= theater&.name || '-' %></dd>
         </div>
         <div>
           <dt class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">開始時刻</dt>
@@ -42,6 +58,7 @@
       </dl>
     </div>
 
+    <%# 編集フォーム（新規と同じ部分テンプレートを再利用） %>
     <%= render 'form', schedule: @schedule, screens: @screens, submit_label: '更新', form_url: admin_schedule_path(@schedule), form_method: :put, show_delete: true, lock_movie: true %>
   </section>
 </div>

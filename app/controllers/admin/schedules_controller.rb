@@ -10,13 +10,25 @@ module Admin
     def index
       now = Time.zone.now
       @now = now
+      # 劇場フィルタ用の選択肢（プルダウン）
+      @theaters = Theater.order(:id)
+      # クエリパラメータ `?theater_id=...` を受け取り、選択中の劇場を特定
+      @selected_theater_id = params[:theater_id].presence
+      @selected_theater = @theaters.find { |theater| theater.id.to_s == @selected_theater_id } if @selected_theater_id
 
-      # 一覧用データの用意
-      # 1) 全スケジュールを「終了済みを下・未開始/進行中を上」に並び替え
-      @all_schedules = sorted_schedules(now)
-      # 2) 作品ごとのまとまり（movie => schedules[]）を構築
+      # 一覧の基礎スコープ
+      # - includes(:movie, screen: :theater): 一覧表示に必要な関連を先読み（N+1回避）
+      # - order(:start_time): 時刻順に並べる
+      base_scope = Schedule.includes(:movie, screen: :theater).order(:start_time)
+      # 劇場が選ばれている場合は、該当劇場に属するスクリーンのスケジュールだけに絞り込み
+      base_scope = base_scope.where(screens: { theater_id: @selected_theater_id }) if @selected_theater_id
+
+      # 「終了済みは下、未開始/進行中は上」に並び替え（二段階ソート）
+      ordered_scope = base_scope.to_a
+      @all_schedules = reorder_schedules(ordered_scope, now)
+
+      # 作品ごとのまとまりと、画面上部の集計値を用意
       @movies, @movie_schedules = build_movie_index(@all_schedules, now)
-      # 3) 集計（総件数/本日/今週/上映中）
       @schedule_stats = build_schedule_stats(@all_schedules, @movies, now)
     end
 
@@ -87,19 +99,13 @@ module Admin
     private
 
     # 全スケジュールを「終了済みを下・未開始/進行中を上」に並べ替える
-    def sorted_schedules(now)
-      Schedule.includes(:movie, :screen)
-              .order(:start_time)
-              .to_a
-              .then { |list| reorder_schedules(list, now) }
-    end
-
     # 作品ごとにスケジュールをグルーピングし、各グループ内も同じ規則で並べ替える
     def build_movie_index(all_schedules, now)
-      movies = Movie.includes(schedules: :screen)
-                    .where(id: all_schedules.map(&:movie_id).uniq)
-                    .order(:id)
-      movie_schedules = movies.index_with { |movie| reorder_schedules(movie.schedules, now) }
+      movies = all_schedules.filter_map(&:movie).uniq.sort_by(&:id)
+      movie_schedules = movies.index_with do |movie|
+        schedules = all_schedules.select { |schedule| schedule.movie_id == movie.id }
+        reorder_schedules(schedules, now)
+      end
       [movies, movie_schedules]
     end
 
