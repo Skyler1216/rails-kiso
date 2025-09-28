@@ -70,6 +70,7 @@
         %>
         <% flash.each do |type, message| %>
           <% next if message.blank? %>
+          <% next if type.to_s == 'alert' && message.include?('同じ劇場内で異なる名前になるよう設定してください') %>
           <div class="<%= flash_banner_class(type) %>">
             <span><%= message %></span>
           </div>

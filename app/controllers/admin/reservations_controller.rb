@@ -1,36 +1,70 @@
 module Admin
   class ReservationsController < BaseController
-    # 管理画面の「予約」を扱います。
-    # 方針: 入力チェックと関連整合性チェック（schedule/screen/sheet）の責務を
-    #       小さなメソッドに分割し、エラーメッセージを明確化します。
-    # データ構造: Reservation は Schedule/Screen/Sheet に紐づく。
-    #             Schedule は Screen（=どの劇場のスクリーンか）に紐づくため、
-    #             座席の選択とスケジュールのスクリーンが一致するかを検証します。
+    # ============================================================================
+    # 🎫 管理者用予約管理コントローラー
+    # ============================================================================
+    # 管理画面での予約のCRUD操作を管理します。
+    # 
+    # 設計方針:
+    # - 入力チェックと関連整合性チェック（schedule/screen/sheet）の責務を
+    #   小さなメソッドに分割し、エラーメッセージを明確化
+    # - データ構造: Reservation は Schedule/Screen/Sheet に紐づく
+    # - Schedule は Screen（=どの劇場のスクリーンか）に紐づくため、
+    #   座席の選択とスケジュールのスクリーンが一致するかを検証
+    # ============================================================================
+
+    # 予約設定の共通処理
     before_action :set_reservation, only: %i[show update destroy]
+    
+    # 過去の予約編集を防止
     before_action :ensure_reservation_upcoming, only: %i[show update]
 
-    # 予約一覧を表示（未来の予約のみを抽出し、表示順に整える）
+    # ----------------------------------------------------------------------------
+    # 予約一覧表示
+    # ----------------------------------------------------------------------------
     def index
+      # 現在時刻を取得
       now = Time.zone.now
+      
+      # 劇場一覧を取得（フィルタ用）
+      @theaters = Theater.order(:name)
+      
+      # 選択された劇場を特定
+      @selected_theater = locate_selected_theater(@theaters, params[:theater_id])
+
+      # 未来の予約の基本スコープを取得
       scope = upcoming_reservation_scope(now)
+      
+      # 劇場が選択されている場合は該当劇場のみに絞り込み
+      scope = scope.where(screens: { theater_id: @selected_theater.id }) if @selected_theater
+
       # 未来の予約のみを選別 → 表示用に並び替え
       filtered = select_upcoming_reservations(scope, now)
       @reservations = sort_reservations(filtered, now)
     end
 
-    # 新規予約フォームを表示（フォームに必要な候補データを用意）
+    # ----------------------------------------------------------------------------
+    # 新規予約フォーム表示
+    # ----------------------------------------------------------------------------
     def new
+      # 新しい予約オブジェクトを作成
       @reservation = Reservation.new
+      
       # フォーム選択肢（スケジュール/座席/予約済み座席マップ）を事前にロード
       prepare_form_resources(@reservation.schedule_id)
     end
 
-    # 新規予約を作成（入力検証→作成→成功/失敗の分岐）
+    # ----------------------------------------------------------------------------
+    # 新規予約作成処理
+    # ----------------------------------------------------------------------------
     def create
+      # パラメータから予約オブジェクトを作成
       @reservation = Reservation.new(reservation_params)
+      
       # バリデーション前に、フォーム選択肢や予約済み座席マップを用意
       prepare_form_resources(@reservation.schedule_id)
 
+      # 関連オブジェクトを取得
       schedule = find_schedule(@reservation.schedule_id)
       sheet = find_sheet(@reservation.sheet_id)
 
@@ -41,16 +75,20 @@ module Admin
       if schedule && sheet
         # スクリーン整合性: 選んだ座席がそのスケジュールのスクリーンに属しているか
         validate_screen_match(schedule, sheet)
+        
         # 予約日付: スケジュール開始日に合わせ、スクリーンを紐付け
         assign_reservation_screen_and_date(@reservation, schedule, compute_reservation_date(schedule))
+        
         # 重複防止: 同じ座席・同じ日・同じスケジュールの重複を拒否
         validate_duplicate_seat(schedule, sheet, @reservation.date)
       end
 
+      # エラーがある場合はフォームを再表示
       if @reservation.errors.any?
         return render_new_with_errors
       end
 
+      # 予約を保存
       if @reservation.save
         admin_flash_success('予約を作成しました')
         redirect_to admin_reservations_path
@@ -59,21 +97,29 @@ module Admin
       end
     end
 
-    # 予約の詳細/編集フォームを表示（候補データも読み込み）
+    # ----------------------------------------------------------------------------
+    # 予約詳細/編集フォーム表示
+    # ----------------------------------------------------------------------------
     def show
       # 編集フォーム表示時も、選択肢と予約済み座席マップを事前に用意
       prepare_form_resources(@reservation.schedule_id)
     end
 
-    # 既存予約を更新（入力検証→更新→成功/失敗の分岐）
+    # ----------------------------------------------------------------------------
+    # 予約更新処理
+    # ----------------------------------------------------------------------------
     def update
+      # 更新対象のスケジュールIDを取得
       schedule_id = reservation_params[:schedule_id]
+      
       # 更新時にも同様にフォーム資材をロード
       prepare_form_resources(schedule_id)
 
+      # 関連オブジェクトを取得
       schedule = find_schedule(schedule_id)
       sheet = find_sheet(reservation_params[:sheet_id])
 
+      # バリデーション実行
       validate_schedule_presence(schedule)
       validate_sheet_presence(sheet)
 
@@ -84,12 +130,15 @@ module Admin
         validate_duplicate_seat(schedule, sheet, @reservation.date, exclude: @reservation.id)
       end
 
+      # エラーがある場合はフォームを再表示
       if @reservation.errors.any?
         return render_edit_with_errors('❌ 入力内容に誤りがあります')
       end
 
+      # 予約属性を更新（日付は再計算されたものを使用）
       @reservation.assign_attributes(reservation_params.merge(date: @reservation.date))
 
+      # 予約を保存
       if @reservation.save
         admin_flash_success('予約を更新しました')
         redirect_to admin_reservations_path
@@ -98,13 +147,21 @@ module Admin
       end
     end
 
-    # 予約を削除して一覧に戻る
+    # ----------------------------------------------------------------------------
+    # 予約削除処理
+    # ----------------------------------------------------------------------------
     def destroy
+      # 予約を削除
       @reservation.destroy
+      
+      # 成功メッセージを表示して一覧に戻る
       admin_flash_success('予約を削除しました')
       redirect_to admin_reservations_path
     end
 
+    # ----------------------------------------------------------------------------
+    # プライベートメソッド
+    # ----------------------------------------------------------------------------
     private
 
     # Strong Parameters：許可する予約パラメータの定義
@@ -117,7 +174,7 @@ module Admin
       @reservation = Reservation.find(params[:id])
     end
 
-    # 予約フォームの表示に必要なデータを用意する。
+    # 予約フォームの表示に必要なデータを用意する
     # 引数: schedule_id（選択中のスケジュールID/任意）
     # 用意するもの:
     #   @schedules         … 映画・劇場込みの候補（終了済み除外、開始時刻順）
@@ -127,23 +184,26 @@ module Admin
     #   @available_sheets  … 表示する座席候補（選択中ならそのスクリーンのみ）
     def prepare_form_resources(schedule_id)
       now = Time.zone.now
+      
       # 映画・劇場を事前読み込み（N+1回避）、終了済みを除外、開始時刻順で並べる
       @schedules = Schedule.includes(:movie, screen: :theater)
                            .where('schedules.end_time IS NULL OR schedules.end_time >= ?', now)
                            .order(:start_time)
-      @sheets = Sheet.includes(:screen).order(:screen_id, :row, :column)
+      
+      # 全座席を取得（スクリーン、行、列順）
+      @sheets = Sheet.includes(screen: :theater).order(:screen_id, :row, :column)
 
       # 選択中スケジュールを特定
       selected_id = schedule_id.presence&.to_i
       @selected_schedule = selected_id && @schedules.find { |schedule| schedule.id == selected_id }
 
-      # スケジュールごとの予約済み座席ID一覧
+      # スケジュールごとの予約済み座席ID一覧を構築
       @reserved_seat_map = build_reserved_seat_map(selected_id)
 
       # 座席候補（選択中ならそのスクリーンのみ、未選択なら全座席）
       @available_sheets =
         if @selected_schedule
-          Sheet.where(screen_id: @selected_schedule.screen_id).order(:row, :column)
+          Sheet.includes(screen: :theater).where(screen_id: @selected_schedule.screen_id).order(:row, :column)
         else
           @sheets
         end
@@ -154,14 +214,17 @@ module Admin
       # スケジュール毎に予約済み座席IDの配列を持つハッシュを構築
       map = Hash.new { |h, k| h[k] = [] }
 
+      # スケジュールの開始日を取得
       schedule_dates = {}
       @schedules.each do |schedule|
         date = schedule.start_time&.in_time_zone&.to_date
         schedule_dates[schedule.id] = date if date
       end
 
+      # 該当スケジュールの予約を取得
       reservations = Reservation.where(schedule_id: schedule_dates.keys)
 
+      # 各予約の座席IDをマップに追加
       reservations.find_each do |reservation|
         start_date = schedule_dates[reservation.schedule_id]
         next unless start_date && reservation.date == start_date
@@ -169,6 +232,7 @@ module Admin
         map[reservation.schedule_id] << reservation.sheet_id
       end
 
+      # 編集時は現在の予約の座席を除外（自分自身の重複チェック回避）
       if @reservation&.persisted? && @reservation.sheet_id.present?
         map[@reservation.schedule_id] = map[@reservation.schedule_id] - [@reservation.sheet_id]
       end
@@ -179,8 +243,8 @@ module Admin
     # 未来（今日以降）に関係する予約を、関連（映画/スクリーン）ごと取得する基点スコープ
     def upcoming_reservation_scope(now)
       Reservation
-        .joins(:schedule)
-        .includes(schedule: :movie, sheet: :screen)
+        .joins(schedule: :screen)
+        .includes(schedule: [:movie, { screen: :theater }], sheet: { screen: :theater })
         .where('reservations.date >= ?', now.to_date)
     end
 
@@ -198,6 +262,14 @@ module Admin
           true
         end
       end
+    end
+
+    # 選択された劇場を特定する
+    def locate_selected_theater(theaters, theater_id_param)
+      theater_id = theater_id_param.to_s.strip
+      return nil if theater_id.blank?
+
+      theaters.find { |theater| theater.id.to_s == theater_id }
     end
 
     # 予約の表示順を決定する（予約日→開始時刻の順）

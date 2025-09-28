@@ -1,0 +1,52 @@
+<%# ============================================================================
+    # スクリーンフィールド行 - 部分テンプレート
+    # ============================================================================
+    # 劇場フォーム内で使用される個別のスクリーン入力フィールドです。
+    # 既存スクリーンの編集と新規スクリーンの追加に対応し、
+    # 削除機能（論理削除）も提供します。
+    # ============================================================================
+%>
+
+<%# スクリーンの状態を判定 %>
+<% persisted = screen_fields.object.persisted? %>
+<% marked_for_deletion = screen_fields.object.marked_for_destruction? %>
+<%# コンテナのCSSクラスを動的に設定（削除予定の場合は透明度を下げる） %>
+<% container_classes = ['rounded-lg', 'border', 'border-white/10', 'bg-slate-900/60', 'p-4'] %>
+<% container_classes << 'opacity-50' if marked_for_deletion %>
+
+<div class="<%= container_classes.join(' ') %>" data-screen-fields-item>
+  <%# 既存レコードのIDを保持するための隠しフィールド %>
+  <%= screen_fields.hidden_field :id if persisted %>
+  <%# 削除フラグを保持するための隠しフィールド %>
+  <%= screen_fields.hidden_field :_destroy,
+                                value: marked_for_deletion ? '1' : '0',
+                                data: { screen_destroy_flag: true } %>
+
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <%# スクリーン名入力フィールド %>
+    <div class="flex-1 space-y-2">
+      <%= screen_fields.label :name, 'スクリーン名', class: 'text-xs font-semibold uppercase tracking-[0.2em] text-slate-500' %>
+      <%= screen_fields.text_field :name,
+                                  class: 'form-input text-sm',
+                                  placeholder: '例: スクリーン1',
+                                  required: true,
+                                  disabled: marked_for_deletion %>
+      <%# バリデーションエラーの表示 %>
+      <% if screen_fields.object.errors[:name].present? %>
+        <p class="text-xs text-brand-red"><%= screen_fields.object.errors.full_messages_for(:name).join('、') %></p>
+      <% end %>
+    </div>
+
+    <%# 削除/取り消しボタン %>
+    <div class="flex items-center gap-2">
+      <button type="button"
+              class="btn-secondary text-xs"
+              data-screen-fields-remove
+              data-persisted="<%= persisted %>"
+              data-remove-label="削除"
+              data-undo-label="削除を取り消す">
+        <%= marked_for_deletion ? '削除を取り消す' : '削除' %>
+      </button>
+    </div>
+  </div>
+</div>

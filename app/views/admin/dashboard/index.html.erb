@@ -1,4 +1,13 @@
+<%# ============================================================================
+    # 管理者ダッシュボード - メインページ
+    # ============================================================================
+    # システム全体の統計情報と最近の活動を一覧表示します。
+    # 映画、スケジュール、予約、劇場の管理状況を把握できます。
+    # ============================================================================
+%>
+
 <div class="page-shell space-y-10">
+  <%# ページヘッダー - ダッシュボードの概要説明 %>
   <section class="page-hero">
     <div class="page-hero__content">
       <span class="page-hero__kicker">
@@ -12,7 +21,9 @@
     </div>
   </section>
 
-  <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+  <%# 統計カードセクション - 4つの主要指標を表示 %>
+  <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+    <%# 映画統計カード %>
     <div class="card-surface space-y-3">
       <h2 class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">Movies</h2>
       <p class="text-3xl font-semibold text-white"><%= @stats[:movies][:total] %></p>
@@ -23,6 +34,7 @@
       <%= link_to '作品を追加', new_admin_movie_path, class: 'btn-primary w-full text-xs sm:text-sm' %>
     </div>
 
+    <%# スケジュール統計カード %>
     <div class="card-surface space-y-3">
       <h2 class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">Schedules</h2>
       <p class="text-3xl font-semibold text-white"><%= @stats[:schedules][:total] %></p>
@@ -33,6 +45,7 @@
       <%= link_to 'スケジュールを追加', new_admin_schedule_path, class: 'btn-primary w-full text-xs sm:text-sm' %>
     </div>
 
+    <%# 予約統計カード %>
     <div class="card-surface space-y-3">
       <h2 class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">Reservations</h2>
       <p class="text-3xl font-semibold text-white"><%= @stats[:reservations][:total] %></p>
@@ -42,9 +55,22 @@
       </div>
       <%= link_to '予約を追加', new_admin_reservation_path, class: 'btn-primary w-full text-xs sm:text-sm' %>
     </div>
+
+    <%# 劇場統計カード %>
+    <div class="card-surface space-y-3">
+      <h2 class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">Theaters</h2>
+      <p class="text-3xl font-semibold text-white"><%= @stats[:theaters][:total] %></p>
+      <div class="flex items-center gap-4 text-xs text-slate-400">
+        <span>運用中 <strong class="text-white"><%= @stats[:theaters][:active] %></strong></span>
+        <span>停止中 <strong class="text-white"><%= @stats[:theaters][:inactive] %></strong></span>
+      </div>
+      <%= link_to '劇場を追加', new_admin_theater_path, class: 'btn-primary w-full text-xs sm:text-sm' %>
+    </div>
   </section>
 
+  <%# 今後の上映・予約一覧セクション %>
   <section class="grid gap-6 lg:grid-cols-2">
+    <%# 今後の上映スケジュール一覧 %>
     <div class="card-surface space-y-4">
       <header class="flex items-center justify-between text-sm">
         <div>
@@ -56,10 +82,13 @@
       <% if @upcoming_schedules.any? %>
         <ul class="space-y-3 text-sm">
           <% @upcoming_schedules.each do |schedule| %>
+            <%# 劇場名とスクリーン名を取得（フォールバック付き） %>
+            <% theater_name = schedule.screen&.theater&.name || '未設定劇場' %>
+            <% screen_label = schedule.screen&.name.presence || "スクリーン#{schedule.screen_id}" %>
             <li class="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3">
               <div class="flex flex-col">
                 <span class="text-white font-semibold"><%= schedule.movie&.name || '未設定' %></span>
-                <span class="text-xs text-slate-400">スクリーン <%= schedule.screen&.name || schedule.screen_id %></span>
+                <span class="text-xs text-slate-400"><%= theater_name %> / <%= screen_label %></span>
               </div>
               <div class="text-right text-xs text-slate-400">
                 <p class="text-sm text-white font-semibold"><%= schedule.start_time&.strftime('%m/%d %H:%M') || '-' %></p>
@@ -75,6 +104,7 @@
       <% end %>
     </div>
 
+    <%# 今後の予約一覧 %>
     <div class="card-surface space-y-4">
       <header class="flex items-center justify-between text-sm">
         <div>
@@ -86,14 +116,26 @@
       <% if @upcoming_reservations.any? %>
         <ul class="space-y-3 text-sm">
           <% @upcoming_reservations.each do |reservation| %>
+            <%# 関連データを取得（フォールバック付き） %>
+            <% schedule = reservation.schedule %>
+            <% theater_name = schedule&.screen&.theater&.name || '未設定劇場' %>
+            <% screen_label = schedule&.screen&.name.presence || (schedule ? "スクリーン#{schedule.screen_id}" : 'スクリーン未設定') %>
+            <%# 座席ラベルを生成（行-列形式） %>
+            <% seat_label = if reservation.sheet.present?
+                              row = reservation.sheet.row.to_s.upcase
+                              "#{row}-#{reservation.sheet.column}"
+                            else
+                              '座席未設定'
+                            end %>
             <li class="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3">
               <div class="flex flex-col">
-                <span class="text-white font-semibold"><%= reservation.name %></span>
-                <span class="text-xs text-slate-400"><%= reservation.email %></span>
+                <span class="text-white font-semibold"><%= reservation.name.presence || reservation.user&.name || '未設定' %></span>
+                <span class="text-xs text-slate-400"><%= reservation.email.presence || reservation.user&.email || 'メール未設定' %></span>
+                <span class="text-xs text-slate-500"><%= theater_name %> / <%= screen_label %> / <%= seat_label %></span>
               </div>
               <div class="text-right text-xs text-slate-400">
-                <p class="text-sm text-white font-semibold"><%= reservation.date&.strftime('%m/%d') %> <%= reservation.schedule&.start_time&.strftime('%H:%M') %></p>
-                <p><%= reservation.schedule&.movie&.name || '未設定' %></p>
+                <p class="text-sm text-white font-semibold"><%= reservation.date&.strftime('%m/%d') %> <%= schedule&.start_time&.strftime('%H:%M') %></p>
+                <p><%= schedule&.movie&.name || '未設定' %></p>
               </div>
             </li>
           <% end %>
@@ -106,28 +148,60 @@
     </div>
   </section>
 
-  <section class="card-surface space-y-4">
-    <header class="flex items-center justify-between text-sm">
-      <div>
-        <p class="uppercase tracking-[0.3em] text-slate-500">Recently Updated</p>
-        <h2 class="text-lg font-semibold text-white">最近更新された作品</h2>
-      </div>
-      <%= link_to '映画を管理', admin_movies_path, class: 'text-xs text-slate-400 hover:text-white transition' %>
-    </header>
-    <% if @recent_movies.any? %>
-      <ul class="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-        <% @recent_movies.each do |movie| %>
-          <li class="rounded-lg border border-white/10 bg-white/[0.04] p-3">
-            <p class="font-semibold text-white truncate"><%= movie.name %></p>
-            <p class="text-xs text-slate-400">更新: <%= movie.updated_at.strftime('%m/%d %H:%M') %></p>
-            <%= link_to '詳細を開く', admin_movie_path(movie), class: 'mt-2 inline-flex text-xs text-brand-gold hover:text-white transition' %>
-          </li>
-        <% end %>
-      </ul>
-    <% else %>
-      <p class="rounded-lg border border-dashed border-white/10 bg-white/[0.02] px-4 py-6 text-center text-xs text-slate-400">
-        最近更新された作品はありません。
-      </p>
-    <% end %>
+  <%# 最近の更新活動セクション %>
+  <section class="grid gap-6 lg:grid-cols-2">
+    <%# 最近更新された映画一覧 %>
+    <div class="card-surface space-y-4">
+      <header class="flex items-center justify-between text-sm">
+        <div>
+          <p class="uppercase tracking-[0.3em] text-slate-500">Recently Updated</p>
+          <h2 class="text-lg font-semibold text-white">最近更新された作品</h2>
+        </div>
+        <%= link_to '映画を管理', admin_movies_path, class: 'text-xs text-slate-400 hover:text-white transition' %>
+      </header>
+      <% if @recent_movies.any? %>
+        <ul class="grid gap-3 text-sm sm:grid-cols-2 xl:grid-cols-3">
+          <% @recent_movies.each do |movie| %>
+            <li class="rounded-lg border border-white/10 bg-white/[0.04] p-3">
+              <p class="font-semibold text-white truncate"><%= movie.name %></p>
+              <p class="text-xs text-slate-400">更新: <%= movie.updated_at.strftime('%m/%d %H:%M') %></p>
+              <%= link_to '詳細を開く', admin_movie_path(movie), class: 'mt-2 inline-flex text-xs text-brand-gold hover:text-white transition' %>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="rounded-lg border border-dashed border-white/10 bg-white/[0.02] px-4 py-6 text-center text-xs text-slate-400">
+          最近更新された作品はありません。
+        </p>
+      <% end %>
+    </div>
+
+    <%# 最近更新された劇場一覧 %>
+    <div class="card-surface space-y-4">
+      <header class="flex items-center justify-between text-sm">
+        <div>
+          <p class="uppercase tracking-[0.3em] text-slate-500">Theater Activity</p>
+          <h2 class="text-lg font-semibold text-white">最近更新された劇場</h2>
+        </div>
+        <%= link_to '劇場を管理', admin_theaters_path, class: 'text-xs text-slate-400 hover:text-white transition' %>
+      </header>
+      <% if @recent_theaters.any? %>
+        <ul class="grid gap-3 text-sm sm:grid-cols-2">
+          <% @recent_theaters.each do |theater| %>
+            <li class="rounded-lg border border-white/10 bg-white/[0.04] p-3">
+              <p class="font-semibold text-white truncate"><%= theater.name %></p>
+              <p class="text-xs text-slate-400">住所: <%= theater.address %></p>
+              <p class="text-xs text-slate-500">状態: <%= theater.is_active? ? '運用中' : '停止中' %></p>
+              <p class="text-xs text-slate-400">更新: <%= theater.updated_at.strftime('%m/%d %H:%M') %></p>
+              <%= link_to '詳細を開く', admin_theater_path(theater), class: 'mt-2 inline-flex text-xs text-brand-gold hover:text-white transition' %>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="rounded-lg border border-dashed border-white/10 bg-white/[0.02] px-4 py-6 text-center text-xs text-slate-400">
+          最近更新された劇場はありません。
+        </p>
+      <% end %>
+    </div>
   </section>
 </div>

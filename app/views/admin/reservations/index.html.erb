@@ -1,4 +1,13 @@
+<%# ============================================================================
+    # 管理者用予約一覧ページ
+    # ============================================================================
+    # これから上映予定の映画に関する予約を一覧表示します。
+    # 劇場フィルタ機能と予約の詳細・編集へのリンクを提供します。
+    # ============================================================================
+%>
+
 <div class="page-shell">
+  <%# ページヘッダー - 予約管理の概要説明 %>
   <section class="page-hero">
     <div class="page-hero__content">
       <span class="page-hero__kicker">
@@ -12,26 +21,52 @@
     </div>
   </section>
 
+  <%# 予約一覧メインセクション %>
   <section class="card-surface space-y-6">
+    <%# ヘッダーとフィルタ・操作ボタンエリア %>
     <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div>
         <p class="text-xs uppercase tracking-[0.35em] text-slate-500">Reservation Timeline</p>
         <h2 class="text-xl font-semibold text-white">これからの予約一覧</h2>
       </div>
-      <div class="flex flex-wrap items-center gap-3 text-xs sm:text-sm">
-        <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
-          全 <%= @reservations.size %> 件
-        </span>
-        <%= link_to '予約を追加', new_admin_reservation_path, class: 'btn-primary text-xs sm:text-sm' %>
+      <div class="flex flex-col gap-4 md:flex-row md:items-end md:gap-6">
+        <%# 劇場フィルタフォーム %>
+        <%= form_with url: admin_reservations_path, method: :get, local: true, class: 'flex flex-wrap items-center gap-3 text-xs sm:text-sm' do |f| %>
+          <div class="space-y-1">
+            <%= f.label :theater_id, '劇場フィルタ', class: 'text-xs font-semibold uppercase tracking-[0.3em] text-slate-400' %>
+            <%= f.select :theater_id,
+                        options_for_select(@theaters.map { |theater| [theater.name, theater.id] }, @selected_theater&.id),
+                        { include_blank: '全ての劇場' },
+                        class: 'form-select text-sm' %>
+          </div>
+          <div class="flex items-center gap-2">
+            <%= f.submit '適用', class: 'btn-secondary text-xs sm:text-sm' %>
+            <%# フィルタが適用されている場合はクリアボタンを表示 %>
+            <% if @selected_theater.present? %>
+              <%= link_to 'クリア', admin_reservations_path, class: 'text-xs text-slate-400 underline decoration-dotted hover:text-white' %>
+            <% end %>
+          </div>
+        <% end %>
+        <%# 予約件数表示と新規追加ボタン %>
+        <div class="flex flex-wrap items-center gap-3 text-xs sm:text-sm">
+          <% if @reservations.any? %>
+            <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
+              <%= @selected_theater.present? ? '該当 ' : '全 ' %><%= @reservations.size %> 件
+            </span>
+          <% end %>
+          <%= link_to '予約を追加', new_admin_reservation_path, class: 'btn-primary text-xs sm:text-sm' %>
+        </div>
       </div>
     </div>
 
+    <%# 予約一覧テーブル %>
     <% if @reservations.any? %>
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-white/10 text-left text-sm text-slate-200">
           <thead class="bg-white/5 text-xs uppercase tracking-wider text-slate-400">
             <tr>
               <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">作品</th>
+              <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">劇場 / スクリーン</th>
               <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">上映日時</th>
               <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">座席</th>
               <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">予約者</th>
@@ -41,30 +76,57 @@
           <tbody class="divide-y divide-white/10">
             <% @reservations.each do |reservation| %>
               <tr class="transition hover:bg-white/5">
+                <%# 作品情報列 %>
                 <td class="whitespace-nowrap px-4 py-3">
                   <div class="flex flex-col">
                     <span class="font-semibold text-white"><%= reservation.schedule&.movie&.name || '未設定' %></span>
                     <span class="text-xs text-slate-400">予約ID: <%= reservation.id %></span>
                   </div>
                 </td>
+                <%# 劇場・スクリーン情報列 %>
+                <td class="whitespace-nowrap px-4 py-3 text-xs text-slate-300">
+                  <%# 関連データを取得（フォールバック付き） %>
+                  <% screen = reservation.screen || reservation.schedule&.screen %>
+                  <% theater = screen&.theater %>
+                  <% screen_label = if screen&.name.present?
+                                     screen.name
+                                   elsif screen&.id
+                                     "ID: #{screen.id}"
+                                   elsif reservation.screen_id
+                                     "ID: #{reservation.screen_id}"
+                                   else
+                                     '未設定'
+                                   end %>
+                  <div class="flex flex-col">
+                    <span class="text-white font-semibold"><%= theater&.name || '劇場未設定' %></span>
+                    <span class="text-slate-400">スクリーン <%= screen_label %></span>
+                  </div>
+                </td>
+                <%# 上映日時列 %>
                 <td class="whitespace-nowrap px-4 py-3 text-xs text-slate-300">
                   <div class="flex flex-col gap-1">
                     <span><%= reservation.date&.strftime('%Y-%m-%d') || '-' %></span>
                     <span><%= reservation.schedule&.start_time&.strftime('%H:%M') %>〜<%= reservation.schedule&.end_time&.strftime('%H:%M') %></span>
                   </div>
                 </td>
+                <%# 座席情報列 %>
                 <td class="whitespace-nowrap px-4 py-3 text-xs text-slate-300">
                   <div class="flex flex-col">
-                    <span>スクリーン <%= reservation.screen_id || '-' %></span>
-                    <span>座席 <%= reservation.sheet.row.to_s.upcase %>-<%= reservation.sheet.column %></span>
+                    <% if reservation.sheet.present? %>
+                      <span>座席 <%= reservation.sheet.row.to_s.upcase %>-<%= reservation.sheet.column %></span>
+                    <% else %>
+                      <span>座席未設定</span>
+                    <% end %>
                   </div>
                 </td>
+                <%# 予約者情報列 %>
                 <td class="whitespace-nowrap px-4 py-3 text-xs text-slate-300">
                   <div class="flex flex-col">
                     <span class="text-white"><%= reservation.name %></span>
                     <span class="text-slate-400"><%= reservation.email %></span>
                   </div>
                 </td>
+                <%# 操作列 %>
                 <td class="whitespace-nowrap px-4 py-3 text-xs">
                   <%= link_to '詳細・編集', admin_reservation_path(reservation), class: 'btn-secondary text-xs' %>
                 </td>
@@ -74,6 +136,7 @@
         </table>
       </div>
     <% else %>
+      <%# 予約がない場合の空状態表示 %>
       <div class="rounded-lg border border-dashed border-white/10 bg-white/[0.02] px-6 py-10 text-center text-sm text-slate-400">
         これから上映予定の予約はまだありません。右上の「予約を追加」から登録できます。
         <div class="mt-6 flex justify-center">

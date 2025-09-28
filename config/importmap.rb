@@ -2,3 +2,4 @@
 
 pin 'application'
 pin '@rails/ujs', to: '@rails--ujs.js' # @7.1.3
+pin 'theater_screen_fields'

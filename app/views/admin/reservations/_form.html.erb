@@ -1,3 +1,13 @@
+<%# ============================================================================
+    # 予約フォーム - 部分テンプレート
+    # ============================================================================
+    # 管理者用の予約作成・編集フォームです。
+    # スケジュール選択、座席選択、予約者情報の入力を行います。
+    # JavaScriptでスケジュール選択に応じて座席候補が動的に更新されます。
+    # ============================================================================
+%>
+
+<%# ローカル変数の設定 %>
 <% reservation = local_assigns.fetch(:reservation) %>
 <% submit_label = reservation.persisted? ? '予約を更新する' : '予約を作成する' %>
 <% seat_select_disabled = reservation.persisted? ? false : @selected_schedule.blank? %>
@@ -14,15 +24,19 @@
     </div>
   <% end %>
 
+  <%# スケジュール・座席選択セクション %>
   <div class="grid gap-6 md:grid-cols-2">
+    <%# 上映スケジュール選択 %>
     <div class="space-y-2">
       <%= f.label :schedule_id, '上映スケジュール', class: 'text-sm font-semibold text-white' %>
+      <%# スケジュール選択肢を生成（詳細情報とデータ属性を含む） %>
       <% schedule_options = @schedules.map do |schedule|
            movie_title = schedule.movie&.name || '未設定'
            screen_name = schedule.screen&.name || "スクリーン#{schedule.screen_id}"
+           theater_name = schedule.screen&.theater&.name || '劇場未設定'
            start_label = schedule.start_time&.strftime('%Y-%m-%d %H:%M') || '-'
            end_label = schedule.end_time&.strftime('%H:%M') || '-'
-           label = "##{schedule.id} | #{movie_title} | #{screen_name} | #{start_label}〜#{end_label}"
+           label = "##{schedule.id} | #{movie_title} | #{theater_name} | #{screen_name} | #{start_label}〜#{end_label}"
            reserved_ids = Array(@reserved_seat_map[schedule.id]).join(',')
            [
              label,
@@ -30,6 +44,8 @@
              {
                'data-screen-id': schedule.screen_id,
                'data-screen-name': screen_name,
+               'data-theater-id': schedule.screen&.theater_id,
+               'data-theater-name': theater_name,
                'data-movie-title': movie_title,
                'data-start-time': start_label,
                'data-end-time': end_label,
@@ -45,9 +61,13 @@
                    data: { reservation_schedule: true } %>
       <p class="text-xs text-slate-500">上映スケジュールを選ぶとスクリーンと座席候補が自動で切り替わります。</p>
     </div>
+    
+    <%# 座席選択 %>
     <div class="space-y-2">
       <%= f.label :sheet_id, '座席', class: 'text-sm font-semibold text-white' %>
+      <%# 予約済み座席のセットを取得 %>
       <% reserved_set = Array(@reserved_seat_map[@selected_schedule&.id]).map(&:to_s) if @selected_schedule %>
+      <%# 座席選択肢を生成（予約状況のデータ属性を含む） %>
       <% seat_options = @available_sheets.map do |sheet|
            [
              "#{sheet.row.to_s.upcase}-#{sheet.column}",
@@ -71,18 +91,37 @@
     </div>
   </div>
 
-  <div class="grid gap-6 md:grid-cols-2">
+  <%# 選択されたスケジュールの詳細情報表示セクション %>
+  <div class="grid gap-6 md:grid-cols-3">
+    <%# 劇場情報表示 %>
     <div class="space-y-2">
-      <label class="text-sm font-semibold text-white">選択中のスクリーン</label>
+      <label class="text-sm font-semibold text-white">劇場</label>
+      <div class="rounded-lg border border-white/10 bg-white/[0.02] px-4 py-3 text-sm text-slate-200" data-theater-display>
+        <% if @selected_schedule&.screen&.theater.present? %>
+          <% theater = @selected_schedule.screen.theater %>
+          <span class="text-white font-semibold"><%= theater.name %></span>
+          <span class="ml-2 text-xs text-slate-400">ID: <%= theater.id %></span>
+        <% else %>
+          <span class="text-slate-500">上映スケジュールを選択してください</span>
+        <% end %>
+      </div>
+    </div>
+
+    <%# スクリーン情報表示 %>
+    <div class="space-y-2">
+      <label class="text-sm font-semibold text-white">スクリーン</label>
       <div class="rounded-lg border border-white/10 bg-white/[0.02] px-4 py-3 text-sm text-slate-200" data-screen-display>
         <% if @selected_schedule %>
-          <span class="text-white font-semibold"><%= (@selected_schedule.screen&.name || "スクリーン#{@selected_schedule.screen_id}") %></span>
+          <% screen_name = @selected_schedule.screen&.name.presence || "スクリーン#{@selected_schedule.screen_id}" %>
+          <span class="text-white font-semibold"><%= screen_name %></span>
           <span class="ml-2 text-xs text-slate-400">ID: <%= @selected_schedule.screen_id %></span>
         <% else %>
           <span class="text-slate-500">上映スケジュールを選択してください</span>
         <% end %>
       </div>
     </div>
+
+    <%# 上映時間情報表示 %>
     <div class="space-y-2">
       <label class="text-sm font-semibold text-white">上映情報</label>
       <div class="rounded-lg border border-white/10 bg-white/[0.02] px-4 py-3 text-sm text-slate-200" data-timeslot-display>
@@ -100,6 +139,7 @@
     </div>
   </div>
 
+  <%# 予約者情報入力セクション %>
   <div class="grid gap-6 md:grid-cols-2">
     <div class="space-y-2">
       <%= f.label :name, '予約者氏名', class: 'text-sm font-semibold text-white' %>
@@ -111,8 +151,10 @@
     </div>
   </div>
 
+  <%# フォーム操作ボタンセクション %>
   <div class="flex flex-wrap items-center gap-3">
     <%= f.submit submit_label, class: 'btn-primary' %>
+    <%# 削除ボタン（編集時のみ表示） %>
     <% if local_assigns[:show_delete] %>
       <%= link_to 'この予約を削除', admin_reservation_path(reservation),
                   data: {
@@ -124,22 +166,44 @@
   </div>
 <% end %>
 
+<%# JavaScript フォーム機能強化スクリプト（重複読み込み防止） %>
 <% unless content_for?(:reservation_form_script_loaded) %>
   <% content_for :reservation_form_script_loaded, true %>
   <%= javascript_tag do %>
+    <%# イベントリスナーの設定（Turbo対応） %>
     document.addEventListener('turbo:load', setupReservationFormEnhancements);
     document.addEventListener('turbo:frame-load', setupReservationFormEnhancements);
     document.addEventListener('DOMContentLoaded', setupReservationFormEnhancements);
 
+    <%# 予約フォームの動的機能を設定する関数 %>
     function setupReservationFormEnhancements() {
+      <%# DOM要素の取得 %>
       const scheduleSelect = document.querySelector('[data-reservation-schedule]');
-    const seatSelect = document.querySelector('[data-reservation-seat]');
-    const screenDisplay = document.querySelector('[data-screen-display]');
-    const timeslotDisplay = document.querySelector('[data-timeslot-display]');
-    const noSeatsNotice = document.querySelector('[data-no-seats]');
+      const seatSelect = document.querySelector('[data-reservation-seat]');
+      const theaterDisplay = document.querySelector('[data-theater-display]');
+      const screenDisplay = document.querySelector('[data-screen-display]');
+      const timeslotDisplay = document.querySelector('[data-timeslot-display]');
+      const noSeatsNotice = document.querySelector('[data-no-seats]');
 
-    if (!scheduleSelect || !seatSelect || !screenDisplay || !timeslotDisplay || !noSeatsNotice) return;
+      <%# 必要な要素が存在しない場合は処理を終了 %>
+      if (!scheduleSelect || !seatSelect || !theaterDisplay || !screenDisplay || !timeslotDisplay || !noSeatsNotice) return;
 
+      <%# 劇場情報を表示する関数 %>
+      const renderTheaterInfo = (name, id) => {
+        theaterDisplay.innerHTML = '';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'text-white font-semibold';
+        nameSpan.textContent = name;
+        theaterDisplay.appendChild(nameSpan);
+
+        const idSpan = document.createElement('span');
+        idSpan.className = 'ml-2 text-xs text-slate-400';
+        idSpan.textContent = `ID: ${id}`;
+        theaterDisplay.appendChild(idSpan);
+      };
+
+      <%# スクリーン情報を表示する関数 %>
       const renderScreenInfo = (name, id) => {
         screenDisplay.innerHTML = '';
         const titleSpan = document.createElement('span');
@@ -153,6 +217,7 @@
         screenDisplay.appendChild(idSpan);
       };
 
+      <%# 上映時間情報を表示する関数 %>
       const renderTimeslotInfo = (movieTitle, startTime, endTime) => {
         timeslotDisplay.innerHTML = '';
 
@@ -168,66 +233,80 @@
         timeslotDisplay.appendChild(period);
       };
 
+      <%# プレースホルダーを表示する関数 %>
       const renderPlaceholders = () => {
+        theaterDisplay.innerHTML = '<span class="text-slate-500">上映スケジュールを選択してください</span>';
         screenDisplay.innerHTML = '<span class="text-slate-500">上映スケジュールを選択してください</span>';
         timeslotDisplay.innerHTML = '<span class="text-slate-500">上映スケジュールを選択すると表示されます</span>';
       };
 
+      <%# フォーム状態を更新する関数（スケジュール選択に応じて座席候補を動的更新） %>
       const updateFormState = () => {
+        <%# 選択されたスケジュールの情報を取得 %>
         const selectedOption = scheduleSelect.options[scheduleSelect.selectedIndex];
-      const screenId = selectedOption ? selectedOption.dataset.screenId : null;
-      const screenName = selectedOption ? selectedOption.dataset.screenName : null;
-      const movieTitle = selectedOption ? selectedOption.dataset.movieTitle : null;
-      const startTime = selectedOption ? selectedOption.dataset.startTime : null;
-      const endTime = selectedOption ? selectedOption.dataset.endTime : null;
-      const reservedSeats = selectedOption ? (selectedOption.dataset.reservedSeats || '') : '';
-      const reservedSet = new Set(reservedSeats.split(',').filter(Boolean));
+        const screenId = selectedOption ? selectedOption.dataset.screenId : null;
+        const screenName = selectedOption ? selectedOption.dataset.screenName : null;
+        const theaterId = selectedOption ? selectedOption.dataset.theaterId : null;
+        const theaterName = selectedOption ? selectedOption.dataset.theaterName : null;
+        const movieTitle = selectedOption ? selectedOption.dataset.movieTitle : null;
+        const startTime = selectedOption ? selectedOption.dataset.startTime : null;
+        const endTime = selectedOption ? selectedOption.dataset.endTime : null;
+        const reservedSeats = selectedOption ? (selectedOption.dataset.reservedSeats || '') : '';
+        const reservedSet = new Set(reservedSeats.split(',').filter(Boolean));
 
-      let shouldResetSeat = false;
+        let shouldResetSeat = false;
+        let hasVisibleSeat = false;
 
-      let hasVisibleSeat = false;
+        <%# 座席選択肢の表示/非表示を制御 %>
+        Array.from(seatSelect.options).forEach((option) => {
+          if (!option.value) return;
+          const matches = screenId && option.dataset.screenId === screenId;
+          const isReserved = reservedSet.has(option.value);
+          const shouldHide = !matches || isReserved;
 
-      Array.from(seatSelect.options).forEach((option) => {
-        if (!option.value) return;
-        const matches = screenId && option.dataset.screenId === screenId;
-        const isReserved = reservedSet.has(option.value);
-        const shouldHide = !matches || isReserved;
+          option.hidden = shouldHide;
+          option.disabled = shouldHide;
 
-        option.hidden = shouldHide;
-        option.disabled = shouldHide;
+          if (!shouldHide) {
+            hasVisibleSeat = true;
+          }
 
-        if (!shouldHide) {
-          hasVisibleSeat = true;
-        }
+          if (shouldHide && option.selected) {
+            option.selected = false;
+            shouldResetSeat = true;
+          }
+        });
 
-        if (shouldHide && option.selected) {
-          option.selected = false;
-          shouldResetSeat = true;
-        }
-      });
-
+        <%# スケジュールが選択されている場合の処理 %>
         if (screenId) {
           seatSelect.disabled = false;
           seatSelect.removeAttribute('disabled');
           if (shouldResetSeat || !seatSelect.value) {
             seatSelect.selectedIndex = 0;
           }
-        renderScreenInfo(screenName, screenId);
-        renderTimeslotInfo(movieTitle, startTime, endTime);
-        noSeatsNotice.classList.toggle('hidden', hasVisibleSeat);
-        if (!hasVisibleSeat) {
+
+          <%# 詳細情報を表示 %>
+          renderTheaterInfo(theaterName || '劇場未設定', theaterId || '-');
+          renderScreenInfo(screenName || 'スクリーン未設定', screenId);
+          renderTimeslotInfo(movieTitle || '上映未定', startTime || '-', endTime || '-');
+
+          <%# 座席が利用可能かどうかをチェック %>
+          noSeatsNotice.classList.toggle('hidden', hasVisibleSeat);
+          if (!hasVisibleSeat) {
+            seatSelect.disabled = true;
+            seatSelect.setAttribute('disabled', 'disabled');
+          }
+        } else {
+          <%# スケジュールが選択されていない場合の処理 %>
           seatSelect.disabled = true;
           seatSelect.setAttribute('disabled', 'disabled');
+          seatSelect.selectedIndex = 0;
+          renderPlaceholders();
+          noSeatsNotice.classList.add('hidden');
         }
-      } else {
-        seatSelect.disabled = true;
-        seatSelect.setAttribute('disabled', 'disabled');
-        seatSelect.selectedIndex = 0;
-        renderPlaceholders();
-        noSeatsNotice.classList.add('hidden');
-      }
-    };
+      };
 
+      <%# イベントリスナーと初期化 %>
       scheduleSelect.addEventListener('change', updateFormState);
       updateFormState();
     }

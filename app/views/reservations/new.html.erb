@@ -1,22 +1,44 @@
+<%# ============================================================================
+    # 予約確認ページ - 一般ユーザー用
+    # ============================================================================
+    # 選択された座席の予約を確定するページです。
+    # ログイン中のユーザー情報を使用して予約を作成します。
+    # ============================================================================
+%>
+
 <div class="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-12">
+  <%# ページヘッダー - 予約内容の確認とナビゲーション %>
   <div class="flex flex-wrap items-center justify-between gap-4 text-slate-200">
     <div class="space-y-2">
       <p class="text-xs font-semibold uppercase tracking-[0.45em] text-brand-gold">Confirm Reservation</p>
       <h1 class="font-heading text-3xl text-white md:text-4xl"><%= @movie.name %></h1>
+      <%# 選択された座席・上映情報の詳細表示 %>
       <div class="flex flex-wrap items-center gap-4 text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
         <span><%= Date.parse(@date.to_s).strftime('%Y.%m.%d') rescue @date %></span>
         <span><%= @schedule.start_time.strftime('%H:%M') %> - <%= @schedule.end_time.strftime('%H:%M') %></span>
-        <span>Screen <%= @schedule.screen_id %></span>
+        <span><%= @theater.name %></span>
+        <span><%= (@screen.name.presence || "スクリーン#{@screen.id}") %></span>
         <span>Seat <%= "#{@sheet.row.upcase}-#{@sheet.column}" %></span>
       </div>
     </div>
-    <%= link_to '座席選択に戻る', reservation_movie_path(@movie, schedule_id: @schedule.id, date: @date), class: 'btn-secondary text-xs sm:text-sm' %>
+    <%= link_to '座席選択に戻る', reservation_movie_path(@movie, schedule_id: @schedule.id, date: @date, theater_id: @theater.id), class: 'btn-secondary text-xs sm:text-sm' %>
   </div>
 
+  <%# メインコンテンツエリア - サイドバーと予約フォーム %>
   <div class="grid gap-6 lg:grid-cols-3">
+    <%# 予約内容確認サイドバー %>
     <aside class="rounded-2xl border border-white/10 bg-slate-900/60 p-6 text-sm text-slate-300 shadow-lg">
       <p class="font-semibold text-brand-gold">予約内容</p>
+      <%# 予約詳細情報のリスト表示 %>
       <dl class="mt-4 space-y-3 text-slate-200">
+        <div class="flex justify-between gap-3 text-xs uppercase tracking-[0.25em] text-slate-500">
+          <span>劇場</span>
+          <span><%= @theater.name %></span>
+        </div>
+        <div class="flex justify-between gap-3 text-xs uppercase tracking-[0.25em] text-slate-500">
+          <span>スクリーン</span>
+          <span><%= @screen.name.presence || "スクリーン#{@screen.id}" %></span>
+        </div>
         <div class="flex justify-between gap-3 text-xs uppercase tracking-[0.25em] text-slate-500">
           <span>座席</span>
           <span><%= "#{@sheet.row.upcase}-#{@sheet.column}" %></span>
@@ -29,37 +51,40 @@
           <span>時間</span>
           <span><%= @schedule.start_time.strftime('%H:%M') %>〜<%= @schedule.end_time.strftime('%H:%M') %></span>
         </div>
-        <div class="flex justify-between gap-3 text-xs uppercase tracking-[0.25em] text-slate-500">
-          <span>スクリーン</span>
-          <span><%= @schedule.screen_id %></span>
-        </div>
       </dl>
+      <%# 予約確定に関する注意事項 %>
       <p class="mt-6 leading-relaxed text-slate-400">
         予約を確定すると登録済みメールアドレスへ確認メールをお送りします。内容に誤りがないかご確認ください。
       </p>
     </aside>
 
+    <%# 予約フォームメインエリア %>
     <div class="lg:col-span-2 space-y-6">
       <div class="rounded-2xl border border-white/10 bg-slate-900/60 p-6 shadow-lg">
         <h2 class="text-lg font-semibold text-soft">予約者情報</h2>
         <p class="mt-2 text-sm text-slate-400">ログイン中のアカウント情報を使用します。変更が必要な場合はプロフィールを更新してください。</p>
 
+        <%# 予約確定フォーム %>
         <%= form_with model: @reservation, url: reservations_path, local: true, class: 'form-stack mt-6' do |f| %>
+          <%# 予約に必要な隠しフィールド %>
           <%= f.hidden_field :schedule_id, value: @schedule.id %>
           <%= f.hidden_field :sheet_id, value: @sheet.id %>
           <%= f.hidden_field :date, value: @date %>
-          <%= f.hidden_field :screen_id, value: @schedule.screen_id %>
+          <%= f.hidden_field :screen_id, value: @screen.id %>
 
+          <%# 予約者氏名（読み取り専用） %>
           <div class="form-field">
             <%= f.label :name, '予約者氏名', class: 'form-label' %>
             <%= f.text_field :name, value: current_user.name, readonly: true, class: 'form-input' %>
           </div>
 
+          <%# 予約者メールアドレス（読み取り専用） %>
           <div class="form-field">
             <%= f.label :email, '予約者メールアドレス', class: 'form-label' %>
             <%= f.email_field :email, value: current_user.email, readonly: true, class: 'form-input' %>
           </div>
 
+          <%# 予約確定ボタン %>
           <div class="flex flex-wrap gap-3 pt-4">
             <%= f.submit '予約を確定する', class: 'btn-primary w-full sm:w-auto justify-center' %>
           </div>

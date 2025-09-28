@@ -1,9 +1,20 @@
+<%# ============================================================================
+    # 映画詳細ページ - 一般ユーザー用
+    # ============================================================================
+    # 映画の詳細情報と上映スケジュールを表示します。
+    # 劇場・日付・スケジュールの選択により座席予約に進むことができます。
+    # ============================================================================
+%>
+
 <div class="page-shell">
+  <%# ナビゲーションヘッダー %>
   <div>
     <%= link_to '← 上映作品一覧に戻る', movies_path, class: 'btn-secondary text-xs sm:text-sm' %>
   </div>
 
+  <%# 映画詳細レイアウト - ポスターと詳細情報の2カラム構成 %>
   <section class="detail-layout">
+    <%# 映画ポスターサイドバー %>
     <aside class="poster-card">
       <% if @movie.image_url.present? %>
         <%= image_tag @movie.image_url, alt: "#{@movie.name}のポスター" %>
@@ -12,9 +23,12 @@
       <% end %>
     </aside>
 
+    <%# 映画詳細情報メインパネル %>
     <div class="detail-panel">
+      <%# 映画基本情報ヘッダー %>
       <div class="detail-panel__header">
         <div class="movie-card__meta">
+          <%# 上映状態バッジ %>
           <span class="badge <%= @movie.is_showing ? 'badge--showing' : 'badge--upcoming' %>">
             <%= @movie.is_showing ? '上映中' : '上映予定' %>
           </span>
@@ -22,6 +36,7 @@
           <span>作品ID <%= @movie.id %></span>
         </div>
         <h1 class="page-hero__title"><%= @movie.name %></h1>
+        <%# 映画の詳細メタ情報 %>
         <div class="detail-panel__meta">
           <span>上映時間: <strong class="text-soft"><%= @schedules.any? ? @schedules.first.start_time.strftime('%H:%M') : '--:--' %></strong></span>
           <span>登録日: <%= @movie.created_at.strftime('%Y年%-m月%-d日 %H:%M') %></span>
@@ -29,6 +44,7 @@
         </div>
       </div>
 
+      <%# 映画の説明文セクション %>
       <div class="detail-panel__body">
         <h2 class="text-lg font-semibold text-soft">作品情報</h2>
         <%= simple_format(@movie.description.to_s, {}, wrapper_tag: 'p') %>
@@ -36,63 +52,104 @@
 
       <hr class="divider">
 
+      <%# 上映スケジュール選択セクション %>
       <div class="schedule-card">
         <h2 class="text-lg font-semibold text-soft">上映スケジュール</h2>
-        <% available_dates = @schedules.map { |s| s.start_time.to_date }
-                                      .select { |d| d >= Date.today }
-                                      .uniq
-                                      .sort %>
-        <% selected_date = @selected_date.present? ? @selected_date.to_s : available_dates.first&.to_s %>
 
-        <% if available_dates.any? %>
+        <% if @theaters.any? %>
+          <%# 劇場・日付選択フォーム %>
           <%= form_with url: movie_path(@movie), method: :get, local: true, class: 'form-stack' do %>
             <div class="form-field">
-              <%= label_tag :date, '日付を選択', class: 'form-label' %>
-              <%= select_tag :date,
-                             options_for_select(available_dates.map { |d| [d.strftime('%Y年%m月%d日'), d.to_s] }, selected_date),
+              <%= label_tag :theater_id, '劇場を選択', class: 'form-label' %>
+              <%= select_tag :theater_id,
+                             options_from_collection_for_select(@theaters, :id, :name, @selected_theater&.id),
                              class: 'form-select' %>
             </div>
+
+            <div class="form-field">
+              <%= label_tag :date, '日付を選択', class: 'form-label' %>
+              <%# 日付選択肢を生成（フォーマット付き） %>
+              <% date_options = @available_dates.map do |date|
+                   parsed = begin
+                              Date.parse(date)
+                            rescue ArgumentError, TypeError
+                              nil
+                            end
+                   label = parsed ? parsed.strftime('%Y年%m月%d日') : date
+                   [label, date]
+                 end %>
+              <%= select_tag :date,
+                             options_for_select(date_options, @selected_date),
+                             class: 'form-select',
+                             disabled: @available_dates.empty? %>
+            </div>
+
             <div class="flex flex-wrap gap-3">
-              <%= submit_tag 'この日付のスケジュールを見る', class: 'btn-secondary w-full sm:w-auto justify-center' %>
+              <%= submit_tag '上映スケジュールを表示', class: 'btn-secondary w-full sm:w-auto justify-center' %>
+            </div>
+          <% end %>
+
+          <%# 選択された劇場の情報表示 %>
+          <% if @selected_theater %>
+            <div class="rounded-2xl border border-white/10 bg-slate-900/60 p-4 mt-6 text-sm text-soft">
+              <p class="font-semibold text-brand-gold">選択中の劇場</p>
+              <p class="mt-1"><%= @selected_theater.name %></p>
+              <p class="text-xs text-slate-400"><%= @selected_theater.address %></p>
+            </div>
+          <% end %>
+
+          <%# スケジュール選択フォーム（座席予約への遷移） %>
+          <% if @filtered_schedules.present? %>
+            <%= form_with url: reservation_movie_path(@movie), method: :get, local: true, class: 'form-stack mt-6' do %>
+              <%= hidden_field_tag :date, @selected_date %>
+              <%= hidden_field_tag :theater_id, @selected_theater&.id %>
+
+              <div class="form-field">
+                <%= label_tag :schedule_id, 'スケジュールを選択', class: 'form-label' %>
+                <%# スケジュール選択肢（時間とスクリーン名を含む） %>
+                <%= select_tag :schedule_id,
+                               options_from_collection_for_select(
+                                 @filtered_schedules,
+                                 :id,
+                                 ->(schedule) do
+                                   screen_name = schedule.screen.name.presence || "スクリーン#{schedule.screen.id}"
+                                   "#{schedule.start_time.strftime('%H:%M')}～#{schedule.end_time.strftime('%H:%M')} / #{screen_name}"
+                                 end
+                               ),
+                               class: 'form-select' %>
+              </div>
+
+              <div class="flex flex-wrap gap-3">
+                <%= submit_tag '座席を選ぶ', class: 'btn-primary w-full sm:w-auto justify-center' %>
+              </div>
+            <% end %>
+
+            <%# スケジュール一覧表示 %>
+            <div class="schedule-list">
+              <% @filtered_schedules.each do |schedule| %>
+                <% screen_name = schedule.screen.name.presence || "スクリーン#{schedule.screen.id}" %>
+                <div class="schedule-item">
+                  <strong><%= schedule.start_time.strftime('%H:%M') %>〜<%= schedule.end_time.strftime('%H:%M') %></strong>
+                  <span>スクリーン: <%= screen_name %></span>
+                </div>
+              <% end %>
+            </div>
+          <% elsif @available_dates.any? %>
+            <%# 選択日付に上映がない場合の空状態 %>
+            <div class="empty-state mt-6">
+              <strong class="text-accent">選択した日付の上映はありません</strong>
+              <p class="text-soft text-sm">別の日付を選択すると、座席予約ができる上映スケジュールが表示されます。</p>
+            </div>
+          <% else %>
+            <%# スケジュールが見つからない場合の空状態 %>
+            <div class="empty-state mt-6">
+              <strong class="text-accent">上映スケジュールが見つかりません</strong>
+              <p class="text-soft text-sm">選択した劇場には、現在予約可能な上映スケジュールがありません。</p>
             </div>
           <% end %>
         <% else %>
+          <%# 劇場が登録されていない場合のメッセージ %>
           <p class="text-soft text-sm">上映スケジュールはまだ登録されていません。</p>
-        <% end %>
-
-        <% if @filtered_schedules.present? %>
-          <%= form_with url: reservation_movie_path(@movie), method: :get, local: true, class: 'form-stack' do %>
-            <%= hidden_field_tag :date, selected_date %>
-
-            <div class="form-field">
-              <%= label_tag :schedule_id, 'スケジュールを選択', class: 'form-label' %>
-              <%= select_tag :schedule_id,
-                             options_from_collection_for_select(
-                               @filtered_schedules,
-                               :id,
-                               ->(s) { "#{s.start_time.strftime('%H:%M')}～#{s.end_time.strftime('%H:%M')}" }
-                             ),
-                             class: 'form-select' %>
-            </div>
-
-            <div class="flex flex-wrap gap-3">
-              <%= submit_tag '座席を選ぶ', class: 'btn-primary w-full sm:w-auto justify-center' %>
-            </div>
-          <% end %>
-
-          <div class="schedule-list">
-            <% @filtered_schedules.each do |schedule| %>
-              <div class="schedule-item">
-                <strong><%= schedule.start_time.strftime('%H:%M') %>〜<%= schedule.end_time.strftime('%H:%M') %></strong>
-                <span>スクリーンID: <%= schedule.screen_id %></span>
-              </div>
-            <% end %>
-          </div>
-        <% elsif available_dates.any? %>
-          <div class="empty-state">
-            <strong class="text-accent">選択した日付の上映はありません</strong>
-            <p class="text-soft text-sm">別の日付を選択すると、座席予約ができる上映スケジュールが表示されます。</p>
-          </div>
         <% end %>
       </div>
     </div>

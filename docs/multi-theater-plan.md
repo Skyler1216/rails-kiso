@@ -29,15 +29,25 @@
 - [x] スケジュール・予約フォームでスクリーン選択時に劇場名を表示し、コントローラで `screen.theater` を eager load する。
   （対応ファイル: app/views/admin/schedules/_form.html.erb, app/controllers/admin/schedules_controller.rb, app/controllers/admin/reservations_controller.rb）
 - [x] 劇場の CRUD 画面を追加し、スクリーン編集時に劇場を選択できるようにする。（対応ファイル: config/routes.rb, app/controllers/admin/theaters_controller.rb, app/views/admin/theaters/index.html.erb, app/views/admin/theaters/new.html.erb, app/views/admin/theaters/show.html.erb, app/views/admin/theaters/_form.html.erb, app/views/layouts/_header.html.erb）
+- [x] 劇場フォームを改善し、スクリーンの追加・削除を同一フォームで行えるようにする。（対応ファイル: app/controllers/admin/theaters_controller.rb, app/views/admin/theaters/_form.html.erb, app/views/admin/theaters/_screen_fields_row.html.erb, app/views/admin/theaters/show.html.erb, app/javascript/application.js, app/javascript/theater_screen_fields.js, config/importmap.rb, spec/requests/admin/theaters_spec.rb）
 - [x] スケジュール一覧／詳細で劇場別フィルタや表示を整備する。（対応ファイル: app/controllers/admin/schedules_controller.rb, app/views/admin/schedules/index.html.erb, app/views/admin/schedules/show.html.erb, app/assets/stylesheets/tailwind.css）
+- [x] 予約管理画面に劇場情報の表示・フィルタを追加する。
+  （対応ファイル: app/controllers/admin/reservations_controller.rb, app/views/admin/reservations/index.html.erb, app/views/admin/reservations/_form.html.erb, spec/requests/admin/reservations_spec.rb）
+- [x] 管理ダッシュボードに劇場サマリ・更新情報を表示する。（対応ファイル: app/controllers/admin/dashboard_controller.rb, app/views/admin/dashboard/index.html.erb, app/assets/stylesheets/tailwind.css）
 
 ### 予約フロー（フロント）
-- [ ] ユーザー向け予約フローに劇場選択ステップを導入する。（対応ファイル: ）
-- [ ] 劇場によってスケジュールを絞り込んだ座席選択 UI を実装する。（対応ファイル: ）
+- [x] ユーザー向け予約フローに劇場選択ステップを導入する。
+  （対応ファイル: app/controllers/movies_controller.rb, app/views/movies/show.html.erb, app/views/movies/reservation.html.erb）
+- [x] 劇場によってスケジュールを絞り込んだ座席選択 UI を実装する。
+  （対応ファイル: app/controllers/movies_controller.rb, app/controllers/reservations_controller.rb, app/views/reservations/new.html.erb）
 
 ### テスト
-- [ ] 劇場・スクリーン関連のモデルスペックを追加する。（対応ファイル: ）
-- [ ] 劇場選択〜予約完了までのシステムスペックを追加する。（対応ファイル: ）
+- [x] 劇場・スクリーン関連のモデルスペックを追加する。
+  （対応ファイル: spec/models/theater_spec.rb, spec/models/screen_spec.rb）
+- [x] 劇場選択〜予約完了までのシステムスペックを追加する。
+  （対応ファイル: spec/system/multi_theater_reservation_spec.rb）
+- [x] 管理予約一覧の劇場フィルタ用リクエストスペックを追加する。
+  （対応ファイル: spec/requests/admin/reservations_spec.rb）
 
 ## 🏗️ テーブル設計（現行スキーマを踏まえた変更）
 
