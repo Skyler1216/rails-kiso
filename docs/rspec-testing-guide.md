@@ -276,6 +276,12 @@ bundle exec rspec --format documentation
     2. `MoviesController` の日付選択処理を見直し、リクエストされた日付が候補に無くても選択できるように修正。
     3. `ReservationsController` の必須パラメータ不足ケースをルーティングに合わせてテストし直し、`SheetsController` の spec は `render_views` を使って実際の HTML を検証。
   - **結果**: `spec/controllers/*` の全テストが成功。
+- 2025-09-29: リクエストテスト（`bundle exec rspec spec/requests --format documentation`）がすべて成功するように整備。
+  - **失敗の原因**: 管理者予約一覧で、フィルタ対象外の劇場名もグローバルメニューに残っていることをテストが想定しておらず、不要な `not_to include` が失敗していた。さらに、`Admin::Schedules` はテスト未実装（pending）のままだった。
+  - **対応内容**:
+    1. `spec/requests/admin/reservations_spec.rb` のアサーションを見直し、劇場名ではなく予約レコードでフィルタの成否を確認するよう変更。
+    2. 新たに `spec/requests/admin/schedules_spec.rb` に本物のリクエストテストを追加し、劇場フィルタが HTML 出力に反映されることを検証。
+  - **結果**: `spec/requests/*` の全テストが成功。
 
 ## テストデータ管理
 

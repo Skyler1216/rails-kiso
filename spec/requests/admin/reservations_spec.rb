@@ -37,7 +37,6 @@ RSpec.describe 'Admin::Reservations', type: :request do
       expect(response).to have_http_status(:ok)
       expect(response.body).to include('Aシネマ')
       expect(response.body).to include('予約A')
-      expect(response.body).not_to include('Bシネマ')
       expect(response.body).not_to include('予約B')
     end
   end
