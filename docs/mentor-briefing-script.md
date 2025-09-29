@@ -34,6 +34,7 @@
   - `app/models/screen.rb`
     - `belongs_to :theater`
     - 劇場内でスクリーン名が重複しないよう `uniqueness scope: :theater_id`
+    - `after_create` で標準座席（3×5）を自動生成
   - `app/models/reservation.rb`
     - モデル側でも重複チェックを行い、DB 制約との二重防御を維持
 
@@ -89,4 +90,3 @@
   - 管理・ユーザー双方の UI を劇場選択前提に整備済み。
 - 今後検討したいタスク
   - 雛形のまま残っている helper／view spec の整理（不要なら削除、必要なら実装）。
-
