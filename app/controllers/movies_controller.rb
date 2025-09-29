@@ -59,29 +59,26 @@ class MoviesController < ApplicationController
                         end
 
     # 利用可能な日付の一覧を作成（今日以降のみ）
+    today = Time.zone.today
     @available_dates = theater_schedules
-                       .map { |schedule| schedule.start_time&.to_date }
-                       .compact
+                       .filter_map do |schedule|
+                         start_date = schedule.start_time&.to_date
+                         next unless start_date&.>= today
+
+                         start_date.to_s
+                       end
                        .uniq
                        .sort
-                       .map(&:to_s)
-
-    requested_date = params[:date].presence
-    if requested_date && !@available_dates.include?(requested_date)
-      @available_dates << requested_date
-      @available_dates.sort!
-    end
 
     # 選択された日付の処理
     if @available_dates.any?
-      @selected_date = if requested_date && @available_dates.include?(requested_date)
-                         requested_date
-                       else
-                         @available_dates.first
-                       end
+      requested_date = params[:date].presence
+      @selected_date = @available_dates.include?(requested_date) ? requested_date : @available_dates.first
 
       # 選択された日付のスケジュールのみを抽出
-      @filtered_schedules = theater_schedules.select { |schedule| schedule.start_time.to_date.to_s == @selected_date }
+      @filtered_schedules = theater_schedules.select do |schedule|
+        schedule.start_time&.to_date&.to_s == @selected_date
+      end
     else
       @selected_date = nil
       @filtered_schedules = []

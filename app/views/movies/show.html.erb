@@ -60,14 +60,15 @@
           <%# 劇場・日付選択フォーム %>
           <%= form_with url: movie_path(@movie), method: :get, local: true, class: 'form-stack' do %>
             <div class="form-field">
-              <%= label_tag :theater_id, '劇場を選択', class: 'form-label' %>
-              <%= select_tag :theater_id,
-                             options_from_collection_for_select(@theaters, :id, :name, @selected_theater&.id),
-                             class: 'form-select' %>
-            </div>
+             <%= label_tag :theater_id, '劇場を選択', class: 'form-label' %>
+             <%= select_tag :theater_id,
+                            options_from_collection_for_select(@theaters, :id, :name, @selected_theater&.id),
+                             class: 'form-select',
+                             onchange: "const dateSelect = this.form.querySelector('[name=\\'date\\']'); if (dateSelect) { dateSelect.value = ''; } this.form.requestSubmit();" %>
+           </div>
 
-            <div class="form-field">
-              <%= label_tag :date, '日付を選択', class: 'form-label' %>
+           <div class="form-field">
+             <%= label_tag :date, '日付を選択', class: 'form-label' %>
               <%# 日付選択肢を生成（フォーマット付き） %>
               <% date_options = @available_dates.map do |date|
                    parsed = begin
