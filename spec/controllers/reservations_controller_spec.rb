@@ -7,6 +7,7 @@ RSpec.describe ReservationsController, type: :controller do
   let!(:movie) { create(:movie) }
   let!(:schedule) { create(:schedule, movie: movie, screen: screen) }
   let!(:sheet) { create(:sheet, screen: screen) }
+  let(:reservation_date) { schedule.start_time.to_date.to_s }
 
   before do
     sign_in user
@@ -19,7 +20,7 @@ RSpec.describe ReservationsController, type: :controller do
           movie_id: movie.id,
           schedule_id: schedule.id,
           sheet_id: sheet.id,
-          date: '2025-09-22'
+          date: reservation_date
         }
         expect(response).to have_http_status(200)
       end
@@ -29,7 +30,7 @@ RSpec.describe ReservationsController, type: :controller do
           movie_id: movie.id,
           schedule_id: schedule.id,
           sheet_id: sheet.id,
-          date: '2025-09-22'
+          date: reservation_date
         }
         expect(assigns(:movie)).to eq(movie)
         expect(assigns(:schedule)).to eq(schedule)
@@ -50,7 +51,7 @@ RSpec.describe ReservationsController, type: :controller do
         create(:reservation, 
                schedule: schedule, 
                sheet: sheet, 
-               date: '2025-09-22',
+               date: reservation_date,
                screen: screen)
       end
 
@@ -59,11 +60,11 @@ RSpec.describe ReservationsController, type: :controller do
           movie_id: movie.id,
           schedule_id: schedule.id,
           sheet_id: sheet.id,
-          date: '2025-09-22'
+          date: reservation_date
         }
         expect(response).to redirect_to(reservation_movie_path(movie, 
                                                               schedule_id: schedule.id,
-                                                              date: '2025-09-22',
+                                                              date: reservation_date,
                                                               theater_id: theater.id))
       end
     end
@@ -75,7 +76,7 @@ RSpec.describe ReservationsController, type: :controller do
         reservation: {
           schedule_id: schedule.id,
           sheet_id: sheet.id,
-          date: '2025-09-22',
+          date: reservation_date,
           screen_id: screen.id
         }
       }
@@ -112,7 +113,7 @@ RSpec.describe ReservationsController, type: :controller do
         create(:reservation, 
                schedule: schedule, 
                sheet: sheet, 
-               date: '2025-09-22',
+               date: reservation_date,
                screen: screen)
       end
 
@@ -126,7 +127,7 @@ RSpec.describe ReservationsController, type: :controller do
         post :create, params: valid_params
         expect(response).to redirect_to(reservation_movie_path(movie,
                                                               schedule_id: schedule.id,
-                                                              date: '2025-09-22',
+                                                              date: reservation_date,
                                                               theater_id: theater.id))
       end
 
@@ -176,7 +177,7 @@ RSpec.describe ReservationsController, type: :controller do
           movie_id: movie.id,
           schedule_id: schedule.id,
           sheet_id: sheet.id,
-          date: '2025-09-22'
+          date: reservation_date
         }
         expect(response).to redirect_to(new_user_session_path)
       end

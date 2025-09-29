@@ -58,11 +58,12 @@ RSpec.describe 'Movies', type: :request do
     let!(:screen) { create(:screen, theater: theater) }
     let!(:movie) { create(:movie) }
     let!(:schedule) { create(:schedule, movie: movie, screen: screen) }
+    let(:reservation_date) { schedule.start_time.to_date.to_s }
 
     it '予約ページが表示されること' do
       get reservation_movie_path(movie), params: {
         schedule_id: schedule.id,
-        date: '2025-09-22',
+        date: reservation_date,
         theater_id: theater.id
       }
       expect(response).to have_http_status(200)

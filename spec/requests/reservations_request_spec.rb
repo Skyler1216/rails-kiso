@@ -7,6 +7,7 @@ RSpec.describe 'Reservations', type: :request do
   let!(:movie) { create(:movie) }
   let!(:schedule) { create(:schedule, movie: movie, screen: screen) }
   let!(:sheet) { create(:sheet, screen: screen) }
+  let(:reservation_date) { schedule.start_time.to_date.to_s }
 
   describe 'GET /movies/:movie_id/schedules/:schedule_id/reservations/new' do
     context 'ログインしている場合' do
@@ -15,7 +16,7 @@ RSpec.describe 'Reservations', type: :request do
       it '予約フォームが表示されること' do
         get new_movie_schedule_reservation_path(movie, schedule), params: {
           sheet_id: sheet.id,
-          date: '2025-09-22'
+          date: reservation_date
         }
         expect(response).to have_http_status(200)
       end
@@ -29,12 +30,12 @@ RSpec.describe 'Reservations', type: :request do
         create(:reservation, 
                schedule: schedule, 
                sheet: sheet, 
-               date: '2025-09-22',
+               date: reservation_date,
                screen: screen)
 
         get new_movie_schedule_reservation_path(movie, schedule), params: {
           sheet_id: sheet.id,
-          date: '2025-09-22'
+          date: reservation_date
         }
         expect(response).to have_http_status(302)
       end
@@ -44,7 +45,7 @@ RSpec.describe 'Reservations', type: :request do
       it 'ログインページにリダイレクトすること' do
         get new_movie_schedule_reservation_path(movie, schedule), params: {
           sheet_id: sheet.id,
-          date: '2025-09-22'
+          date: reservation_date
         }
         expect(response).to redirect_to(new_user_session_path)
       end
@@ -57,7 +58,7 @@ RSpec.describe 'Reservations', type: :request do
         reservation: {
           schedule_id: schedule.id,
           sheet_id: sheet.id,
-          date: '2025-09-22',
+          date: reservation_date,
           screen_id: screen.id
         }
       }
@@ -81,7 +82,7 @@ RSpec.describe 'Reservations', type: :request do
         create(:reservation, 
                schedule: schedule, 
                sheet: sheet, 
-               date: '2025-09-22',
+               date: reservation_date,
                screen: screen)
 
         post reservations_path, params: valid_params

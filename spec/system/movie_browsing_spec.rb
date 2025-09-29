@@ -55,7 +55,8 @@ RSpec.describe 'Movie browsing flow', type: :system do
   describe '映画詳細ページ' do
     let!(:theater) { create(:theater, name: 'テスト劇場') }
     let!(:screen) { create(:screen, theater: theater, name: 'スクリーン1') }
-    let!(:schedule) { create(:schedule, movie: movie1, screen: screen, start_time: Time.zone.parse('2025-09-22 10:00:00')) }
+    let(:future_start_time) { 5.days.from_now.change(hour: 10, min: 0) }
+    let!(:schedule) { create(:schedule, movie: movie1, screen: screen, start_time: future_start_time) }
 
     it '映画詳細が表示されること' do
       visit movie_path(movie1)

@@ -81,9 +81,10 @@ RSpec.describe 'User authentication flow', type: :system do
     let!(:movie) { create(:movie) }
     let!(:schedule) { create(:schedule, movie: movie, screen: screen) }
     let!(:sheet) { create(:sheet, screen: screen) }
+    let(:reservation_date) { schedule.start_time.to_date.to_s }
 
     it 'ログインしていない場合は予約ページにアクセスできないこと' do
-      visit new_movie_schedule_reservation_path(movie, schedule, sheet_id: sheet.id, date: '2025-09-22')
+      visit new_movie_schedule_reservation_path(movie, schedule, sheet_id: sheet.id, date: reservation_date)
 
       expect(page).to have_current_path(new_user_session_path)
       expect(page).to have_content('ログイン')
@@ -91,7 +92,7 @@ RSpec.describe 'User authentication flow', type: :system do
 
     it 'ログイン後は予約ページにアクセスできること' do
       sign_in user
-      visit new_movie_schedule_reservation_path(movie, schedule, sheet_id: sheet.id, date: '2025-09-22')
+      visit new_movie_schedule_reservation_path(movie, schedule, sheet_id: sheet.id, date: reservation_date)
 
       expect(page).to have_content('予約者情報')
     end

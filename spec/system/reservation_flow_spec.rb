@@ -9,7 +9,8 @@ RSpec.describe 'Reservation flow', type: :system do
   let!(:theater) { create(:theater, name: 'テスト劇場') }
   let!(:screen) { create(:screen, theater: theater, name: 'スクリーン1') }
   let!(:movie) { create(:movie, name: 'テスト映画') }
-  let!(:schedule) { create(:schedule, movie: movie, screen: screen, start_time: Time.zone.parse('2025-09-22 10:00:00')) }
+  let(:schedule_start_time) { 5.days.from_now.change(hour: 10, min: 0) }
+  let!(:schedule) { create(:schedule, movie: movie, screen: screen, start_time: schedule_start_time) }
   let!(:sheet1) { create(:sheet, screen: screen, row: 'A', column: 1) }
   let!(:sheet2) { create(:sheet, screen: screen, row: 'A', column: 2) }
 
@@ -24,7 +25,7 @@ RSpec.describe 'Reservation flow', type: :system do
 
       # 劇場と日付を選択
       select theater.name, from: '劇場を選択'
-      date_label = schedule.start_time.to_date.strftime('%Y年%m月%d日')
+      date_label = schedule_start_time.to_date.strftime('%Y年%m月%d日')
       select date_label, from: '日付を選択'
       click_button '上映スケジュールを表示'
 
@@ -57,7 +58,7 @@ RSpec.describe 'Reservation flow', type: :system do
       create(:reservation, 
              schedule: schedule, 
              sheet: sheet1, 
-             date: '2025-09-22',
+             date: schedule_start_time.to_date.to_s,
              screen: screen)
 
       # 映画詳細ページにアクセス
@@ -85,7 +86,7 @@ RSpec.describe 'Reservation flow', type: :system do
       # 直接予約フォームにアクセス
       visit new_movie_schedule_reservation_path(movie, schedule, 
                                                sheet_id: sheet1.id, 
-                                               date: '2025-09-22')
+                                               date: schedule_start_time.to_date.to_s)
 
       # 無効な情報で予約を試行（hiddenフィールドを書き換えて日付を空にする）
       find("input[name='reservation[date]']", visible: false).set('')
@@ -102,7 +103,7 @@ RSpec.describe 'Reservation flow', type: :system do
     it 'ログインしていない場合は予約ページにアクセスできないこと' do
       visit new_movie_schedule_reservation_path(movie, schedule, 
                                                sheet_id: sheet1.id, 
-                                               date: '2025-09-22')
+                                               date: schedule_start_time.to_date.to_s)
 
       expect(page).to have_current_path(new_user_session_path)
       expect(page).to have_content('ログイン')
@@ -112,7 +113,7 @@ RSpec.describe 'Reservation flow', type: :system do
       sign_in user
       visit new_movie_schedule_reservation_path(movie, schedule, 
                                                sheet_id: sheet1.id, 
-                                               date: '2025-09-22')
+                                               date: schedule_start_time.to_date.to_s)
 
       expect(page).to have_content('予約者情報')
     end

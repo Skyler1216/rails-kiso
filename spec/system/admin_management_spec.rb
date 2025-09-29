@@ -135,13 +135,14 @@ RSpec.describe 'Admin management flow', type: :system do
       movie = create(:movie)
       theater = create(:theater)
       screen = create(:screen, theater: theater)
-      
+      start_value = 5.days.from_now.change(hour: 10, min: 0, sec: 0)
+
       visit new_admin_schedule_path
 
       select "#{movie.id}: #{movie.name}", from: '対象作品'
       select "#{theater.name} / #{screen.name}", from: 'スクリーン'
-      fill_in '開始時刻', with: '2025-09-22T10:00'
-      fill_in '終了時刻', with: '2025-09-22T12:00'
+      fill_in '開始時刻', with: start_value.strftime('%Y-%m-%dT%H:%M')
+      fill_in '終了時刻', with: (start_value + 2.hours).strftime('%Y-%m-%dT%H:%M')
 
       expect {
         click_button '登録する'

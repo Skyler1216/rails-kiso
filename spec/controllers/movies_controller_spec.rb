@@ -83,8 +83,11 @@ RSpec.describe MoviesController, type: :controller do
     let!(:screen1) { create(:screen, theater: theater1, name: 'スクリーン1') }
     let!(:screen2) { create(:screen, theater: theater2, name: 'スクリーン1') }
     let!(:movie) { create(:movie) }
-    let!(:schedule1) { create(:schedule, movie: movie, screen: screen1, start_time: Time.zone.parse('2025-09-22 10:00:00')) }
-    let!(:schedule2) { create(:schedule, movie: movie, screen: screen2, start_time: Time.zone.parse('2025-09-22 14:00:00')) }
+    let(:future_date) { Time.zone.today + 5.days }
+    let(:future_start_time1) { future_date.in_time_zone.change(hour: 10, min: 0) }
+    let(:future_start_time2) { future_date.in_time_zone.change(hour: 14, min: 0) }
+    let!(:schedule1) { create(:schedule, movie: movie, screen: screen1, start_time: future_start_time1) }
+    let!(:schedule2) { create(:schedule, movie: movie, screen: screen2, start_time: future_start_time2) }
 
     it '200を返すこと' do
       get :show, params: { id: movie.id }
@@ -111,8 +114,9 @@ RSpec.describe MoviesController, type: :controller do
 
     context 'dateパラメータがある場合' do
       it '指定された日付のスケジュールのみ表示すること' do
-        get :show, params: { id: movie.id, theater_id: theater1.id, date: '2025-09-22' }
-        expect(assigns(:selected_date)).to eq('2025-09-22')
+        future_date_str = future_date.to_s
+        get :show, params: { id: movie.id, theater_id: theater1.id, date: future_date_str }
+        expect(assigns(:selected_date)).to eq(future_date_str)
       end
     end
   end
@@ -123,13 +127,14 @@ RSpec.describe MoviesController, type: :controller do
     let!(:movie) { create(:movie) }
     let!(:schedule) { create(:schedule, movie: movie, screen: screen) }
     let!(:sheet) { create(:sheet, screen: screen) }
+    let(:reservation_date) { schedule.start_time.to_date.to_s }
 
     context '有効なパラメータの場合' do
       it '200を返すこと' do
         get :reservation, params: { 
           id: movie.id, 
           schedule_id: schedule.id, 
-          date: '2025-09-22',
+          date: reservation_date,
           theater_id: theater.id
         }
         expect(response).to have_http_status(200)
@@ -139,7 +144,7 @@ RSpec.describe MoviesController, type: :controller do
         get :reservation, params: { 
           id: movie.id, 
           schedule_id: schedule.id, 
-          date: '2025-09-22',
+          date: reservation_date,
           theater_id: theater.id
         }
         expect(assigns(:movie)).to eq(movie)
@@ -154,10 +159,10 @@ RSpec.describe MoviesController, type: :controller do
         get :reservation, params: { 
           id: movie.id, 
           schedule_id: 99999, 
-          date: '2025-09-22',
+          date: reservation_date,
           theater_id: theater.id
         }
-        expect(response).to redirect_to(movie_path(movie, theater_id: theater.id, date: '2025-09-22'))
+        expect(response).to redirect_to(movie_path(movie, theater_id: theater.id, date: reservation_date))
       end
     end
 
