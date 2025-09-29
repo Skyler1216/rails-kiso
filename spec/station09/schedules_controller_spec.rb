@@ -2,41 +2,42 @@ require 'rails_helper'
 
 RSpec.describe Admin::SchedulesController, type: :controller do
   render_views
-  describe 'Station9 GET /admin/movies/:movie_id/schedules/:schedule_id' do
-    before do
-      @movie = create(:movie)
-      @schedule = create(:schedule, movie_id: @movie.id)
 
-      get :edit, params: { id: @schedule.id, movie_id: @movie.id }
-    end
+  let(:admin) { create(:user, :admin) }
 
-    it '時刻のフォームに時刻以外のものを入力できないこと' do
-      # TODO: capybaraでテスト実装
-    end
+  before do
+    sign_in admin
+  end
 
-    it 'フォーム送信でPUT /admin/movies/:movie_id/schedules/:schedule_id に送信されること' do
-      expect(response.body).to include(`action="/admin/movies/#{@movie.id}/schedules/#{@schedule.id}`)
+  describe 'GET #show' do
+    it 'スケジュール詳細ページを表示できること' do
+      schedule = create(:schedule)
+
+      get :show, params: { id: schedule.id }
+
+      expect(response).to have_http_status(:ok)
+      expect(assigns(:schedule)).to eq(schedule)
+      expect(response.body).to include("##{schedule.id}")
     end
   end
 
-  describe 'Station9 PUT /admin/movies/:movie_id/schedules/:schedule_id' do
-    it '渡された時刻でschedule(:id)が更新されること' do
-      setting_time = '2000-01-01 10:27:06 UTC'
-      movie = create(:movie)
-      schedule = create(:schedule, movie_id: movie.id)
-      patch :update, params: { id: schedule.id, movie_id: movie.id, schedule: { start_time: setting_time } }
+  describe 'PATCH #update' do
+    it '渡された開始時刻でスケジュールが更新されること' do
+      schedule = create(:schedule)
+      new_time = Time.zone.parse('2000-01-01 10:27:06 UTC')
 
-      expect(schedule.reload.start_time).to eq setting_time
+      patch :update, params: { id: schedule.id, schedule: { start_time: new_time } }
+
+      expect(schedule.reload.start_time).to eq(new_time)
     end
   end
 
-  describe 'Station9 DELETE /admin/movies/:movie_id/schedules/:schedule_id' do
-    it '渡された時刻でschedule(:id)が更新されること' do
-      movie = create(:movie)
-      schedule = create(:schedule, movie_id: movie.id)
+  describe 'DELETE #destroy' do
+    it '指定したスケジュールを削除できること' do
+      schedule = create(:schedule)
 
       expect do
-        delete :destroy, params: { id: schedule.id, movie_id: movie.id }
+        delete :destroy, params: { id: schedule.id }
       end.to change(Schedule, :count).by(-1)
     end
   end

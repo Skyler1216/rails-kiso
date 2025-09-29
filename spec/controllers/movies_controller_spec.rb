@@ -1,0 +1,171 @@
+require 'rails_helper'
+
+RSpec.describe MoviesController, type: :controller do
+  render_views
+
+  describe 'GET #index' do
+    let!(:movie1) { create(:movie, name: '映画1', is_showing: 1) }
+    let!(:movie2) { create(:movie, name: '映画2', is_showing: 0) }
+    let!(:movie3) { create(:movie, name: 'テスト映画', is_showing: 1) }
+
+    context 'パラメータなしの場合' do
+      it '200を返すこと' do
+        get :index
+        expect(response).to have_http_status(200)
+      end
+
+      it 'HTMLを返すこと' do
+        get :index
+        expect(response.body).to include('<!DOCTYPE html>')
+      end
+
+      it '全映画を表示すること' do
+        get :index
+        expect(response.body).to include(movie1.name)
+        expect(response.body).to include(movie2.name)
+        expect(response.body).to include(movie3.name)
+      end
+    end
+
+    context 'is_showingパラメータがある場合' do
+      it '上映中の映画のみ表示すること' do
+        get :index, params: { is_showing: '1' }
+        expect(response.body).to include(movie1.name)
+        expect(response.body).to include(movie3.name)
+        expect(response.body).not_to include(movie2.name)
+      end
+
+      it '上映予定の映画のみ表示すること' do
+        get :index, params: { is_showing: '0' }
+        expect(response.body).to include(movie2.name)
+        expect(response.body).not_to include(movie1.name)
+        expect(response.body).not_to include(movie3.name)
+      end
+    end
+
+    context 'keywordパラメータがある場合' do
+      it '映画名で検索できること' do
+        get :index, params: { keyword: '映画1' }
+        expect(response.body).to include(movie1.name)
+        expect(response.body).not_to include(movie2.name)
+        expect(response.body).not_to include(movie3.name)
+      end
+
+      it '説明文で検索できること' do
+        movie1.update!(description: 'アクション映画です')
+        get :index, params: { keyword: 'アクション' }
+        expect(response.body).to include(movie1.name)
+        expect(response.body).not_to include(movie2.name)
+        expect(response.body).not_to include(movie3.name)
+      end
+
+      it '部分一致で検索できること' do
+        get :index, params: { keyword: 'テスト' }
+        expect(response.body).to include(movie3.name)
+        expect(response.body).not_to include(movie1.name)
+        expect(response.body).not_to include(movie2.name)
+      end
+    end
+
+    context '複数パラメータがある場合' do
+      it 'is_showingとkeywordの両方で絞り込みできること' do
+        get :index, params: { is_showing: '1', keyword: '映画' }
+        expect(response.body).to include(movie1.name)
+        expect(response.body).to include(movie3.name)
+        expect(response.body).not_to include(movie2.name)
+      end
+    end
+  end
+
+  describe 'GET #show' do
+    let!(:theater1) { create(:theater, name: '劇場A') }
+    let!(:theater2) { create(:theater, name: '劇場B') }
+    let!(:screen1) { create(:screen, theater: theater1, name: 'スクリーン1') }
+    let!(:screen2) { create(:screen, theater: theater2, name: 'スクリーン1') }
+    let!(:movie) { create(:movie) }
+    let!(:schedule1) { create(:schedule, movie: movie, screen: screen1, start_time: Time.zone.parse('2025-09-22 10:00:00')) }
+    let!(:schedule2) { create(:schedule, movie: movie, screen: screen2, start_time: Time.zone.parse('2025-09-22 14:00:00')) }
+
+    it '200を返すこと' do
+      get :show, params: { id: movie.id }
+      expect(response).to have_http_status(200)
+    end
+
+    it '映画情報を表示すること' do
+      get :show, params: { id: movie.id }
+      expect(response.body).to include(movie.name)
+    end
+
+    it '上映劇場の一覧を表示すること' do
+      get :show, params: { id: movie.id }
+      expect(response.body).to include(theater1.name)
+      expect(response.body).to include(theater2.name)
+    end
+
+    context 'theater_idパラメータがある場合' do
+      it '指定された劇場のスケジュールのみ表示すること' do
+        get :show, params: { id: movie.id, theater_id: theater1.id }
+        expect(assigns(:selected_theater)).to eq(theater1)
+      end
+    end
+
+    context 'dateパラメータがある場合' do
+      it '指定された日付のスケジュールのみ表示すること' do
+        get :show, params: { id: movie.id, theater_id: theater1.id, date: '2025-09-22' }
+        expect(assigns(:selected_date)).to eq('2025-09-22')
+      end
+    end
+  end
+
+  describe 'GET #reservation' do
+    let!(:theater) { create(:theater) }
+    let!(:screen) { create(:screen, theater: theater) }
+    let!(:movie) { create(:movie) }
+    let!(:schedule) { create(:schedule, movie: movie, screen: screen) }
+    let!(:sheet) { create(:sheet, screen: screen) }
+
+    context '有効なパラメータの場合' do
+      it '200を返すこと' do
+        get :reservation, params: { 
+          id: movie.id, 
+          schedule_id: schedule.id, 
+          date: '2025-09-22',
+          theater_id: theater.id
+        }
+        expect(response).to have_http_status(200)
+      end
+
+      it '予約画面を表示すること' do
+        get :reservation, params: { 
+          id: movie.id, 
+          schedule_id: schedule.id, 
+          date: '2025-09-22',
+          theater_id: theater.id
+        }
+        expect(assigns(:movie)).to eq(movie)
+        expect(assigns(:schedule)).to eq(schedule)
+        expect(assigns(:screen)).to eq(screen)
+        expect(assigns(:theater)).to eq(theater)
+      end
+    end
+
+    context 'schedule_idが無効な場合' do
+      it 'リダイレクトすること' do
+        get :reservation, params: { 
+          id: movie.id, 
+          schedule_id: 99999, 
+          date: '2025-09-22',
+          theater_id: theater.id
+        }
+        expect(response).to redirect_to(movie_path(movie, theater_id: theater.id, date: '2025-09-22'))
+      end
+    end
+
+    context '必須パラメータが不足している場合' do
+      it 'リダイレクトすること' do
+        get :reservation, params: { id: movie.id }
+        expect(response).to redirect_to(movie_path(movie, theater_id: nil))
+      end
+    end
+  end
+end

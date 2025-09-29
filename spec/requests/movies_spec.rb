@@ -2,32 +2,32 @@ require 'rails_helper'
 
 RSpec.describe 'Movies', type: :request do
   describe 'GET /movies' do
-    context 'when unauthenticated' do
-      it 'redirects to the login page' do
-        get movies_path
-        expect(response).to redirect_to(new_user_session_path)
-      end
+    let!(:movie) { create(:movie, name: '映画テスト') }
+
+    it 'ゲストでも映画一覧を閲覧できること' do
+      get movies_path
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(movie.name)
     end
 
-    context 'when authenticated' do
-      it 'returns http success' do
-        user = create(:user)
-        sign_in(user)
+    it 'ログイン済みでも同様に閲覧できること' do
+      user = create(:user)
+      sign_in(user)
 
-        get movies_path
+      get movies_path
 
-        expect(response).to have_http_status(:ok)
-      end
+      expect(response).to have_http_status(:ok)
     end
   end
 
   describe 'GET /movies/:id' do
-    it 'requires authentication' do
+    it 'ゲストでも映画詳細を閲覧できること' do
       movie = create(:movie)
 
       get movie_path(movie)
 
-      expect(response).to redirect_to(new_user_session_path)
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(movie.name)
     end
   end
 end

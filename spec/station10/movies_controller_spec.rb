@@ -30,9 +30,10 @@ RSpec.describe MoviesController, type: :controller do
   end
 
   describe 'Station10 GET /movies/:id/reservation' do
-    let!(:sheets) { create_list(:sheet, 15) }
     let!(:movie) { create(:movie) }
-    let!(:schedule) { create(:schedule, movie_id: movie.id) }
+    let!(:screen) { create(:screen) }
+    let!(:sheets) { create_list(:sheet, 15, screen: screen) }
+    let!(:schedule) { create(:schedule, movie: movie, screen: screen) }
     let(:success_request) { get :reservation, params: { id: movie.id, movie_id: movie.id, schedule_id: schedule.id, date: '2021-12-21 14:53:56' }, session: {} }
     let(:no_date_request) { get :reservation, params: { id: movie.id, movie_id: movie.id, schedule_id: schedule.id }, session: {} }
     let(:no_schedule_request) { get :reservation, params: { id: movie.id, movie_id: movie.id, date: '2021-12-21 14:53:56' }, session: {} }
@@ -65,9 +66,9 @@ RSpec.describe MoviesController, type: :controller do
       expect(response.body).to include('</table>')
     end
 
-    it '実装の中でsheetsテーブルにアクセスしていること' do
+    it '実装の中で対象スクリーンの座席を取得していること' do
       success_request
-      expect(assigns(:sheets)).to eq sheets
+      expect(assigns(:sheets)).to match_array(sheets)
     end
   end
 end
