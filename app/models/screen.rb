@@ -60,13 +60,24 @@ class Screen < ApplicationRecord
   # ❌ NG: スクリーン名が空 → 必須チェックでNG
   private
 
+  # 標準レイアウトの定義
+  # - DEFAULT_ROWS: 行ラベル（A, B, C）
+  # - DEFAULT_COLUMNS: 列番号（1..5）
+  # - 文字列/数値配列に変換してfreezeし、実行時に上書きされない不変データとして扱う
   DEFAULT_ROWS = ('A'..'C').to_a.freeze
   DEFAULT_COLUMNS = (1..5).to_a.freeze
 
   def generate_default_sheets
-    # 既存行があっても欠けている座席のみ補完（idempotent）
+    # スクリーン作成時に標準座席(3x5)を自動生成する。
+    # 重要なポイント:
+    # - idempotent（冪等）: 既に存在する座席は再作成せず、欠けている組み合わせのみを補完する。
+    # - 一意性の考え方: row と column の組み合わせがそのスクリーン内で一意になる想定。
+    #   DBにユニーク制約が無くても find_or_create_by! により二重作成を避けられる（競合がなければ）。
+    #   もし同時作成が懸念される高負荷環境なら、DB側ユニークインデックスの追加を検討する。
     DEFAULT_ROWS.each do |row|
       DEFAULT_COLUMNS.each do |column|
+        # 指定の row/column が未登録なら作成、登録済みなら既存を返す。
+        # 例) A-1, A-2, ... C-5 の全15席を埋める。
         sheets.find_or_create_by!(row: row, column: column)
       end
     end
