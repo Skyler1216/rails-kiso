@@ -70,12 +70,10 @@ class MoviesController < ApplicationController
                        .uniq
                        .sort
 
-    # 選択された日付の処理
-    if @available_dates.any?
-      requested_date = params[:date].presence
-      @selected_date = @available_dates.include?(requested_date) ? requested_date : @available_dates.first
+    requested_date = params[:date].presence
 
-      # 選択された日付のスケジュールのみを抽出
+    if @available_dates.any? && @available_dates.include?(requested_date)
+      @selected_date = requested_date
       @filtered_schedules = theater_schedules.select do |schedule|
         schedule.start_time&.to_date&.to_s == @selected_date
       end

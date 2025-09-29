@@ -100,7 +100,7 @@
           <% end %>
 
           <%# スケジュール選択フォーム（座席予約への遷移） %>
-          <% if @filtered_schedules.present? %>
+          <% if @selected_date.present? && @filtered_schedules.present? %>
             <%= form_with url: reservation_movie_path(@movie), method: :get, local: true, class: 'form-stack mt-6' do %>
               <%= hidden_field_tag :date, @selected_date %>
               <%= hidden_field_tag :theater_id, @selected_theater&.id %>
@@ -137,10 +137,12 @@
             </div>
           <% elsif @available_dates.any? %>
             <%# 選択日付に上映がない場合の空状態 %>
-            <div class="empty-state mt-6">
-              <strong class="text-accent">選択した日付の上映はありません</strong>
-              <p class="text-soft text-sm">別の日付を選択すると、座席予約ができる上映スケジュールが表示されます。</p>
-            </div>
+            <% if @selected_date.present? %>
+              <div class="empty-state mt-6">
+                <strong class="text-accent">選択した日付の上映はありません</strong>
+                <p class="text-soft text-sm">別の日付を選択すると、座席予約ができる上映スケジュールが表示されます。</p>
+              </div>
+            <% end %>
           <% else %>
             <%# スケジュールが見つからない場合の空状態 %>
             <div class="empty-state mt-6">
