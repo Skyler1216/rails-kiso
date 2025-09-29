@@ -11,45 +11,45 @@ RSpec.describe Movie, type: :model do
     describe 'name' do
       it '必須であること' do
         movie.name = nil
-        expect(movie).not_to be_valid
-        expect(movie.errors[:name]).to include("can't be blank")
+        expect(movie).to be_invalid
+        expect(movie.errors.added?(:name, :blank)).to be(true)
       end
 
       it '一意であること' do
         create(:movie, name: 'テスト映画')
         movie.name = 'テスト映画'
-        expect(movie).not_to be_valid
-        expect(movie.errors[:name]).to include('has already been taken')
+        expect(movie).to be_invalid
+        expect(movie.errors.added?(:name, :taken, value: movie.name)).to be(true)
       end
     end
 
     describe 'year' do
       it '必須であること' do
         movie.year = nil
-        expect(movie).not_to be_valid
-        expect(movie.errors[:year]).to include("can't be blank")
+        expect(movie).to be_invalid
+        expect(movie.errors.added?(:year, :blank)).to be(true)
       end
     end
 
     describe 'image_url' do
       it '必須であること' do
         movie.image_url = nil
-        expect(movie).not_to be_valid
-        expect(movie.errors[:image_url]).to include("can't be blank")
+        expect(movie).to be_invalid
+        expect(movie.errors.added?(:image_url, :blank)).to be(true)
       end
     end
 
     describe 'running_minutes' do
       it '1以上の数値であること' do
         movie.running_minutes = 0
-        expect(movie).not_to be_valid
-        expect(movie.errors[:running_minutes]).to include('は1以上の数値で入力してください')
+        expect(movie).to be_invalid
+        expect(movie.errors[:running_minutes]).to include(a_string_including('1分以上'))
       end
 
       it '負の数値は無効であること' do
         movie.running_minutes = -1
-        expect(movie).not_to be_valid
-        expect(movie.errors[:running_minutes]).to include('は1以上の数値で入力してください')
+        expect(movie).to be_invalid
+        expect(movie.errors[:running_minutes]).to include(a_string_including('1分以上'))
       end
 
       it 'nilは有効であること' do

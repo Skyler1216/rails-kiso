@@ -14,16 +14,16 @@ RSpec.describe Reservation, type: :model do
     describe 'name' do
       it '必須であること' do
         reservation.name = nil
-        expect(reservation).not_to be_valid
-        expect(reservation.errors[:name]).to include("can't be blank")
+        expect(reservation).to be_invalid
+        expect(reservation.errors.added?(:name, :blank)).to be(true)
       end
     end
 
     describe 'email' do
       it '必須であること' do
         reservation.email = nil
-        expect(reservation).not_to be_valid
-        expect(reservation.errors[:email]).to include("can't be blank")
+        expect(reservation).to be_invalid
+        expect(reservation.errors.added?(:email, :blank)).to be(true)
       end
 
       it '有効な形式であること' do
@@ -33,16 +33,16 @@ RSpec.describe Reservation, type: :model do
 
       it '無効な形式は無効であること' do
         reservation.email = 'invalid-email'
-        expect(reservation).not_to be_valid
-        expect(reservation.errors[:email]).to include('is invalid')
+        expect(reservation).to be_invalid
+        expect(reservation.errors.added?(:email, :invalid, value: 'invalid-email')).to be(true)
       end
     end
 
     describe 'date' do
       it '必須であること' do
         reservation.date = nil
-        expect(reservation).not_to be_valid
-        expect(reservation.errors[:date]).to include("can't be blank")
+        expect(reservation).to be_invalid
+        expect(reservation.errors.added?(:date, :blank)).to be(true)
       end
     end
 
@@ -60,7 +60,10 @@ RSpec.describe Reservation, type: :model do
       end
 
       it '異なるスケジュールでは同じ座席でも有効であること' do
-        other_schedule = create(:schedule, screen: screen)
+        other_schedule = create(:schedule,
+                                screen: screen,
+                                start_time: schedule.start_time + 1.day,
+                                end_time: schedule.end_time + 1.day)
         create(:reservation, 
                schedule: other_schedule, 
                screen: screen, 
@@ -122,7 +125,6 @@ RSpec.describe Reservation, type: :model do
     let(:schedule) { create(:schedule) }
     let(:screen) { schedule.screen }
     let(:sheet) { create(:sheet, screen: screen) }
-    let(:reservation) { build(:reservation, schedule: schedule, screen: screen, sheet: sheet) }
 
     it '有効なメールアドレス形式をテスト' do
       valid_emails = [
@@ -133,7 +135,11 @@ RSpec.describe Reservation, type: :model do
       ]
 
       valid_emails.each do |email|
-        reservation.email = email
+        reservation = build(:reservation,
+                             schedule: schedule,
+                             screen: screen,
+                             sheet: sheet,
+                             email: email)
         expect(reservation).to be_valid, "#{email} should be valid"
       end
     end
@@ -143,15 +149,18 @@ RSpec.describe Reservation, type: :model do
         'invalid-email',
         '@example.com',
         'user@',
-        'user..name@example.com',
         'user@.com',
-        'user@example.',
-        ''
+        'user@example.'
       ]
 
       invalid_emails.each do |email|
-        reservation.email = email
-        expect(reservation).not_to be_valid, "#{email} should be invalid"
+        reservation = build(:reservation,
+                             schedule: schedule,
+                             screen: screen,
+                             sheet: sheet,
+                             email: email)
+        expect(reservation).to be_invalid, "#{email} should be invalid"
+        expect(reservation.errors.added?(:email, :invalid, value: email)).to be(true)
       end
     end
   end

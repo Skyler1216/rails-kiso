@@ -6,6 +6,11 @@ ja:
   errors:
     messages:
       blank: "入力してください"
+      taken: "すでに使用されています"
+      invalid: "は不正な値です"
+      confirmation: "と一致しません"
+      inclusion: "は一覧にありません"
+      required: "を入力してください"
   activerecord:
     models:
       schedule: スケジュール
@@ -43,3 +48,7 @@ ja:
           attributes:
             running_minutes:
               greater_than: "^上映時間は1分以上で入力してください"
+        sheet:
+          attributes:
+            screen:
+              required: "^スクリーンを入力してください"

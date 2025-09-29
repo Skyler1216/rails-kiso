@@ -12,8 +12,8 @@ RSpec.describe Screen, type: :model do
     describe 'name' do
       it '必須であること' do
         screen.name = nil
-        expect(screen).not_to be_valid
-        expect(screen.errors[:name]).to include("can't be blank")
+        expect(screen).to be_invalid
+        expect(screen.errors.added?(:name, :blank)).to be(true)
       end
 
       it '同じ劇場内で一意であること' do

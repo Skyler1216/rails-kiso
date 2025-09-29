@@ -13,22 +13,25 @@ RSpec.describe Schedule, type: :model do
     describe 'start_time' do
       it '必須であること' do
         schedule.start_time = nil
-        expect(schedule).not_to be_valid
-        expect(schedule.errors[:start_time]).to include("can't be blank")
+        expect(schedule).to be_invalid
+        expect(schedule.errors[:start_time]).to include(a_string_including('開始時刻'))
       end
     end
 
     describe 'end_time' do
       it '必須であること' do
-        schedule.end_time = nil
-        expect(schedule).not_to be_valid
-        expect(schedule.errors[:end_time]).to include("can't be blank")
+        schedule_without_runtime = build(:schedule,
+                                         movie: create(:movie, running_minutes: nil),
+                                         screen: screen,
+                                         end_time: nil)
+        expect(schedule_without_runtime).to be_invalid
+        expect(schedule_without_runtime.errors[:end_time]).to include(a_string_including('終了時刻'))
       end
 
       it '開始時刻より後の時刻であること' do
         schedule.start_time = Time.zone.parse('2025-09-22 10:00:00')
         schedule.end_time = Time.zone.parse('2025-09-22 09:00:00')
-        expect(schedule).not_to be_valid
+        expect(schedule).to be_invalid
         expect(schedule.errors[:end_time]).to include('は開始時刻より後の時刻を指定してください')
       end
     end

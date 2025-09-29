@@ -12,8 +12,8 @@ RSpec.describe Sheet, type: :model do
     describe 'screen' do
       it '必須であること' do
         sheet.screen = nil
-        expect(sheet).not_to be_valid
-        expect(sheet.errors[:screen]).to include("must exist")
+        expect(sheet).to be_invalid
+        expect(sheet.errors[:screen]).to include(a_string_including('スクリーン'))
       end
     end
   end

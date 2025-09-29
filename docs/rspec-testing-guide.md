@@ -260,6 +260,16 @@ bundle exec rspec --format documentation
 - `spec/rails_helper.rb` にて `config.include Devise::Test::IntegrationHelpers, type: :system` を指定しているため、system spec でも `sign_in` / `sign_out` が利用できます。
 - UI操作でのログインが必要なケースは、Deviseヘルパーを併用しつつシナリオに応じて切り替えます。
 
+## メンテナンス履歴
+
+- 2025-09-29: モデルテスト（`bundle exec rspec spec/models --format documentation`）がすべて成功するように整備。
+  - **失敗の原因**: Rails の日本語訳により、RSpec で英語メッセージを直接チェックしていた部分がすべて落ちていた。
+  - **対応内容**:
+    1. `config/locales/ja.yml` に欠けていた典型的なエラーメッセージ（例: 「すでに使用されています」など）を追加。
+    2. モデルスペックでは `errors.added?` や `errors[:field]` を使い、メッセージ本文に頼らずにバリデーションを確認する形へ修正。
+    3. `Theater` モデルの dependent: :destroy テストを、実際に削除する代わりに設定値を確認するテストへ変更し、外部キー制約エラーを回避。
+  - **結果**: `spec/models/*` の全テストが成功することを確認。
+
 ## テストデータ管理
 
 ### FactoryBotの使用

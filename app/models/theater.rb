@@ -96,5 +96,8 @@ class Theater < ApplicationRecord
         screen.errors.add(:name, message)
       end
     end
+
+    # 劇場自体にも重複があることを知らせるエラーを追加
+    errors.add(:screens, 'に重複するスクリーン名が含まれています') unless errors[:screens].include?('に重複するスクリーン名が含まれています')
   end
 end

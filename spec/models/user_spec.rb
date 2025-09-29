@@ -11,44 +11,44 @@ RSpec.describe User, type: :model do
     describe 'name' do
       it '必須であること' do
         user.name = nil
-        expect(user).not_to be_valid
-        expect(user.errors[:name]).to include("can't be blank")
+        expect(user).to be_invalid
+        expect(user.errors.added?(:name, :blank)).to be(true)
       end
     end
 
     describe 'email' do
       it '必須であること' do
         user.email = nil
-        expect(user).not_to be_valid
-        expect(user.errors[:email]).to include("can't be blank")
+        expect(user).to be_invalid
+        expect(user.errors.added?(:email, :blank)).to be(true)
       end
 
       it '一意であること' do
         create(:user, email: 'test@example.com')
         user.email = 'test@example.com'
-        expect(user).not_to be_valid
-        expect(user.errors[:email]).to include('has already been taken')
+        expect(user).to be_invalid
+        expect(user.errors.added?(:email, :taken, value: user.email)).to be(true)
       end
     end
 
     describe 'password' do
       it '必須であること' do
         user.password = nil
-        expect(user).not_to be_valid
-        expect(user.errors[:password]).to include("can't be blank")
+        expect(user).to be_invalid
+        expect(user.errors.added?(:password, :blank)).to be(true)
       end
 
       it 'password_confirmationが必須であること' do
         user.password_confirmation = nil
-        expect(user).not_to be_valid
-        expect(user.errors[:password_confirmation]).to include("can't be blank")
+        expect(user).to be_invalid
+        expect(user.errors.added?(:password_confirmation, :blank)).to be(true)
       end
 
       it 'passwordとpassword_confirmationが一致すること' do
         user.password = 'password123'
         user.password_confirmation = 'different_password'
-        expect(user).not_to be_valid
-        expect(user.errors[:password_confirmation]).to include("doesn't match Password")
+        expect(user).to be_invalid
+        expect(user.errors.added?(:password_confirmation, :confirmation, attribute: 'Password')).to be(true)
       end
     end
 
@@ -61,8 +61,8 @@ RSpec.describe User, type: :model do
         expect(user).to be_valid
 
         user.admin = nil
-        expect(user).not_to be_valid
-        expect(user.errors[:admin]).to include('is not included in the list')
+        expect(user).to be_invalid
+        expect(user.errors.added?(:admin, :inclusion, value: nil)).to be(true)
       end
     end
   end

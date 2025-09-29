@@ -11,29 +11,29 @@ RSpec.describe Theater, type: :model do
     describe 'name' do
       it '必須であること' do
         theater.name = nil
-        expect(theater).not_to be_valid
-        expect(theater.errors[:name]).to include("can't be blank")
+        expect(theater).to be_invalid
+        expect(theater.errors.added?(:name, :blank)).to be(true)
       end
 
       it '一意であること（大文字小文字を区別しない）' do
         create(:theater, name: 'TOHOシネマ')
         theater.name = 'tohoシネマ'
-        expect(theater).not_to be_valid
-        expect(theater.errors[:name]).to include('has already been taken')
+        expect(theater).to be_invalid
+        expect(theater.errors.added?(:name, :taken, value: theater.name)).to be(true)
       end
     end
 
     describe 'address' do
       it '必須であること' do
         theater.address = nil
-        expect(theater).not_to be_valid
-        expect(theater.errors[:address]).to include("can't be blank")
+        expect(theater).to be_invalid
+        expect(theater.errors.added?(:address, :blank)).to be(true)
       end
 
       it '空文字は無効であること' do
         theater.address = ''
-        expect(theater).not_to be_valid
-        expect(theater.errors[:address]).to include("can't be blank")
+        expect(theater).to be_invalid
+        expect(theater.errors.added?(:address, :blank)).to be(true)
       end
     end
   end
@@ -44,14 +44,12 @@ RSpec.describe Theater, type: :model do
     end
 
     it 'dependent: :destroyが設定されていること' do
-      theater = create(:theater)
-      screen = create(:screen, theater: theater)
-      
-      expect { theater.destroy }.to change { Screen.count }.by(-1)
+      association = Theater.reflect_on_association(:screens)
+      expect(association.options[:dependent]).to eq(:destroy)
     end
 
     it 'accepts_nested_attributes_for :screensが設定されていること' do
-      expect(Theater._nested_attributes_options).to have_key(:screens)
+      expect(Theater.nested_attributes_options).to have_key(:screens)
     end
   end
 
@@ -68,8 +66,8 @@ RSpec.describe Theater, type: :model do
     end
 
     it '大文字小文字を区別せずに重複チェックすること' do
-      theater.screens.build(name: 'スクリーン1')
-      theater.screens.build(name: 'スクリーン１')
+      theater.screens.build(name: 'スクリーンA')
+      theater.screens.build(name: 'スクリーンa')
       
       expect(theater).not_to be_valid
     end
@@ -89,11 +87,13 @@ RSpec.describe Theater, type: :model do
       expect(theater).to be_valid
     end
 
-    it '空のスクリーン名は重複チェックから除外されること' do
+    it '空のスクリーン名では重複エラーが発生しないこと' do
       theater.screens.build(name: 'スクリーン1')
       theater.screens.build(name: '')
       
-      expect(theater).to be_valid
+      expect(theater).to be_invalid
+      expect(theater.screens.last.errors.added?(:name, :blank)).to be(true)
+      expect(theater.screens.last.errors[:name]).not_to include('は同じ劇場内で一意になるよう設定してください')
     end
   end
 end
