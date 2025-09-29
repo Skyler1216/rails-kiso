@@ -282,6 +282,14 @@ bundle exec rspec --format documentation
     1. `spec/requests/admin/reservations_spec.rb` のアサーションを見直し、劇場名ではなく予約レコードでフィルタの成否を確認するよう変更。
     2. 新たに `spec/requests/admin/schedules_spec.rb` に本物のリクエストテストを追加し、劇場フィルタが HTML 出力に反映されることを検証。
   - **結果**: `spec/requests/*` の全テストが成功。
+- 2025-09-29: システムテスト（`bundle exec rspec spec/system --format documentation`）がすべて成功するように整備。
+  - **失敗の原因**: UIテキストやフォーム項目の名称が刷新されていたため、旧ラベル／メッセージを想定した Capybara 操作がことごとく失敗。Devise のサインアップ／ログイン文言や管理画面のボタン名も変更されていた。
+  - **対応内容**:
+    1. `spec/system/admin_management_spec.rb` を新しいボタン・ラベル（例: 「登録する」「スケジュールを作成しました」）に合わせて修正。
+    2. `spec/system/movie_browsing_spec.rb` や `spec/system/reservation_flow_spec.rb` で、検索フォームや予約画面の表示テキストを現行UIに合わせて更新。Hiddenフィールドの書き換えでバリデーションエラーも再現。
+    3. `spec/system/user_authentication_spec.rb` を最新の Devise テンプレート（「登録する」「新規登録が完了しました」など）に合わせ、失敗時の具体的なエラーメッセージを確認する形に変更。
+    4. Factory で `password_confirmation` を統一設定し、システムテストでのユーザー作成時に失敗しないよう調整。
+  - **結果**: `spec/system/*` の全テストが成功。
 
 ## テストデータ管理
 

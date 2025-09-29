@@ -13,7 +13,9 @@ RSpec.describe 'Admin management flow', type: :system do
       sign_in admin_user
       visit admin_root_path
 
-      expect(page).to have_content('管理者ダッシュボード')
+      expect(page).to have_current_path(admin_root_path)
+      expect(page).to have_content('Admin CONTROL CENTER')
+      expect(page).to have_content('ダッシュボード')
     end
 
     it '一般ユーザーでは管理画面にアクセスできないこと' do
@@ -27,7 +29,8 @@ RSpec.describe 'Admin management flow', type: :system do
     it 'ログインしていない場合は管理画面にアクセスできないこと' do
       visit admin_root_path
 
-      expect(page).to have_content('ログインしてください')
+      expect(page).to have_current_path(new_user_session_path)
+      expect(page).to have_content('ログイン')
     end
   end
 
@@ -46,15 +49,15 @@ RSpec.describe 'Admin management flow', type: :system do
     it '新しい映画を作成できること' do
       visit new_admin_movie_path
 
-      fill_in '映画名', with: '新作映画'
+      fill_in 'タイトル', with: '新作映画'
       fill_in '公開年', with: '2024'
-      fill_in '説明', with: '素晴らしい映画です'
+      fill_in '概要', with: '素晴らしい映画です'
       fill_in '画像URL', with: 'https://example.com/image.jpg'
-      select '上映中', from: '上映状況'
+      check '上映中'
       fill_in '上映時間（分）', with: '120'
 
       expect {
-        click_button '映画を登録'
+        click_button '登録する'
       }.to change(Movie, :count).by(1)
 
       expect(page).to have_content('映画を登録しました')
@@ -64,8 +67,8 @@ RSpec.describe 'Admin management flow', type: :system do
       movie = create(:movie, name: '編集前の映画')
       visit admin_movie_path(movie)
 
-      fill_in '映画名', with: '編集後の映画'
-      click_button '映画を更新'
+      fill_in 'タイトル', with: '編集後の映画'
+      click_button '更新する'
 
       expect(page).to have_content('映画を更新しました')
       movie.reload
@@ -74,10 +77,10 @@ RSpec.describe 'Admin management flow', type: :system do
 
     it '映画を削除できること' do
       movie = create(:movie, name: '削除対象の映画')
-      visit admin_movies_path
+      visit admin_movie_path(movie)
 
       expect {
-        click_link '削除', href: admin_movie_path(movie)
+        click_button '削除する'
       }.to change(Movie, :count).by(-1)
 
       expect(page).to have_content('映画を削除しました')
@@ -104,7 +107,7 @@ RSpec.describe 'Admin management flow', type: :system do
       fill_in '電話番号', with: '03-1234-5678'
 
       expect {
-        click_button '劇場を登録'
+        click_button '登録する'
       }.to change(Theater, :count).by(1)
 
       expect(page).to have_content('劇場を登録しました')
@@ -135,15 +138,16 @@ RSpec.describe 'Admin management flow', type: :system do
       
       visit new_admin_schedule_path
 
-      select movie.name, from: '映画'
-      select "#{theater.name} - #{screen.name}", from: 'スクリーン'
-      fill_in '開始時刻', with: '2025-09-22 10:00:00'
+      select "#{movie.id}: #{movie.name}", from: '対象作品'
+      select "#{theater.name} / #{screen.name}", from: 'スクリーン'
+      fill_in '開始時刻', with: '2025-09-22T10:00'
+      fill_in '終了時刻', with: '2025-09-22T12:00'
 
       expect {
-        click_button 'スケジュールを登録'
+        click_button '登録する'
       }.to change(Schedule, :count).by(1)
 
-      expect(page).to have_content('スケジュールを登録しました')
+      expect(page).to have_content('スケジュールを作成しました')
     end
   end
 

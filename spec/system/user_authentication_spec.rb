@@ -5,7 +5,7 @@ RSpec.describe 'User authentication flow', type: :system do
     driven_by(:rack_test)
   end
 
-  let!(:user) { create(:user, email: 'test@example.com', password: 'password123') }
+  let!(:user) { create(:user, email: 'test@example.com', password: 'password123', password_confirmation: 'password123') }
 
   describe 'ユーザー登録' do
     it '新規ユーザーが登録できること' do
@@ -17,10 +17,10 @@ RSpec.describe 'User authentication flow', type: :system do
       fill_in 'パスワード（確認）', with: 'password123'
 
       expect {
-        click_button 'アカウント登録'
+        click_button '登録する'
       }.to change(User, :count).by(1)
 
-      expect(page).to have_content('アカウント登録が完了しました')
+      expect(page).to have_content('新規登録が完了しました')
     end
 
     it '無効な情報では登録できないこと' do
@@ -32,10 +32,11 @@ RSpec.describe 'User authentication flow', type: :system do
       fill_in 'パスワード（確認）', with: '456'
 
       expect {
-        click_button 'アカウント登録'
+        click_button '登録する'
       }.not_to change(User, :count)
 
-      expect(page).to have_content('エラーが発生しました')
+      expect(page).to have_content('Name 入力してください')
+      expect(page).to have_content('Email は不正な値です')
     end
   end
 
@@ -57,7 +58,7 @@ RSpec.describe 'User authentication flow', type: :system do
       fill_in 'パスワード', with: 'wrongpassword'
       click_button 'ログインする'
 
-      expect(page).to have_content('メールアドレスまたはパスワードが違います')
+      expect(page).to have_content('メールアドレスまたはパスワードが正しくありません')
     end
   end
 
@@ -84,14 +85,15 @@ RSpec.describe 'User authentication flow', type: :system do
     it 'ログインしていない場合は予約ページにアクセスできないこと' do
       visit new_movie_schedule_reservation_path(movie, schedule, sheet_id: sheet.id, date: '2025-09-22')
 
-      expect(page).to have_content('ログインしてください')
+      expect(page).to have_current_path(new_user_session_path)
+      expect(page).to have_content('ログイン')
     end
 
     it 'ログイン後は予約ページにアクセスできること' do
       sign_in user
       visit new_movie_schedule_reservation_path(movie, schedule, sheet_id: sheet.id, date: '2025-09-22')
 
-      expect(page).to have_content('予約情報を入力してください')
+      expect(page).to have_content('予約者情報')
     end
   end
 end

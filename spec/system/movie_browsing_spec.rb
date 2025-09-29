@@ -21,8 +21,8 @@ RSpec.describe 'Movie browsing flow', type: :system do
     it '上映中のみフィルタリングできること' do
       visit movies_path
 
-      select '上映中', from: '上映状況'
-      click_button '絞り込み'
+      select '上映中', from: '上映ステータス'
+      click_button '検索する'
 
       expect(page).to have_content('アクション映画')
       expect(page).to have_content('コメディ映画')
@@ -32,8 +32,8 @@ RSpec.describe 'Movie browsing flow', type: :system do
     it 'キーワード検索ができること' do
       visit movies_path
 
-      fill_in 'キーワード', with: 'アクション'
-      click_button '検索'
+      fill_in 'キーワード検索', with: 'アクション'
+      click_button '検索する'
 
       expect(page).to have_content('アクション映画')
       expect(page).not_to have_content('ロマンス映画')
@@ -43,8 +43,8 @@ RSpec.describe 'Movie browsing flow', type: :system do
     it '説明文での検索ができること' do
       visit movies_path
 
-      fill_in 'キーワード', with: '感動'
-      click_button '検索'
+      fill_in 'キーワード検索', with: '感動'
+      click_button '検索する'
 
       expect(page).to have_content('ロマンス映画')
       expect(page).not_to have_content('アクション映画')

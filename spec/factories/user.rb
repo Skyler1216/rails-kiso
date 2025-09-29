@@ -3,7 +3,7 @@ FactoryBot.define do
     name { 'test' }
     sequence(:email) { |n| "TEST#{n}@example.com" }
     password { 'testuser' }
-    password_confirmation { 'testuser' }
+    password_confirmation { password }
     admin { false }
 
     trait :admin do

@@ -5,7 +5,7 @@ RSpec.describe 'Reservation flow', type: :system do
     driven_by(:rack_test)
   end
 
-  let!(:user) { create(:user, email: 'test@example.com', password: 'password123') }
+  let!(:user) { create(:user, email: 'test@example.com', password: 'password123', password_confirmation: 'password123') }
   let!(:theater) { create(:theater, name: 'テスト劇場') }
   let!(:screen) { create(:screen, theater: theater, name: 'スクリーン1') }
   let!(:movie) { create(:movie, name: 'テスト映画') }
@@ -24,7 +24,8 @@ RSpec.describe 'Reservation flow', type: :system do
 
       # 劇場と日付を選択
       select theater.name, from: '劇場を選択'
-      select '2025-09-22', from: '日付を選択'
+      date_label = schedule.start_time.to_date.strftime('%Y年%m月%d日')
+      select date_label, from: '日付を選択'
       click_button '上映スケジュールを表示'
 
       # スケジュールを選択して座席選択ページへ
@@ -32,11 +33,12 @@ RSpec.describe 'Reservation flow', type: :system do
       click_button '座席を選ぶ'
 
       # 座席選択ページで座席をクリック
-      expect(page).to have_content('座席を選択してください')
+      expect(page).to have_content('Seat Selection')
+      expect(page).to have_content('Seat Map')
       click_link 'A-1'
 
       # 予約フォームが表示される
-      expect(page).to have_content('予約情報を入力してください')
+      expect(page).to have_content('予約者情報')
       expect(page).to have_content('テスト映画')
       expect(page).to have_content('テスト劇場')
       expect(page).to have_content('スクリーン1')
@@ -63,7 +65,8 @@ RSpec.describe 'Reservation flow', type: :system do
 
       # 劇場と日付を選択
       select theater.name, from: '劇場を選択'
-      select '2025-09-22', from: '日付を選択'
+      date_label = schedule.start_time.to_date.strftime('%Y年%m月%d日')
+      select date_label, from: '日付を選択'
       click_button '上映スケジュールを表示'
 
       # スケジュールを選択して座席選択ページへ
@@ -84,9 +87,8 @@ RSpec.describe 'Reservation flow', type: :system do
                                                sheet_id: sheet1.id, 
                                                date: '2025-09-22')
 
-      # 無効な情報で予約を試行
-      fill_in '名前', with: ''
-      fill_in 'メールアドレス', with: 'invalid-email'
+      # 無効な情報で予約を試行（hiddenフィールドを書き換えて日付を空にする）
+      find("input[name='reservation[date]']", visible: false).set('')
 
       expect {
         click_button '予約を確定する'
@@ -102,7 +104,8 @@ RSpec.describe 'Reservation flow', type: :system do
                                                sheet_id: sheet1.id, 
                                                date: '2025-09-22')
 
-      expect(page).to have_content('ログインしてください')
+      expect(page).to have_current_path(new_user_session_path)
+      expect(page).to have_content('ログイン')
     end
 
     it 'ログイン後は予約ページにアクセスできること' do
@@ -111,7 +114,7 @@ RSpec.describe 'Reservation flow', type: :system do
                                                sheet_id: sheet1.id, 
                                                date: '2025-09-22')
 
-      expect(page).to have_content('予約情報を入力してください')
+      expect(page).to have_content('予約者情報')
     end
   end
 
@@ -124,7 +127,8 @@ RSpec.describe 'Reservation flow', type: :system do
       visit movie_path(movie)
 
       select theater.name, from: '劇場を選択'
-      select '2025-09-22', from: '日付を選択'
+      date_label = schedule.start_time.to_date.strftime('%Y年%m月%d日')
+      select date_label, from: '日付を選択'
       click_button '上映スケジュールを表示'
 
       select '10:00～12:00 / スクリーン1', from: 'スケジュールを選択'
@@ -132,14 +136,15 @@ RSpec.describe 'Reservation flow', type: :system do
 
       expect(page).to have_content('A-1')
       expect(page).to have_content('A-2')
-      expect(page).to have_content('座席を選択してください')
+      expect(page).to have_content('Seat Map')
     end
 
     it '選択した座席の情報が正しく表示されること' do
       visit movie_path(movie)
 
       select theater.name, from: '劇場を選択'
-      select '2025-09-22', from: '日付を選択'
+      date_label = schedule.start_time.to_date.strftime('%Y年%m月%d日')
+      select date_label, from: '日付を選択'
       click_button '上映スケジュールを表示'
 
       select '10:00～12:00 / スクリーン1', from: 'スケジュールを選択'
