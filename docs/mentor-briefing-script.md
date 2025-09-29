@@ -38,7 +38,7 @@
   - `app/models/reservation.rb`
     - モデル側でも重複チェックを行い、DB 制約との二重防御を維持
 
-## 3. 管理画面の主な改善
+## 3. 管理者画面　主な改善
 - 劇場管理
   - コントローラ: `app/controllers/admin/theaters_controller.rb`
   - ビュー: `app/views/admin/theaters/` 配下（`_form.html.erb`, `_screen_fields_row.html.erb`, `index.html.erb`, `show.html.erb`, `new.html.erb`）
@@ -53,7 +53,7 @@
   - ビュー: `app/views/admin/reservations/index.html.erb`, `_form.html.erb`
   - 劇場フィルタのリクエストテスト: `spec/requests/admin/reservations_spec.rb`
 
-## 4. ユーザー向け予約フロー
+## 4. ユーザー画面　予約フロー
 - 変更点
   - 映画詳細ページで「劇場 → 日付 → スケジュール → 座席」の順に選択する UI に変更。
   - 座席選択画面では劇場名と座席番号のみを表示し、スクリーン名は内部管理に留めて操作を簡略化。
