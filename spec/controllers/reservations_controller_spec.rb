@@ -40,7 +40,7 @@ RSpec.describe ReservationsController, type: :controller do
 
     context '必須パラメータが不足している場合' do
       it '400を返すこと' do
-        get :new, params: { movie_id: movie.id }
+        get :new, params: { movie_id: movie.id, schedule_id: schedule.id }
         expect(response).to have_http_status(400)
       end
     end

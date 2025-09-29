@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe SheetsController, type: :controller do
+  render_views
+
   describe 'GET #index' do
     let!(:screen1) { create(:screen) }
     let!(:screen2) { create(:screen) }

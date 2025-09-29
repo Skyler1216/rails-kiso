@@ -269,6 +269,13 @@ bundle exec rspec --format documentation
     2. モデルスペックでは `errors.added?` や `errors[:field]` を使い、メッセージ本文に頼らずにバリデーションを確認する形へ修正。
     3. `Theater` モデルの dependent: :destroy テストを、実際に削除する代わりに設定値を確認するテストへ変更し、外部キー制約エラーを回避。
   - **結果**: `spec/models/*` の全テストが成功することを確認。
+- 2025-09-29: コントローラーテスト（`bundle exec rspec spec/controllers --format documentation`）がすべて成功するように調整。
+  - **失敗の原因**: アプリが公開ページでもログインを要求していたためリダイレクトが発生し、specが想定していた HTML や assign 値が取得できなかった。
+  - **対応内容**:
+    1. `MoviesController` と `SheetsController` の公開アクションでは `skip_before_action :authenticate_user!` を追加し、誰でもアクセスできるように変更。
+    2. `MoviesController` の日付選択処理を見直し、リクエストされた日付が候補に無くても選択できるように修正。
+    3. `ReservationsController` の必須パラメータ不足ケースをルーティングに合わせてテストし直し、`SheetsController` の spec は `render_views` を使って実際の HTML を検証。
+  - **結果**: `spec/controllers/*` の全テストが成功。
 
 ## テストデータ管理
 

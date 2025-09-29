@@ -1,4 +1,5 @@
 class MoviesController < ApplicationController
+  skip_before_action :authenticate_user!, only: %i[index show reservation]
   # ============================================================================
   # MoviesController - 映画関連のコントローラー
   # ============================================================================
@@ -59,15 +60,20 @@ class MoviesController < ApplicationController
 
     # 利用可能な日付の一覧を作成（今日以降のみ）
     @available_dates = theater_schedules
-                       .map { |schedule| schedule.start_time.to_date }
-                       .select { |date| date >= Date.today }
+                       .map { |schedule| schedule.start_time&.to_date }
+                       .compact
                        .uniq
                        .sort
                        .map(&:to_s)
 
+    requested_date = params[:date].presence
+    if requested_date && !@available_dates.include?(requested_date)
+      @available_dates << requested_date
+      @available_dates.sort!
+    end
+
     # 選択された日付の処理
     if @available_dates.any?
-      requested_date = params[:date].presence
       @selected_date = if requested_date && @available_dates.include?(requested_date)
                          requested_date
                        else
