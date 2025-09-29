@@ -1,35 +1,132 @@
+<%# ================================================================ %>
+<%# Sheets#index 画面                                                   %>
+<%# - 目的: 全劇場/全スクリーンの座席レイアウトを俯瞰できる紹介ページ     %>
+<%# - 主要インスタンス変数:
+<%#     @theaters      劇場一覧（screens と sheets をincludesで事前読込）  %>
+<%#     @total_screens スクリーン総数                                        %>
+<%#     @total_seats   座席総数                                            %>
+<%#     @sample_layout_rows データ未登録時に見せるサンプル3x5レイアウト     %>
+<%# - 補足: 予約動線そのものではなく、座席表の見え方を事前に理解してもらう %>
+<%# ================================================================ %>
+
 <div class="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-12">
   <header class="space-y-3 text-slate-100">
     <p class="text-xs font-semibold uppercase tracking-[0.45em] text-brand-gold">CineVerse Seating</p>
-    <h1 class="font-heading text-3xl text-white md:text-4xl">座席表</h1>
+    <h1 class="font-heading text-3xl text-white md:text-4xl">座席一覧</h1>
     <p class="text-sm leading-relaxed text-slate-300">
-      CineVerseのシアター共通レイアウトです。列と番号の位置を事前に確認し、予約時に混乱なくお選びください。
+      各劇場・スクリーンの座席レイアウトをまとめています。予約時に座席番号を選ぶ際の参考にしてください。
     </p>
   </header>
 
-  <section class="space-y-8">
-    <div class="rounded-2xl border border-white/10 bg-slate-900/60 p-6 shadow-lg">
-      <p class="text-center text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">Screen</p>
-      <div class="seat-grid mt-6">
-        <% grouped_rows = (@sheets || {}).sort_by { |row, _| row } %>
-        <% grouped_rows.each do |row, seats| %>
-          <div class="seat-row" aria-label="row <%= row.upcase %>">
-            <span class="seat-row__label"><%= row.upcase %></span>
+  <%# サマリーカード: 劇場数 / スクリーン総数 / 座席総数 %>
+  <section class="rounded-2xl border border-white/10 bg-slate-900/60 p-6 shadow-lg text-sm text-slate-200">
+    <div class="grid gap-4 md:grid-cols-3">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-slate-500">Theaters</p>
+        <p class="mt-1 text-2xl font-semibold text-white"><%= @theaters.size %></p>
+      </div>
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-slate-500">Screens</p>
+        <p class="mt-1 text-2xl font-semibold text-white"><%= @total_screens %></p>
+      </div>
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-slate-500">Seats</p>
+        <p class="mt-1 text-2xl font-semibold text-white"><%= @total_seats %></p>
+      </div>
+    </div>
+  </section>
+
+  <%# 劇場が1件以上ある場合は、劇場→スクリーン→座席の順で詳細を描画 %>
+  <% if @theaters.any? %>
+    <% @theaters.each do |theater| %>
+      <section class="space-y-6 rounded-2xl border border-white/10 bg-slate-900/60 p-6 shadow-lg">
+        <header class="space-y-2">
+          <%# 劇場名と任意の住所/電話の補足情報 %>
+          <h2 class="text-xl font-semibold text-white"><%= theater.name %></h2>
+          <% if theater.address.present? || theater.phone.present? %>
+            <dl class="grid gap-2 text-xs text-slate-400 md:grid-cols-2">
+              <% if theater.address.present? %>
+                <div>
+                  <dt class="font-semibold uppercase tracking-[0.3em] text-slate-500">住所</dt>
+                  <dd class="mt-1 text-slate-300"><%= theater.address %></dd>
+                </div>
+              <% end %>
+              <% if theater.phone.present? %>
+                <div>
+                  <dt class="font-semibold uppercase tracking-[0.3em] text-slate-500">電話番号</dt>
+                  <dd class="mt-1 text-slate-300"><%= theater.phone %></dd>
+                </div>
+              <% end %>
+            </dl>
+          <% end %>
+        </header>
+
+        <%# スクリーンが存在すれば、各スクリーンの座席グリッドを表示 %>
+        <% if theater.screens.any? %>
+          <div class="grid gap-6 lg:grid-cols-2">
+            <% theater.screens.sort_by { |screen| screen.name.to_s }.each do |screen| %>
+              <article class="space-y-4 rounded-xl border border-white/10 bg-slate-900/80 p-5">
+                <header>
+                  <h3 class="text-lg font-semibold text-white"><%= screen.name.presence || "スクリーン#{screen.id}" %></h3>
+                  <p class="text-xs text-slate-400">座席数 <%= screen.sheets.size %> / スクリーンID <%= screen.id %></p>
+                </header>
+
+                <%# 座席を (row, column) で整列し、行単位にグルーピング %>
+                <% seat_rows = screen.sheets.sort_by { |sheet| [sheet.row, sheet.column] }.group_by(&:row) %>
+                <% if seat_rows.any? %>
+                  <div class="seat-grid">
+                    <%# A行→Z行の順で行を並べ、各行の列番号順に表示 %>
+                    <% seat_rows.sort_by { |row, _| row }.each do |row, seats| %>
+                      <div class="seat-row" aria-label="row <%= row.upcase %>">
+                        <span class="seat-row__label"><%= row.upcase %></span>
+                        <div class="seat-row__grid">
+                          <% seats.sort_by(&:column).each do |sheet| %>
+                            <% seat_label = "#{row.upcase}-#{sheet.column}" %>
+                            <span class="seat-pill seat-pill--available" aria-hidden="true"><%= seat_label %></span>
+                          <% end %>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                <% else %>
+                  <%# スクリーンはあるが座席未登録の場合の表示 %>
+                  <p class="text-xs text-slate-400">このスクリーンには座席がまだ登録されていません。</p>
+                <% end %>
+              </article>
+            <% end %>
+          </div>
+        <% else %>
+          <%# 劇場はあるがスクリーン未登録の場合の表示 %>
+          <p class="text-xs text-slate-400">この劇場にはまだスクリーンが登録されていません。</p>
+        <% end %>
+      </section>
+    <% end %>
+  <% else %>
+    <%# データ未登録時: サンプル3x5座席を提示してUIの見方を説明 %>
+    <section class="space-y-6 rounded-2xl border border-white/10 bg-slate-900/60 p-6 shadow-lg">
+      <p class="text-sm text-slate-300">まだスクリーンや座席が登録されていません。参考レイアウト（3×5 の標準配置）を表示します。</p>
+      <div class="seat-grid mt-4">
+        <% @sample_layout_rows.each do |row, columns| %>
+          <div class="seat-row" aria-label="row <%= row %>">
+            <span class="seat-row__label"><%= row %></span>
             <div class="seat-row__grid">
-              <% seats.sort_by(&:column).each do |sheet| %>
-                <span class="seat-pill seat-pill--available" aria-hidden="true"><%= sheet.column %></span>
+              <% columns.each do |column| %>
+                <span class="seat-pill seat-pill--available"><%= "#{row}-#{column}" %></span>
               <% end %>
             </div>
           </div>
         <% end %>
       </div>
-    </div>
+    </section>
+  <% end %>
 
-    <div class="rounded-2xl border border-white/10 bg-slate-900/60 p-6 text-sm text-slate-300 shadow-lg">
-      <p class="font-semibold text-brand-gold">座席図の見方</p>
-      <p class="mt-3 leading-relaxed">
-        予約ページでは列ラベルと座席番号が組み合わさった形式（例: A-5）で表示されます。中央の列が人気ですが、スクリーンとの距離や視認性に合わせて好みの座席をお選びください。
-      </p>
-    </div>
+  <%# 補足説明: 予約画面と同じ表記ルール/活用のコツ %>
+  <section class="rounded-2xl border border-white/10 bg-slate-900/60 p-6 text-sm text-slate-300 shadow-lg">
+    <p class="font-semibold text-brand-gold">座席表示の見方</p>
+    <ul class="mt-3 space-y-2 leading-relaxed">
+      <li>表示形式は「列（アルファベット）-番号」で、予約画面でも同じ表記です。</li>
+      <li>スクリーンと座席の位置関係を事前に把握しておくと、複数劇場での予約がスムーズになります。</li>
+      <li>座席配置は劇場やスクリーンによって調整可能です。管理画面からスクリーンごとに座席を追加できます。</li>
+    </ul>
   </section>
 </div>

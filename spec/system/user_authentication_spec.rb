@@ -80,7 +80,7 @@ RSpec.describe 'User authentication flow', type: :system do
     let!(:screen) { create(:screen, theater: theater) }
     let!(:movie) { create(:movie) }
     let!(:schedule) { create(:schedule, movie: movie, screen: screen) }
-    let!(:sheet) { create(:sheet, screen: screen) }
+    let(:sheet) { screen.sheets.first }
     let(:reservation_date) { schedule.start_time.to_date.to_s }
 
     it 'ログインしていない場合は予約ページにアクセスできないこと' do

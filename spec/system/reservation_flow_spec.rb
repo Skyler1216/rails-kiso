@@ -11,8 +11,8 @@ RSpec.describe 'Reservation flow', type: :system do
   let!(:movie) { create(:movie, name: 'テスト映画') }
   let(:schedule_start_time) { 5.days.from_now.change(hour: 10, min: 0) }
   let!(:schedule) { create(:schedule, movie: movie, screen: screen, start_time: schedule_start_time) }
-  let!(:sheet1) { create(:sheet, screen: screen, row: 'A', column: 1) }
-  let!(:sheet2) { create(:sheet, screen: screen, row: 'A', column: 2) }
+  let(:sheet1) { screen.sheets.find_by!(row: 'A', column: 1) }
+  let(:sheet2) { screen.sheets.find_by!(row: 'A', column: 2) }
 
   describe '予約フロー' do
     before do

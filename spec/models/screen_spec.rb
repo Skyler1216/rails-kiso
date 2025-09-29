@@ -40,7 +40,6 @@ RSpec.describe Screen, type: :model do
 
   describe '関連' do
     let(:theater) { create(:theater) }
-    let(:screen) { create(:screen, theater: theater) }
 
     it 'theaterとの関連が正しく設定されていること' do
       expect(Screen.reflect_on_association(:theater).macro).to eq :belongs_to
@@ -55,15 +54,24 @@ RSpec.describe Screen, type: :model do
     end
 
     it 'dependent: :destroyが設定されていること（sheets）' do
-      create(:sheet, screen: screen)
-      
-      expect { screen.destroy }.to change { Sheet.count }.by(-1)
+      screen = create(:screen, theater: theater)
+      seat_count = screen.sheets.count
+
+      expect { screen.destroy }.to change(Sheet, :count).by(-seat_count)
     end
 
     it 'dependent: :destroyが設定されていること（schedules）' do
+      screen = create(:screen, theater: theater)
       create(:schedule, screen: screen)
       
       expect { screen.destroy }.to change { Schedule.count }.by(-1)
+    end
+
+    it '作成時に標準座席が生成されること' do
+      screen = create(:screen, theater: theater)
+      expect(screen.sheets.count).to eq(15)
+      expect(screen.sheets.pluck(:row).uniq.sort).to eq(%w[A B C])
+      expect(screen.sheets.pluck(:column).uniq.sort).to eq((1..5).to_a)
     end
   end
 end

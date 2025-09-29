@@ -11,11 +11,10 @@ RSpec.describe 'Multi theater reservation flow', type: :system do
 
     theater_a = create(:theater, name: 'A-シネマ', address: '東京都千代田区1-1-1')
     screen_a = create(:screen, theater: theater_a, name: 'スクリーンA')
-    create(:sheet, screen: screen_a, row: 'a', column: 1)
 
     theater_b = create(:theater, name: 'B-シネマ', address: '大阪府大阪市2-2-2')
     screen_b = create(:screen, theater: theater_b, name: 'スクリーンB')
-    seat_b = create(:sheet, screen: screen_b, row: 'b', column: 2)
+    seat_b = screen_b.sheets.find_by!(row: 'B', column: 2)
 
     base_date = Time.zone.today + 1
     start_time_a = Time.zone.local(base_date.year, base_date.month, base_date.day, 10, 0, 0)

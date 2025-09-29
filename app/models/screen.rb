@@ -49,9 +49,26 @@ class Screen < ApplicationRecord
               # カスタムエラーメッセージ
               message: 'は同じ劇場内で一意になるよう設定してください'
             }
-  
+
+  # スクリーン作成時に標準座席(3x5)を自動生成
+  # - 小規模構成をデフォルトとし、運用/将来拡張で増席する想定
+  after_create :generate_default_sheets
+
   # 例:
   # ✅ OK: 劇場Aに「スクリーン1」、劇場Bに「スクリーン1」 → 異なる劇場なのでOK
   # ❌ NG: 劇場Aに「スクリーン1」を2つ作成 → 同じ劇場内で重複なのでNG
   # ❌ NG: スクリーン名が空 → 必須チェックでNG
+  private
+
+  DEFAULT_ROWS = ('A'..'C').to_a.freeze
+  DEFAULT_COLUMNS = (1..5).to_a.freeze
+
+  def generate_default_sheets
+    # 既存行があっても欠けている座席のみ補完（idempotent）
+    DEFAULT_ROWS.each do |row|
+      DEFAULT_COLUMNS.each do |column|
+        sheets.find_or_create_by!(row: row, column: column)
+      end
+    end
+  end
 end

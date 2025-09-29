@@ -6,7 +6,7 @@ RSpec.describe 'Reservations', type: :request do
   let!(:screen) { create(:screen, theater: theater) }
   let!(:movie) { create(:movie) }
   let!(:schedule) { create(:schedule, movie: movie, screen: screen) }
-  let!(:sheet) { create(:sheet, screen: screen) }
+  let(:sheet) { screen.sheets.find_by!(row: 'A', column: 1) }
   let(:reservation_date) { schedule.start_time.to_date.to_s }
 
   describe 'GET /movies/:movie_id/schedules/:schedule_id/reservations/new' do
