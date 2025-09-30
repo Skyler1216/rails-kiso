@@ -13,40 +13,12 @@
   <%# ナビゲーションヘッダー - 戻るリンクと劇場ID表示 %>
   <div class="flex flex-wrap gap-3 text-sm">
     <%= link_to '⟵ 劇場一覧に戻る', admin_theaters_path, class: 'btn-secondary text-xs sm:text-sm' %>
-    <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-400">
-      ID: <%= @theater.id %>
-    </span>
   </div>
 
   <%# 劇場詳細情報セクション %>
   <section class="card-surface space-y-6">
     <%# 劇場基本情報サマリー %>
-    <div class="space-y-1">
-      <h1 class="text-2xl font-semibold text-white"><%= @theater.name %></h1>
-      <div class="flex flex-wrap items-center gap-3 text-sm text-slate-300">
-        <span><strong>住所:</strong> <%= @theater.address %></span>
-        <%# 電話番号（存在する場合のみ表示） %>
-        <% if @theater.phone.present? %>
-          <span><strong>電話:</strong> <%= @theater.phone %></span>
-        <% end %>
-        <%# 営業状態の表示（色分けされたバッジ） %>
-        <span>
-          <strong>ステータス:</strong>
-          <% if @theater.is_active? %>
-            <span class="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-2 py-0.5 text-xs font-semibold text-emerald-300">
-              <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
-              営業中
-            </span>
-          <% else %>
-            <span class="inline-flex items-center gap-1 rounded-full bg-slate-500/20 px-2 py-0.5 text-xs font-semibold text-slate-300">
-              <span class="h-2 w-2 rounded-full bg-slate-300"></span>
-              非稼働
-            </span>
-          <% end %>
-        </span>
-        <span><strong>スクリーン数:</strong> <%= @theater.screens.size %>面</span>
-      </div>
-    </div>
+    <h1 class="text-2xl font-semibold text-white"><%= @theater.name %></h1>
 
     <%# 劇場編集フォーム（部分テンプレート） %>
     <%= render 'form', theater: @theater, heading: '劇場情報を更新', submit_label: '更新する', submit_note: '送信先: PATCH /admin/theaters/:id', show_delete: true %>

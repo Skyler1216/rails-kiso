@@ -18,7 +18,7 @@ class Theater < ApplicationRecord
   has_many :screens, dependent: :destroy
   
   # ネストした属性の受け入れ設定
-  # - 劇場作成・更新時にスクリーン情報も同時に処理可能
+  # - 劇場作成・更新時にスクリーン情報も同時に処理（作成・更新・削除）可能
   # - allow_destroy: true → スクリーンの削除も許可
   # - reject_if → スクリーン名が空の場合は無視
   accepts_nested_attributes_for :screens, 
@@ -47,6 +47,9 @@ class Theater < ApplicationRecord
 
   private
 
+
+  # 以下は作り込み中
+  
   # ネストされたスクリーンで同じ名称が重複しないようチェック
   # 
   # 処理の流れ:
