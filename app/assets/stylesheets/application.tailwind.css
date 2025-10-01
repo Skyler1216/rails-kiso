@@ -23,6 +23,23 @@
    🎨 ベースレイヤー - 全体的なスタイル設定
    ======================================== */
 @layer base {
+  /*
+   * 🎯 グローバル変数
+   * - 共通で利用するブランドカラーやトーン
+   */
+  :root {
+    --cine-border: rgba(148, 163, 184, 0.25);
+    --cine-border-strong: rgba(229, 9, 20, 0.4);
+    --cine-panel: rgba(12, 16, 28, 0.85);
+    --cine-panel-strong: rgba(18, 24, 44, 0.88);
+    --cine-text-muted: #94a3b8;
+    --cine-text-soft: #cbd5f5;
+    --cine-gold: #f9b234;
+    --cine-red: #e50914;
+    --cine-sky: #38bdf8;
+    --cine-green: #34d399;
+  }
+
   /* 
    * 🌙 ボディの基本スタイル
    * - 映画館らしいダークテーマ
@@ -61,26 +78,6 @@
    ======================================== */
 @layer components {
   /* 
-   * 🔴 プライマリボタン
-   * - 映画館のメインカラー（レッド）を使用
-   * - ホバー時に影と色が変化
-   * - 映画予約など重要なアクション用
-   */
-  .btn-primary {
-    @apply inline-flex items-center justify-center rounded-md bg-brand-red px-4 py-2 text-sm font-semibold tracking-wide text-white shadow-glow transition hover:bg-red-700 hover:shadow-lg;
-  }
-
-  /* 
-   * 🟡 セカンダリボタン
-   * - ゴールドのボーダーで高級感を演出
-   * - ホバー時に背景が薄く変化
-   * - キャンセルや戻るボタン用
-   */
-  .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-md border border-brand-gold px-4 py-2 text-sm font-semibold text-brand-gold transition hover:bg-brand-gold/10;
-  }
-
-  /* 
    * 🎭 カード表面
    * - 映画情報やコンテンツを表示するカード
    * - 半透明の背景で奥行きを表現
@@ -88,16 +85,6 @@
    */
   .card-surface {
     @apply rounded-xl bg-slate-900/70 p-6 shadow-xl ring-1 ring-white/10;
-  }
-
-  /* 
-   * 🧭 ナビゲーションリンク
-   * - ヘッダーメニューのリンクスタイル
-   * - ホバー時にゴールドに変化
-   * - スムーズなトランジション効果
-   */
-  .nav-link {
-    @apply text-sm font-medium text-gray-200 transition hover:text-brand-gold;
   }
 
   /* 
@@ -227,7 +214,7 @@
 }
 
 /* ========================================
-   🎨 Modern UI enhancements (compiled twin defined in application.css)
+   🎨 Modern UI enhancements - canonical component styles
    ======================================== */
 .nav-link {
   position: relative;
@@ -410,6 +397,7 @@
 
 .form-input,
 .form-select,
+.form-submit,
 .form-text,
 .form-textarea {
   width: 100%;

@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe MoviesController, type: :controller do
+  # render_viewsがあるとページの内容を実際につくることができる
   render_views
 
   describe 'GET #index' do
