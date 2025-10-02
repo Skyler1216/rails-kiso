@@ -20,9 +20,10 @@ class Theater < ApplicationRecord
   # ネストした属性の受け入れ設定
   # - 劇場作成・更新時にスクリーン情報も同時に処理（作成・更新・削除）可能
   # - allow_destroy: true → スクリーンの削除も許可
+  # - reject_if → スクリーン名が空の場合は無視
   accepts_nested_attributes_for :screens, 
-                                allow_destroy: true 
-
+                                allow_destroy: true, 
+                                reject_if: ->(attrs) { attrs['name'].blank? }
 
   # ----------------------------------------------------------------------------
   # バリデーション（Validation）
