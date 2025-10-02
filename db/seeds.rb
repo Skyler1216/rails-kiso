@@ -28,17 +28,24 @@ end
 
 movies = [inception, matrix, interstellar]
 
+# === 劇場データ ===
+main_theater = Theater.find_or_create_by!(name: 'シネマ東京メイン') do |theater|
+  theater.address = '東京都千代田区1-1-1'
+  theater.phone   = '03-0000-0000'
+  theater.is_active = true
+end
+
 # === スクリーン作成 ===
 screens = ['Screen 1', 'Screen 2', 'Screen 3'].map do |name|
-  Screen.create!(name: name)
+  main_theater.screens.find_or_create_by!(name: name)
 end
 
 # === 各スクリーンに座席を作成（A-1～C-5） ===
 screens.each do |screen|
-  ('a'..'c').each do |row|
-    (1..5).each do |column|
-      Sheet.create!(screen: screen, row: row, column: column)
-    end
+('A'..'C').each do |row|
+  (1..5).each do |column|
+    Sheet.find_or_create_by!(screen: screen, row: row, column: column)
+  end
   end
 end
 
