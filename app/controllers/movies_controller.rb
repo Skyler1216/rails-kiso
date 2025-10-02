@@ -36,22 +36,35 @@ class MoviesController < ApplicationController
     @schedules = @movie.schedules.includes(screen: :theater).order(:start_time)
 
     # 上映劇場の一覧を作成（重複除去、名前順ソート）
+    # 1. 各スケジュールから劇場情報を抽出
+    #    - @schedulesは映画の全スケジュール（複数のスクリーン・劇場で上映される可能性）
+    #    - schedule.screen.theater で各スケジュールの劇場を取得
     @theaters = @schedules.map { |schedule| schedule.screen.theater }
+                         # 2. nil値を除去（スクリーンや劇場が存在しない場合の安全対策）
                          .compact
+                         # 3. 劇場IDで重複を除去（同じ劇場が複数回登場する場合があるため）
+                         #    - 例：劇場Aでスクリーン1とスクリーン2の両方で上映 → 劇場Aが2回登場
                          .uniq { |theater| theater.id }
+                         # 4. 劇場名でアルファベット順にソート（ユーザビリティ向上）
                          .sort_by(&:name)
 
     # 選択された劇場の処理
-    @selected_theater_id = params[:theater_id].presence || @theaters.first&.id&.to_s
-    @selected_theater = @theaters.find { |theater| theater.id.to_s == @selected_theater_id } if @selected_theater_id.present?
-    
-    # 劇場が選択されていない場合は最初の劇場を選択
-    if @selected_theater.nil? && @theaters.any?
-      @selected_theater = @theaters.first
-      @selected_theater_id = @selected_theater.id.to_s
-    end
+    # 1. 劇場オブジェクトの決定（URLパラメータ優先、なければ最初の劇場をデフォルト選択）
+    #    - @theaters.find: URLパラメータの劇場IDに一致する劇場を検索
+    #    - || @theaters.first: 見つからない場合は最初の劇場をデフォルト選択
+    #    - to_s: パラメータは文字列のため、IDを文字列に変換して比較
+    @selected_theater =
+      @theaters.find { |theater| theater.id.to_s == params[:theater_id].to_s } ||
+      @theaters.first
+    # 2. 選択された劇場のIDを文字列として保存（ビューでの使用のため）
+    @selected_theater_id = @selected_theater&.id&.to_s
 
-    # 選択された劇場のスケジュールのみを抽出
+    # 3. 選択された劇場のスケジュールのみを抽出
+    #    - 条件分岐：選択された劇場がある場合とない場合で処理を分ける
+    #    - select: 条件に一致する要素のみを抽出
+    #    - schedule.screen.theater_id: スケジュールのスクリーンが属する劇場ID
+    #    - @selected_theater.id: 選択された劇場のID
+    #    - 空配列[]: 劇場が選択されていない場合は空の配列を返す
     theater_schedules = if @selected_theater
                           @schedules.select { |schedule| schedule.screen.theater_id == @selected_theater.id }
                         else
@@ -72,7 +85,7 @@ class MoviesController < ApplicationController
 
     requested_date = params[:date].presence
 
-    if @available_dates.any? && @available_dates.include?(requested_date)
+    if requested_date.present? && @available_dates.include?(requested_date)
       @selected_date = requested_date
       @filtered_schedules = theater_schedules.select do |schedule|
         schedule.start_time&.to_date&.to_s == @selected_date
