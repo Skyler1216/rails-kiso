@@ -33,7 +33,7 @@ module Admin
       # 新しい劇場オブジェクトを作成
       @theater = Theater.new
       
-      # 初期スクリーンフィールドを追加
+      # 最初からスクリーン入力欄を1つ追加しておく
       @theater.screens.build
     end
 
@@ -62,6 +62,12 @@ module Admin
     def edit
       # 編集フォームではなく詳細画面にリダイレクト
       redirect_to admin_theater_path(@theater)
+      # @theater が ID=1 の劇場の場合
+      # → "/admin/theaters/1"
+      # つまり、以下のURLにリダイレクトされる
+      # GET /admin/theaters/1
+      # GET /admin/theaters/:id → showアクション
+      # GET /admin/theaters/:id/edit → editアクション
     end
 
     # ----------------------------------------------------------------------------
