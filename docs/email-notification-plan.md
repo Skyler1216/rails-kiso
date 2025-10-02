@@ -5,6 +5,14 @@
 - ActionMailerを用いたメール送信と、ローカル開発環境での検証方法を確立する。
 - 定期実行には`whenever`で作成したCrontab設定を使い、Rakeタスクを介してバッチ処理を実行する。
 
+## 最新進捗
+- **課題1 (予約完了メール)**: ✅ 実装完了
+  - `ReservationMailer#booking_confirmation`を新設し、HTML/テキスト両方のテンプレートで作品・劇場・上映時刻・座席・予約者名を表示。
+  - 予約完了時に`ReservationsController#create`から`deliver_later`で送信。テスト環境は`config/environments/test.rb`で`ActiveJob::Base.queue_adapter = :test`指定済み。
+  - 開発環境は`config/environments/development.rb`で`letter_opener`を利用してローカル確認。
+  - RSpecでリクエスト/メール/システムテストを追加し、`bundle exec rspec`で全テスト成功。
+- **課題2 (前日リマインド)**: ⏸ 未着手（今後実装）
+
 ## 課題1: 予約完了メール送信
 1. **メールインフラ整備**
    - `config/environments/*.rb`で`config.action_mailer`を適切に設定し、開発環境では`letter_opener_web`などでローカル確認できるようにする。
@@ -17,8 +25,8 @@
    - 予約作成処理(`ReservationsController#create`や`Reservation`モデルのコールバック)で`ReservationMailer.booking_confirmation(reservation).deliver_later`を呼び出す。
    - ActiveJobバックエンドは`async`で開始し、必要に応じてSidekiq等に差し替え可能な設計にする。
 4. **テスト**
-   - RSpecまたはMiniTestでMailerスペックを作成し、件名・宛先・本文に予約情報が含まれることを検証。
-   - システム/リクエストテストで予約完了時にメールがキューに積まれることを確認。
+   - RSpecでMailerスペック(`spec/mailers/reservation_mailer_spec.rb`)とリクエストスペック(`spec/requests/reservations_spec.rb`)を整備し、件名・宛先・本文の主要情報を検証。
+   - 既存のシステムスペックからも予約データを介してメール挙動が崩れないことを確認済み。
 
 ## 課題2: 予約前日リマインドメール
 1. **Rakeタスク実装**
