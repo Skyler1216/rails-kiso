@@ -66,6 +66,8 @@ group :development do
 
   # Ruby code style checker
   gem 'rubocop', require: false
+
+  gem 'letter_opener'
 end
 
 group :test do
