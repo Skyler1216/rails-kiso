@@ -12,7 +12,6 @@
 <% heading = local_assigns.fetch(:heading, '劇場情報') %>
 <% subheading = local_assigns.fetch(:subheading, nil) %>
 <% submit_label = local_assigns.fetch(:submit_label, '保存する') %>
-<% submit_note = local_assigns.fetch(:submit_note, nil) %>
 <% show_delete = local_assigns.fetch(:show_delete, false) %>
 
 <article class="rounded-xl border border-white/5 bg-white/[0.03] p-6" data-screen-fields>
@@ -138,10 +137,6 @@
     <div class="flex flex-wrap items-center gap-3">
       <%# メインの送信ボタン（作成時は「保存する」、編集時は「更新する」） %>
       <%= f.submit submit_label, class: 'btn-primary' %>
-      <%# 送信先URLなどの補足情報（デバッグ用） %>
-      <% if submit_note.present? %>
-        <span class="text-xs text-slate-500"><%= submit_note %></span>
-      <% end %>
     </div>
   <% end %>
 

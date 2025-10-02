@@ -109,9 +109,6 @@ class ReservationsController < ApplicationController
 
   # 予約エラー時の処理
   def handle_reservation_error
-    # エラーメッセージをコンソールに出力（デバッグ用）
-    puts @reservation.errors.full_messages
-
     # エラー表示に必要な情報を再取得
     @schedule = Schedule.includes(screen: :theater).find(@reservation.schedule_id)
     @movie = @schedule.movie

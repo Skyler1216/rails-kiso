@@ -21,6 +21,6 @@
     <h1 class="text-2xl font-semibold text-white"><%= @theater.name %></h1>
 
     <%# 劇場編集フォーム（部分テンプレート） %>
-    <%= render 'form', theater: @theater, heading: '劇場情報を更新', submit_label: '更新する', submit_note: '送信先: PATCH /admin/theaters/:id', show_delete: true %>
+    <%= render 'form', theater: @theater, heading: '劇場情報を更新', submit_label: '更新する', show_delete: true %>
   </section>
 </div>
