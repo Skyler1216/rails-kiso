@@ -26,6 +26,6 @@ module App
 
     # 日本語ロケール設定
     config.i18n.default_locale = :ja
-    config.i18n.available_locales = %i[ja en]
+    config.i18n.available_locales = %i[ja]
   end
 end

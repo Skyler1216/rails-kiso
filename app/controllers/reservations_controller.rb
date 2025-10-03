@@ -61,6 +61,14 @@ class ReservationsController < ApplicationController
       # 重複予約の場合はエラー画面へリダイレクト
       redirect_to_duplicate_reservation_path
     elsif @reservation.save
+      # 予約データの保存が成功した場合の処理
+      
+      # 予約確認メールを非同期で送信
+      # deliver_later: バックグラウンドでメール送信（レスポンスをブロックしない）
+      # booking_confirmation: ReservationMailerの予約確認メソッド
+      # @reservation: 保存された予約オブジェクトをメールテンプレートに渡す
+      ReservationMailer.booking_confirmation(@reservation).deliver_later
+
       # 予約成功時は映画詳細画面へリダイレクト
       redirect_to movie_path(@reservation.schedule.movie_id), 
                   notice: '予約が完了しました'

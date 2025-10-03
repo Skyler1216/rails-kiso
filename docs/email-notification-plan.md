@@ -9,7 +9,8 @@
 - **課題1 (予約完了メール)**: ✅ 実装完了
   - `ReservationMailer#booking_confirmation`を新設し、HTML/テキスト両方のテンプレートで作品・劇場・上映時刻・座席・予約者名を表示。
   - 予約完了時に`ReservationsController#create`から`deliver_later`で送信。テスト環境は`config/environments/test.rb`で`ActiveJob::Base.queue_adapter = :test`指定済み。
-  - 開発環境は`config/environments/development.rb`で`letter_opener`を利用してローカル確認。
+  - 開発環境は`config/environments/development.rb`で`letter_opener` + `letter_opener_web`を利用してローカル確認。`bundle install`済み。
+  - メール本文では上映日と「開始〜終了時刻」の範囲、さらに予約日時（作成日時）を表示するよう調整済み。
   - RSpecでリクエスト/メール/システムテストを追加し、`bundle exec rspec`で全テスト成功。
 - **課題2 (前日リマインド)**: ⏸ 未着手（今後実装）
 

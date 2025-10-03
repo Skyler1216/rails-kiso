@@ -3,6 +3,12 @@
 # - モデル名/属性名の日本語化、エラーメッセージの上書きが可能です。
 # - 例: I18n.t('activerecord.models.movie')、User.human_attribute_name(:email)
 ja:
+  time:
+    formats:
+      long: "%Y年%m月%d日 %H:%M"
+  date:
+    formats:
+      long: "%Y年%m月%d日"
   errors:
     messages:
       blank: "入力してください"
@@ -52,3 +58,6 @@ ja:
           attributes:
             screen:
               required: "^スクリーンを入力してください"
+  reservation_mailer:
+    booking_confirmation:
+      subject: "【%{movie}】ご予約が完了しました"
