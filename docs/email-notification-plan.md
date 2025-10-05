@@ -12,10 +12,15 @@
   - 開発環境は`config/environments/development.rb`で`letter_opener` + `letter_opener_web`を利用してローカル確認。`bundle install`済み。
   - メール本文では上映日と「開始〜終了時刻」の範囲、さらに予約日時（作成日時）を表示するよう調整済み。
   - RSpecでリクエスト/メール/システムテストを追加し、`bundle exec rspec`で全テスト成功。
-- **課題2 (前日リマインド)**: ⏸ 未着手（今後実装）
+- **課題2 (前日リマインド)**: ✅ 実装完了
+  - `reservation:send_reminders` Rakeタスクを作成し、翌日上映予定の予約に対して`ReservationMailer#reminder`を`deliver_later`で送信。
+  - `TARGET_DATE`環境変数で対象日を上書きでき、検証用途で任意日を指定可能。
+  - `config/schedule.rb`でwheneverを用いた19:00 JST実行のCron設定を定義。
+  - `spec/tasks/reservation_reminder_rake_spec.rb`を追加し、タスク挙動と環境変数上書きを検証。
 
 ## 課題1: 予約完了メール送信
 1. **メールインフラ整備**
+   - `Gemfile`に`gem 'actionmailer'`が含まれていることを確認し、未追加の場合は追記して`bundle install`でActionMailer関連コンポーネントを導入する。APIモードのアプリでは`config/application.rb`の`require "rails/all"`または`require "active_job/railtie"`等に加えて`require "action_mailer/railtie"`が有効化されていることも確認する。
    - `config/environments/*.rb`で`config.action_mailer`を適切に設定し、開発環境では`letter_opener_web`などでローカル確認できるようにする。
    - 環境変数にSMTP接続情報を保持し、Credentialsや`.env`で安全に管理する。
 2. **Mailer作成**
@@ -30,18 +35,27 @@
    - 既存のシステムスペックからも予約データを介してメール挙動が崩れないことを確認済み。
 
 ## 課題2: 予約前日リマインドメール
+### 仕様
+- 予約をしているユーザは予約の前日19時(日本時間)にメールが届く
+- メールには予約に紐づく情報が見れる（映画館・作品・上映時刻・座席・名前等）
+- ユーザからのリクエストがないため、Rakeタスクとしてバッチ処理を実装
+- wheneverというGemを利用して定時実行（内部的にはcrontabを設定）
+
+### 実装内容
 1. **Rakeタスク実装**
-   - `lib/tasks/reservation_reminder.rake`に`reservation:send_reminders`タスクを作成。
-   - タスク内で翌日上映予定の予約を取得するクエリを`Reservation.upcoming_for(date)`等で用意し、`ReservationMailer.reminder(reservation).deliver_later`を呼ぶ。
+   - `lib/tasks/reservation_reminder.rake`に`reservation:send_reminders`タスクを作成
+   - `Reservation.upcoming_for(date)`で翌日上映予定の予約を抽出し、`ReservationMailer.reminder(reservation).deliver_later`を呼び出す
+   - `TARGET_DATE`環境変数を指定すると任意の日付向けに送信対象を切り替えられる
 2. **Mailer/ビュー拡張**
-   - `ReservationMailer#reminder(reservation)`を追加し、予約情報を本文に表示。
-   - テンプレートを共有できる場合は`_reservation_info`パーシャル化して重複排除。
+   - `ReservationMailer#reminder(reservation)`を追加し、予約情報を本文に表示
+   - `app/views/reservation_mailer/_reservation_summary.(html|text).erb`に予約情報表示を集約して重複を解消
 3. **ジョブスケジュール**
-   - `whenever`を追加し、`config/schedule.rb`で`every 1.day, at: '19:00 JST'`のようにRakeタスクを登録。
-   - デプロイ環境のタイムゾーン設定(`config.time_zone = 'Tokyo'`)を確認。
+   - `whenever`を追加し、`config/schedule.rb`で`every 1.day, at: '7:00 pm'` (cron_timezoneは`Asia/Tokyo`) にRakeタスクを登録
+  - デプロイ環境のタイムゾーン設定(`config.time_zone = 'Tokyo'`)を確認
 4. **テストと検証**
-   - タスクのユニットテスト(`Rails.application.load_tasks`後に呼び出し)で対象予約のみ通知されるか確認。
-   - wheneverは`whenever --update-crontab`で生成されるエントリを`whenever --clear-crontab`でロールバック可能なことをドキュメント化。
+   - `spec/tasks/reservation_reminder_rake_spec.rb`でタスクのユニットテストを実装し、対象予約のみ通知されること・環境変数上書きが効くことを確認
+   - wheneverは`whenever --update-crontab`で生成されるエントリを`whenever --clear-crontab`でロールバック可能なことをドキュメント化
+   - テストする際は任意の時間にセットして起動することを確認
 
 ## 運用・注意点
 - 本番SMTP情報はCredentialsに格納し、開発者環境ではダミー環境変数を用意。
