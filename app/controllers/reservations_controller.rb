@@ -63,7 +63,7 @@ class ReservationsController < ApplicationController
     elsif @reservation.save
       # 予約データの保存が成功した場合の処理
       
-      # 予約確認メールを非同期で送信
+      # 予約確認メールを非同期（メール送信処理とは別スレッド）で送信。送信完了を待たなくてよい。
       # deliver_later: バックグラウンドでメール送信（レスポンスをブロックしない）
       # booking_confirmation: ReservationMailerの予約確認メソッド
       # @reservation: 保存された予約オブジェクトをメールテンプレートに渡す

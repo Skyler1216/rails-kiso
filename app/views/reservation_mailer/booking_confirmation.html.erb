@@ -1,32 +1,15 @@
+<%# HTMLメール版。textテンプレートと組み合わせてマルチパート送信する %>
+<%# マルチパートにする理由:
+    - HTML未対応/HTMLを無効化しているメールクライアントでもtext版に自動フォールバックするため
+    - 迷惑メール判定を避けるため（text/HTMLの両方を含む構成が推奨されることが多い）
+    - アクセシビリティ向上（スクリーンリーダやプレーン表示でも内容が伝わる）
+    - セキュリティポリシーでHTMLが除去されても本文が読めるようにするため
+    - テストや差分確認をtext版で行いやすくするため
+%>
 <p><%= @reservation.name %> 様</p>
 
 <p>この度はご予約ありがとうございます。以下の内容で予約が完了しました。</p>
 
-<table>
-  <tr>
-    <th align="left">作品</th>
-    <td><%= @movie.name %></td>
-  </tr>
-  <tr>
-    <th align="left">上映劇場</th>
-    <td><%= @theater.name %></td>
-  </tr>
-  <tr>
-    <th align="left">スクリーン</th>
-    <td><%= @screen.name %></td>
-  </tr>
-  <tr>
-    <th align="left">上映時刻</th>
-    <td><%= l(@screening_date, format: :long) %> <%= @screening_time_range || '-' %></td>
-  </tr>
-  <tr>
-    <th align="left">予約日時</th>
-    <td><%= l(@booking_timestamp, format: :long) %></td>
-  </tr>
-  <tr>
-    <th align="left">座席</th>
-    <td><%= @sheet.row %>-<%= @sheet.column %></td>
-  </tr>
-</table>
+<%= render 'reservation_mailer/reservation_summary' %>
 
 <p>ご来場を心よりお待ちしております。</p>

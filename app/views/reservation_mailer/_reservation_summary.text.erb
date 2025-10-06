@@ -1,0 +1,8 @@
+<%# 予約内容の共通表示部分を切り出した「パーシャル」です。メール本文から呼び出して再利用します。 %>
+<%# パーシャルは、ビューの「共通部品」を切り出した再利用用テンプレートです。 %>
+作品: <%= @movie.name %>
+上映劇場: <%= @theater.name %>
+スクリーン: <%= @screen.name %>
+上映時刻: <%= l(@screening_date, format: :long) %> <%= @screening_time_range || '-' %>
+予約日時: <%= l(@booking_timestamp, format: :long) %>
+座席: <%= @sheet.row %>-<%= @sheet.column %>

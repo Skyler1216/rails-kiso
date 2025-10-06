@@ -40,8 +40,17 @@ Rails.application.configure do
   config.action_mailer.raise_delivery_errors = false
 
   config.action_mailer.perform_caching = false
+
+  # メール送信の設定
+  # メール内のリンクで使用するURLのベース設定（localhost:3000）
   config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
-  config.action_mailer.delivery_method = :letter_opener
+  
+  # station3,4で説明
+  # 開発環境でのメール送信方法をletter_opener_webに設定
+  # メールはブラウザで確認可能（http://localhost:3000/letter_opener）
+  config.action_mailer.delivery_method = :letter_opener_web
+  
+  # メール送信を有効化（falseにするとメール送信がスキップされる）
   config.action_mailer.perform_deliveries = true
 
   # Print deprecation notices to the Rails logger.

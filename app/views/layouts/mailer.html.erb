@@ -1,13 +1,19 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <!-- 文字エンコーディングをUTF-8に設定（日本語文字化け防止） -->
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    
+    <!-- メール用CSSスタイル -->
+    <!-- 注意: メールクライアントでは外部CSSが読み込まれないため、インラインスタイルを使用 -->
     <style>
       /* Email styles need to be inline */
+      /* ここにメール用のCSSを記述（ただし、多くのメールクライアントでは制限あり） */
     </style>
   </head>
 
   <body>
+    <%# yieldはbooking_confirmation.html.erbの内容が入る %>
     <%= yield %>
   </body>
 </html>

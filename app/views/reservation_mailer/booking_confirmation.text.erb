@@ -1,12 +1,13 @@
+<%# テキストメール版。HTMLテンプレートと合わせてマルチパート送信する %>
+<%# マルチパートにする理由:
+    - HTMLが無効な環境でも本文が正しく読めるようにするため
+    - HTML版と同等の情報をtextでも提供し、可用性・到達性を高めるため
+    - 一部のクライアントやセキュリティ設定でHTMLが除去されても内容を確実に伝えるため
+%>
 <%= @reservation.name %> 様
 
 この度はご予約ありがとうございます。以下の内容で予約が完了しました。
 
-作品: <%= @movie.name %>
-上映劇場: <%= @theater.name %>
-スクリーン: <%= @screen.name %>
-上映時刻: <%= l(@screening_date, format: :long) %> <%= @screening_time_range %>
-予約日時: <%= l(@booking_timestamp, format: :long) %>
-座席: <%= @sheet.row %>-<%= @sheet.column %>
+<%= render 'reservation_mailer/reservation_summary' %>
 
 ご来場を心よりお待ちしております。

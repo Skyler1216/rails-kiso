@@ -9,7 +9,7 @@
 - **課題1 (予約完了メール)**: ✅ 実装完了
   - `ReservationMailer#booking_confirmation`を新設し、HTML/テキスト両方のテンプレートで作品・劇場・上映時刻・座席・予約者名を表示。
   - 予約完了時に`ReservationsController#create`から`deliver_later`で送信。テスト環境は`config/environments/test.rb`で`ActiveJob::Base.queue_adapter = :test`指定済み。
-  - 開発環境は`config/environments/development.rb`で`letter_opener` + `letter_opener_web`を利用してローカル確認。`bundle install`済み。
+- 開発環境は`config/environments/development.rb`で`letter_opener_web`を利用してローカル確認。`bundle install`済み。
   - メール本文では上映日と「開始〜終了時刻」の範囲、さらに予約日時（作成日時）を表示するよう調整済み。
   - RSpecでリクエスト/メール/システムテストを追加し、`bundle exec rspec`で全テスト成功。
 - **課題2 (前日リマインド)**: ✅ 実装完了
@@ -21,7 +21,7 @@
 ## 課題1: 予約完了メール送信
 1. **メールインフラ整備**
    - `Gemfile`に`gem 'actionmailer'`が含まれていることを確認し、未追加の場合は追記して`bundle install`でActionMailer関連コンポーネントを導入する。APIモードのアプリでは`config/application.rb`の`require "rails/all"`または`require "active_job/railtie"`等に加えて`require "action_mailer/railtie"`が有効化されていることも確認する。
-   - `config/environments/*.rb`で`config.action_mailer`を適切に設定し、開発環境では`letter_opener_web`などでローカル確認できるようにする。
+   - `config/environments/*.rb`で`config.action_mailer`を適切に設定し、開発環境では`config.action_mailer.delivery_method = :letter_opener_web`のように指定してローカル確認できるようにする。
    - 環境変数にSMTP接続情報を保持し、Credentialsや`.env`で安全に管理する。
 2. **Mailer作成**
    - `rails g mailer ReservationMailer`で雛形を作成。
@@ -62,3 +62,86 @@
 - 送信先メールアドレスは`User#email`を信頼する一方、NULLや無効アドレスのハンドリングを追加。
 - `deliver_later`の失敗時通知をログ/監視基盤で検知できるようActiveJobのエラー報告を整備。
 - GDPR等の観点で、ユーザが通知停止できるUIの要否をプロダクトオーナーと確認。
+
+
+
+## メンター説明用メモ
+
+### 導入 (雑談から仕様確認まで)
+- 『予約時と前日』にメールがほしいという要求を、 ActionMailer によって実現しました。
+- 予約完了メールで、作品・劇場・スクリーン・上映時刻・予約日時・座席を伝えるようにしました。
+   - また、前日19時にもう一度同じ内容で、リマインドが飛ぶようにしています。
+
+### 技術的な押さえどころ
+- ActionMailerはRailsに標準で含まれています。
+- メール確認のため、Gemに`letter_opener_web`を導入。ブラウザで送信メールの確認が可能。
+   - `config/environments/development.rb` の delivery method を `:letter_opener_web` に変更した。
+- `ReservationMailer` に `booking_confirmation` と `reminder` を定義した。
+   - メールの共通部分は、 `_reservation_summary.(html|text).erb`  という部品にまとめています。これを使って、HTML版とテキスト版の両方のメールを送ります。
+   - 受信側の環境でHTMLが表示できないことがあるため、テキスト版も用意して、どちらでも読めるようにしています。
+
+### 予約完了メールの実装ポイント
+- 「`ReservationsController#create` の成功時に `deliver_later` で非同期送信し、メール本文には上映日・時間帯・座席などの詳細を詰め込みました。」
+- 「テストは mailer / request / system の各スペックを追加し、`bundle exec rspec` で一通り通っています。」
+
+### 前日リマインドの実装ポイント
+- 「バッチは `reservation:send_reminders` Rake タスクとして実装し、`Reservation.upcoming_for` の結果に対して `deliver_later` を呼んでいます。」
+- 「本番での定時実行は `whenever` の `config/schedule.rb` で 19 時 JST に設定し、`TARGET_DATE` 環境変数で検証用に日付 override できるようにしました。」
+- 「タスク用の RSpec も書いていて、正しい予約だけ拾えるか・環境変数で日付を変えられるかを確認しています。」
+
+### 動作確認方法
+- 「ローカルでは予約を作って `/letter_opener` にアクセスするとメール内容が確認できます。」
+- 「Cron 実行は `whenever --update-crontab` で反映、検証後は `whenever --clear-crontab` で戻せる手順を書き残しています。」
+
+### 次の検討事項 (質問が来た時用)
+- 「本番 SMTP の資格情報は Credentials 管理していて、万一 `deliver_later` が失敗したときの通知をどうするかは監視チームと詰める想定です。」
+- 「ユーザが通知をオプトアウトしたい場合の UI 追加は別途プロダクトオーナーと要件調整中です。」
+
+
+🚀 本番環境での設定変更
+1. config/environments/production.rbの設定
+
+# config/environments/production.rb
+Rails.application.configure do
+  # メール送信の設定
+  config.action_mailer.default_url_options = { 
+    host: ENV['APP_HOST'],           # 例: 'your-app.com'
+    protocol: ENV['APP_PROTOCOL']    # 例: 'https'
+  }
+  
+  # 本番環境ではSMTPを使用
+  config.action_mailer.delivery_method = :smtp
+  
+  # メール送信を有効化
+  config.action_mailer.perform_deliveries = true
+  
+  # メール送信エラーをログに記録
+  config.action_mailer.raise_delivery_errors = true
+  
+  # SMTP設定
+  config.action_mailer.smtp_settings = {
+    address: ENV['SMTP_ADDRESS'],           # 例: 'smtp.gmail.com'
+    port: ENV['SMTP_PORT'],                 # 例: 587
+    domain: ENV['SMTP_DOMAIN'],             # 例: 'your-app.com'
+    user_name: ENV['SMTP_USERNAME'],        # 例: 'your-email@gmail.com'
+    password: ENV['SMTP_PASSWORD'],          # 例: 'your-app-password'
+    authentication: ENV['SMTP_AUTHENTICATION'], # 例: 'plain'
+    enable_starttls_auto: ENV['SMTP_ENABLE_STARTTLS_AUTO'] == 'true'
+  }
+end
+
+🔐 環境変数の設定
+本番サーバーでの環境変数
+
+# アプリケーション設定
+APP_HOST=your-app.com
+APP_PROTOCOL=https
+
+# SMTP設定（Gmailの例）
+SMTP_ADDRESS=smtp.gmail.com
+SMTP_PORT=587
+SMTP_DOMAIN=your-app.com
+SMTP_USERNAME=your-email@gmail.com
+SMTP_PASSWORD=your-app-password
+SMTP_AUTHENTICATION=plain
+SMTP_ENABLE_STARTTLS_AUTO=true

@@ -4,7 +4,9 @@ ruby '3.2.3'
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem 'rails', '~> 7.1.3', '>= 7.1.3.4'
-gem 'actionmailer', '~> 7.1', '>= 7.1.3.4'
+
+# メール送信機能を追加するために追加。railsに組み込まれているため追加不要。
+# gem 'actionmailer', '~> 7.1', '>= 7.1.3.4'
 
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
 gem 'sprockets-rails'
@@ -68,7 +70,8 @@ group :development do
   # Ruby code style checker
   gem 'rubocop', require: false
 
-  gem 'letter_opener'
+  # station3,4で説明
+  # メール送信をローカルで確認するために追加
   gem 'letter_opener_web'
 end
 
@@ -78,6 +81,7 @@ group :test do
   gem 'selenium-webdriver'
 end
 
+# station3,4で説明
 group :development, :production do
   gem 'whenever', require: false
 end
