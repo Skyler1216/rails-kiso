@@ -157,10 +157,8 @@
     <%# 削除ボタン（編集時のみ表示） %>
     <% if local_assigns[:show_delete] %>
       <%= link_to 'この予約を削除', admin_reservation_path(reservation),
-                  data: {
-                    turbo_method: :delete,
-                    turbo_confirm: 'この予約を削除しますか？'
-                  },
+                  method: :delete,
+                  data: { confirm: 'この予約を削除しますか？' },
                   class: 'btn-secondary text-xs sm:text-sm' %>
     <% end %>
   </div>
