@@ -1,4 +1,5 @@
 class ApplicationMailer < ActionMailer::Base
+  # station3,4で説明
   # すべてのメールに共通する基本設定を集約するベースクラス
 
   # デフォルトの送信元アドレスを設定（各Mailerで明示しない限りこのFromが使われる）

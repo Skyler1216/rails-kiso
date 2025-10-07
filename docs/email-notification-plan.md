@@ -13,7 +13,7 @@
   - メール本文では上映日と「開始〜終了時刻」の範囲、さらに予約日時（作成日時）を表示するよう調整済み。
   - RSpecでリクエスト/メール/システムテストを追加し、`bundle exec rspec`で全テスト成功。
 - **課題2 (前日リマインド)**: ✅ 実装完了
-  - `reservation:send_reminders` Rakeタスクを作成し、翌日上映予定の予約に対して`ReservationMailer#reminder`を`deliver_later`で送信。
+  - `reservation:send_reminders` Rakeタスクを作成し、翌日上映予定の予約に対して`ReservationMailer#reminder`を送信。（※ローカル検証中は一時的に`deliver_now`で即時送信）
   - `TARGET_DATE`環境変数で対象日を上書きでき、検証用途で任意日を指定可能。
   - `config/schedule.rb`でwheneverを用いた19:00 JST実行のCron設定を定義。
   - `spec/tasks/reservation_reminder_rake_spec.rb`を追加し、タスク挙動と環境変数上書きを検証。
@@ -44,7 +44,7 @@
 ### 実装内容
 1. **Rakeタスク実装**
    - `lib/tasks/reservation_reminder.rake`に`reservation:send_reminders`タスクを作成
-   - `Reservation.upcoming_for(date)`で翌日上映予定の予約を抽出し、`ReservationMailer.reminder(reservation).deliver_later`を呼び出す
+   - `Reservation.upcoming_for(date)`で翌日上映予定の予約を抽出し、`ReservationMailer.reminder(reservation)`を呼び出す（検証期間は`deliver_now`で即時送信する暫定運用）
    - `TARGET_DATE`環境変数を指定すると任意の日付向けに送信対象を切り替えられる
 2. **Mailer/ビュー拡張**
    - `ReservationMailer#reminder(reservation)`を追加し、予約情報を本文に表示
@@ -85,7 +85,7 @@
 - 「テストは mailer / request / system の各スペックを追加し、`bundle exec rspec` で一通り通っています。」
 
 ### 前日リマインドの実装ポイント
-- 「バッチは `reservation:send_reminders` Rake タスクとして実装し、`Reservation.upcoming_for` の結果に対して `deliver_later` を呼んでいます。」
+- 「前日リマインドは `reservation:send_reminders` Rake タスクとして実行し、`Reservation.upcoming_for` の結果に対してメールを送ります（現在はローカル検証のため `deliver_now` を使用中）。」
 - 「本番での定時実行は `whenever` の `config/schedule.rb` で 19 時 JST に設定し、`TARGET_DATE` 環境変数で検証用に日付 override できるようにしました。」
 - 「タスク用の RSpec も書いていて、正しい予約だけ拾えるか・環境変数で日付を変えられるかを確認しています。」
 

@@ -58,6 +58,9 @@ ja:
           attributes:
             screen:
               required: "^スクリーンを入力してください"
+  # station3,4で説明
   reservation_mailer:
     booking_confirmation:
       subject: "【%{movie}】ご予約が完了しました"
+    reminder:
+      subject: "【%{movie}】ご来場前日のご案内"
