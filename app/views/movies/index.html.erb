@@ -7,6 +7,55 @@
     </p>
   </header>
 
+  <%# station 5,6の変更箇所 %>
+  <section class="space-y-6 rounded-2xl border border-white/10 bg-slate-900/60 p-6 shadow-lg">
+    <div class="flex flex-col gap-2 text-slate-200 md:flex-row md:items-end md:justify-between">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-brand-gold">Popular Ranking</p>
+        <h2 class="mt-1 text-2xl font-semibold text-white">人気作品ランキング</h2>
+      </div>
+      <% if @ranking_date.present? %>
+        <div class="flex flex-col gap-1 text-xs uppercase tracking-[0.28em] text-slate-400 md:items-end">
+          <span>集計日 <%= @ranking_date.strftime('%Y/%m/%d') %></span>
+          <span>集計期間 過去 <%= DailyMovieRankings::Refresher::LOOKBACK_DAYS %> 日（予約日ベース）</span>
+        </div>
+      <% end %>
+    </div>
+
+    <% if @movie_rankings.present? %>
+      <ol class="flex flex-col gap-4">
+        <% @movie_rankings.each do |ranking| %>
+          <li class="flex items-center gap-4 rounded-xl border border-white/10 bg-slate-800/80 p-4 shadow-inner">
+            <div class="flex h-14 w-14 items-center justify-center rounded-full bg-brand-gold/90 text-lg font-bold text-slate-900">
+              No.<%= ranking.rank_position %>
+            </div>
+            <div class="flex flex-1 items-center gap-4">
+              <div class="h-16 w-16 overflow-hidden rounded-lg bg-slate-700">
+                <% if ranking.movie.image_url.present? %>
+                  <%= image_tag ranking.movie.image_url, alt: "#{ranking.movie.name}のポスター", class: "h-full w-full object-cover" %>
+                <% else %>
+                  <div class="flex h-full w-full items-center justify-center text-xs text-slate-400">No Image</div>
+                <% end %>
+              </div>
+              <div class="flex-1">
+                <%= link_to movie_path(ranking.movie), class: 'group block' do %>
+                  <p class="text-base font-semibold text-white group-hover:text-brand-gold"><%= ranking.movie.name %></p>
+                  <p class="text-xs text-slate-400 group-hover:text-slate-300">予約件数 <%= number_with_delimiter(ranking.reservation_count) %> 件</p>
+                <% end %>
+              </div>
+              <%= link_to '詳細', movie_path(ranking.movie), class: 'btn-secondary' %>
+            </div>
+          </li>
+        <% end %>
+      </ol>
+    <% else %>
+      <p class="rounded-lg border border-dashed border-white/10 bg-slate-900/50 p-4 text-sm text-slate-400">
+        人気ランキングは準備中です。予約データの集計が完了するとこちらに表示されます。
+      </p>
+    <% end %>
+  </section>
+  <%# station 5,6の変更箇所ここまで %>
+
   <section class="space-y-8">
     <%= form_with url: movies_path, method: :get, local: true, class: 'grid gap-4 rounded-2xl border border-white/10 bg-slate-900/60 p-6 shadow-lg md:grid-cols-12 md:items-end' do %>
       <div class="space-y-2 md:col-span-7">

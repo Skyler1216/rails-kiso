@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe 'Movies', type: :request do
+  include ActiveSupport::Testing::TimeHelpers
+
   describe 'GET /movies' do
     let!(:movie1) { create(:movie, name: '映画1', is_showing: 1) }
     let!(:movie2) { create(:movie, name: '映画2', is_showing: 0) }
@@ -82,6 +84,32 @@ RSpec.describe 'Movies', type: :request do
       get root_path
       expect(response).to have_http_status(200)
       expect(response.body).to include(movie.name)
+    end
+
+    context '人気作品ランキングがある場合' do
+      it 'ランキング情報を表示すること' do
+        travel_to(Time.zone.local(2024, 5, 1, 9, 0, 0)) do
+          ranking = create(:daily_movie_ranking, aggregated_on: Date.current, rank_position: 1, reservation_count: 12)
+
+          get root_path
+
+          expect(response.body).to include('人気作品ランキング')
+          expect(response.body).to include("No.#{ranking.rank_position}")
+          expect(response.body).to include(ranking.movie.name)
+          expect(response.body).to include('予約件数')
+        end
+      end
+
+      it '当日のデータが無い場合は最新の集計日にフォールバックすること' do
+        travel_to(Time.zone.local(2024, 5, 2, 9, 0, 0)) do
+          latest_date = Date.current - 1.day
+          create(:daily_movie_ranking, aggregated_on: latest_date, rank_position: 1)
+
+          get root_path
+
+          expect(response.body).to include("集計日 #{latest_date.strftime('%Y/%m/%d')}")
+        end
+      end
     end
   end
 end
