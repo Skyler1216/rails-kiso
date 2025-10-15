@@ -68,6 +68,7 @@
               <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">作品</th>
               <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">劇場 / スクリーン</th>
               <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">上映日時</th>
+              <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">予約日時</th>
               <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">座席</th>
               <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">予約者</th>
               <th scope="col" class="whitespace-nowrap px-4 py-3 font-semibold">操作</th>
@@ -108,6 +109,14 @@
                     <span><%= reservation.date&.strftime('%Y-%m-%d') || '-' %></span>
                     <span><%= reservation.schedule&.start_time&.strftime('%H:%M') %>〜<%= reservation.schedule&.end_time&.strftime('%H:%M') %></span>
                   </div>
+                </td>
+                <%# 予約作成日時列 %>
+                <td class="whitespace-nowrap px-4 py-3 text-xs text-slate-300">
+                  <% if reservation.created_at.present? %>
+                    <span><%= l(reservation.created_at, format: :long) %></span>
+                  <% else %>
+                    <span>-</span>
+                  <% end %>
                 </td>
                 <%# 座席情報列 %>
                 <td class="whitespace-nowrap px-4 py-3 text-xs text-slate-300">
