@@ -48,12 +48,12 @@ RSpec.describe Reservation, type: :model do
 
     describe 'sheet_id' do
       it '同じスケジュール・日付・スクリーンで一意であること' do
-        create(:reservation, 
-               schedule: schedule, 
-               screen: screen, 
+        create(:reservation,
+               schedule: schedule,
+               screen: screen,
                sheet: sheet,
                date: Date.current)
-        
+
         reservation.date = Date.current
         expect(reservation).not_to be_valid
         expect(reservation.errors[:sheet_id]).to include('はすでに予約されています')
@@ -64,23 +64,23 @@ RSpec.describe Reservation, type: :model do
                                 screen: screen,
                                 start_time: schedule.start_time + 1.day,
                                 end_time: schedule.end_time + 1.day)
-        create(:reservation, 
-               schedule: other_schedule, 
-               screen: screen, 
+        create(:reservation,
+               schedule: other_schedule,
+               screen: screen,
                sheet: sheet,
                date: Date.current)
-        
+
         reservation.date = Date.current
         expect(reservation).to be_valid
       end
 
       it '異なる日付では同じ座席でも有効であること' do
-        create(:reservation, 
-               schedule: schedule, 
-               screen: screen, 
+        create(:reservation,
+               schedule: schedule,
+               screen: screen,
                sheet: sheet,
                date: Date.current)
-        
+
         reservation.date = Date.current + 1.day
         expect(reservation).to be_valid
       end
@@ -88,12 +88,12 @@ RSpec.describe Reservation, type: :model do
       it '異なるスクリーンでは同じ座席でも有効であること' do
         other_screen = create(:screen)
         other_sheet = create(:sheet, screen: other_screen)
-        create(:reservation, 
-               schedule: schedule, 
-               screen: other_screen, 
+        create(:reservation,
+               schedule: schedule,
+               screen: other_screen,
                sheet: other_sheet,
                date: Date.current)
-        
+
         reservation.date = Date.current
         expect(reservation).to be_valid
       end
@@ -136,10 +136,10 @@ RSpec.describe Reservation, type: :model do
 
       valid_emails.each do |email|
         reservation = build(:reservation,
-                             schedule: schedule,
-                             screen: screen,
-                             sheet: sheet,
-                             email: email)
+                            schedule: schedule,
+                            screen: screen,
+                            sheet: sheet,
+                            email: email)
         expect(reservation).to be_valid, "#{email} should be valid"
       end
     end
@@ -155,10 +155,10 @@ RSpec.describe Reservation, type: :model do
 
       invalid_emails.each do |email|
         reservation = build(:reservation,
-                             schedule: schedule,
-                             screen: screen,
-                             sheet: sheet,
-                             email: email)
+                            schedule: schedule,
+                            screen: screen,
+                            sheet: sheet,
+                            email: email)
         expect(reservation).to be_invalid, "#{email} should be invalid"
         expect(reservation.errors.added?(:email, :invalid, value: email)).to be(true)
       end

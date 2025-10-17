@@ -71,8 +71,8 @@ RSpec.describe Movie, type: :model do
 
     it 'dependent: :destroyが設定されていること' do
       movie = create(:movie)
-      schedule = create(:schedule, movie: movie)
-      
+      create(:schedule, movie: movie)
+
       expect { movie.destroy }.to change { Schedule.count }.by(-1)
     end
   end

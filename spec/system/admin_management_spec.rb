@@ -40,7 +40,7 @@ RSpec.describe 'Admin management flow', type: :system do
     end
 
     it '映画一覧が表示されること' do
-      movie = create(:movie, name: 'テスト映画')
+      create(:movie, name: 'テスト映画')
       visit admin_movies_path
 
       expect(page).to have_content('テスト映画')
@@ -56,9 +56,9 @@ RSpec.describe 'Admin management flow', type: :system do
       check '上映中'
       fill_in '上映時間（分）', with: '120'
 
-      expect {
+      expect do
         click_button '登録する'
-      }.to change(Movie, :count).by(1)
+      end.to change(Movie, :count).by(1)
 
       expect(page).to have_content('映画を登録しました')
     end
@@ -79,9 +79,9 @@ RSpec.describe 'Admin management flow', type: :system do
       movie = create(:movie, name: '削除対象の映画')
       visit admin_movie_path(movie)
 
-      expect {
+      expect do
         click_button '削除する'
-      }.to change(Movie, :count).by(-1)
+      end.to change(Movie, :count).by(-1)
 
       expect(page).to have_content('映画を削除しました')
     end
@@ -93,7 +93,7 @@ RSpec.describe 'Admin management flow', type: :system do
     end
 
     it '劇場一覧が表示されること' do
-      theater = create(:theater, name: 'テスト劇場')
+      create(:theater, name: 'テスト劇場')
       visit admin_theaters_path
 
       expect(page).to have_content('テスト劇場')
@@ -106,9 +106,9 @@ RSpec.describe 'Admin management flow', type: :system do
       fill_in '住所', with: '東京都新宿区1-1-1'
       fill_in '電話番号', with: '03-1234-5678'
 
-      expect {
+      expect do
         click_button '登録する'
-      }.to change(Theater, :count).by(1)
+      end.to change(Theater, :count).by(1)
 
       expect(page).to have_content('劇場を登録しました')
     end
@@ -123,8 +123,8 @@ RSpec.describe 'Admin management flow', type: :system do
       movie = create(:movie)
       theater = create(:theater)
       screen = create(:screen, theater: theater)
-      schedule = create(:schedule, movie: movie, screen: screen)
-      
+      create(:schedule, movie: movie, screen: screen)
+
       visit admin_schedules_path
 
       expect(page).to have_content(movie.name)
@@ -144,9 +144,9 @@ RSpec.describe 'Admin management flow', type: :system do
       fill_in '開始時刻', with: start_value.strftime('%Y-%m-%dT%H:%M')
       fill_in '終了時刻', with: (start_value + 2.hours).strftime('%Y-%m-%dT%H:%M')
 
-      expect {
+      expect do
         click_button '登録する'
-      }.to change(Schedule, :count).by(1)
+      end.to change(Schedule, :count).by(1)
 
       expect(page).to have_content('スケジュールを作成しました')
     end
@@ -164,8 +164,8 @@ RSpec.describe 'Admin management flow', type: :system do
       screen = create(:screen, theater: theater)
       schedule = create(:schedule, movie: movie, screen: screen)
       sheet = create(:sheet, screen: screen)
-      reservation = create(:reservation, user: user, schedule: schedule, sheet: sheet)
-      
+      create(:reservation, user: user, schedule: schedule, sheet: sheet)
+
       visit admin_reservations_path
 
       expect(page).to have_content(user.name)

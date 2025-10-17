@@ -41,7 +41,7 @@ class MoviesController < ApplicationController
   def show
     # 映画情報を取得（URLパラメータの:idから映画を特定）
     @movie = Movie.find(params[:id])
-    
+
     # 映画の全スケジュールを取得（劇場情報も含めて）
     # includes(screen: :theater): N+1問題を防ぐため関連データを事前読み込み
     # order(:start_time): 開始時間順でソート
@@ -52,13 +52,13 @@ class MoviesController < ApplicationController
     #    - @schedulesは映画の全スケジュール（複数のスクリーン・劇場で上映される可能性）
     #    - schedule.screen.theater で各スケジュールの劇場を取得
     @theaters = @schedules.map { |schedule| schedule.screen.theater }
-                         # 2. nil値を除去（スクリーンや劇場が存在しない場合の安全対策）
-                         .compact
-                         # 3. 劇場IDで重複を除去（同じ劇場が複数回登場する場合があるため）
-                         #    - 例：劇場Aでスクリーン1とスクリーン2の両方で上映 → 劇場Aが2回登場
-                         .uniq { |theater| theater.id }
-                         # 4. 劇場名でアルファベット順にソート（ユーザビリティ向上）
-                         .sort_by(&:name)
+                          # 2. nil値を除去（スクリーンや劇場が存在しない場合の安全対策）
+                          .compact
+                          # 3. 劇場IDで重複を除去（同じ劇場が複数回登場する場合があるため）
+                          #    - 例：劇場Aでスクリーン1とスクリーン2の両方で上映 → 劇場Aが2回登場
+                          .uniq { |theater| theater.id }
+                          # 4. 劇場名でアルファベット順にソート（ユーザビリティ向上）
+                          .sort_by(&:name)
 
     # 選択された劇場の処理
     # 1. 劇場オブジェクトの決定（URLパラメータ優先、なければ最初の劇場をデフォルト選択）
@@ -125,15 +125,15 @@ class MoviesController < ApplicationController
 
     # 必須パラメータのチェック（スケジュールIDと日付が必須）
     unless params[:schedule_id].present? && params[:date].present?
-      return redirect_to movie_path(@movie, theater_id: params[:theater_id]), 
-             alert: 'スケジュールと日付を選択してください'
+      return redirect_to movie_path(@movie, theater_id: params[:theater_id]),
+                         alert: 'スケジュールと日付を選択してください'
     end
 
     # スケジュール情報を取得（関連データも事前読み込み）
     @schedule = Schedule.includes(screen: :theater).find_by(id: params[:schedule_id])
     unless @schedule
-      return redirect_to movie_path(@movie, theater_id: params[:theater_id], date: params[:date]), 
-             alert: 'スケジュールが見つかりません'
+      return redirect_to movie_path(@movie, theater_id: params[:theater_id], date: params[:date]),
+                         alert: 'スケジュールが見つかりません'
     end
 
     # スクリーンと劇場情報を取得（スケジュールから関連データを取得）
@@ -142,8 +142,8 @@ class MoviesController < ApplicationController
 
     # 劇場IDの整合性チェック（URLパラメータと実際の劇場IDが一致するか確認）
     if params[:theater_id].present? && params[:theater_id].to_i != @theater.id
-      return redirect_to movie_path(@movie, theater_id: @theater.id, date: params[:date]), 
-             alert: '劇場の選択を確認してください'
+      return redirect_to movie_path(@movie, theater_id: @theater.id, date: params[:date]),
+                         alert: '劇場の選択を確認してください'
     end
 
     # 予約日を設定（ビューで使用するため）
@@ -162,6 +162,7 @@ class MoviesController < ApplicationController
   end
 
   private
+
   # station 5,6の変更箇所
   def load_popular_rankings
     # 人気ランキングデータのスコープを設定（映画情報も事前読み込み）

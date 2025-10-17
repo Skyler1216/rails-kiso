@@ -63,7 +63,7 @@ RSpec.describe Screen, type: :model do
     it 'dependent: :destroyが設定されていること（schedules）' do
       screen = create(:screen, theater: theater)
       create(:schedule, screen: screen)
-      
+
       expect { screen.destroy }.to change { Schedule.count }.by(-1)
     end
 

@@ -38,7 +38,7 @@ RSpec.describe Schedule, type: :model do
 
     describe '重複チェック' do
       let!(:existing_schedule) do
-        create(:schedule, 
+        create(:schedule,
                screen: screen,
                start_time: Time.zone.parse('2025-09-22 10:00:00'),
                end_time: Time.zone.parse('2025-09-22 12:00:00'))
@@ -84,7 +84,7 @@ RSpec.describe Schedule, type: :model do
 
     it 'dependent: :destroyが設定されていること' do
       create(:reservation, schedule: schedule)
-      
+
       expect { schedule.destroy }.to change { Reservation.count }.by(-1)
     end
   end
@@ -95,34 +95,34 @@ RSpec.describe Schedule, type: :model do
 
     describe 'populate_end_time_from_movie' do
       it '映画の上映時間から終了時刻を自動設定すること' do
-        schedule = build(:schedule, 
-                        movie: movie, 
-                        screen: screen,
-                        start_time: Time.zone.parse('2025-09-22 10:00:00'),
-                        end_time: nil)
-        
+        schedule = build(:schedule,
+                         movie: movie,
+                         screen: screen,
+                         start_time: Time.zone.parse('2025-09-22 10:00:00'),
+                         end_time: nil)
+
         schedule.valid?
         expect(schedule.end_time).to eq(Time.zone.parse('2025-09-22 12:00:00'))
       end
 
       it '開始時刻が変更された場合、終了時刻も再計算されること' do
-        schedule = create(:schedule, 
-                         movie: movie, 
-                         screen: screen,
-                         start_time: Time.zone.parse('2025-09-22 10:00:00'))
-        
+        schedule = create(:schedule,
+                          movie: movie,
+                          screen: screen,
+                          start_time: Time.zone.parse('2025-09-22 10:00:00'))
+
         schedule.start_time = Time.zone.parse('2025-09-22 14:00:00')
         schedule.valid?
         expect(schedule.end_time).to eq(Time.zone.parse('2025-09-22 16:00:00'))
       end
 
       it '手動で終了時刻が設定されている場合は自動設定されないこと' do
-        schedule = build(:schedule, 
-                        movie: movie, 
-                        screen: screen,
-                        start_time: Time.zone.parse('2025-09-22 10:00:00'),
-                        end_time: Time.zone.parse('2025-09-22 11:30:00'))
-        
+        schedule = build(:schedule,
+                         movie: movie,
+                         screen: screen,
+                         start_time: Time.zone.parse('2025-09-22 10:00:00'),
+                         end_time: Time.zone.parse('2025-09-22 11:30:00'))
+
         schedule.valid?
         expect(schedule.end_time).to eq(Time.zone.parse('2025-09-22 11:30:00'))
       end
@@ -135,7 +135,7 @@ RSpec.describe Schedule, type: :model do
       it '開始時刻が変更された場合、予約の日付も更新されること' do
         new_start_time = Time.zone.parse('2025-09-23 10:00:00')
         schedule.update!(start_time: new_start_time)
-        
+
         reservation.reload
         expect(reservation.date).to eq(new_start_time.to_date)
       end
@@ -143,7 +143,7 @@ RSpec.describe Schedule, type: :model do
       it 'スクリーンが変更された場合、予約のスクリーンIDも更新されること' do
         new_screen = create(:screen)
         schedule.update!(screen: new_screen)
-        
+
         reservation.reload
         expect(reservation.screen_id).to eq(new_screen.id)
       end

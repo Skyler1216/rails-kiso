@@ -28,15 +28,15 @@ RSpec.describe 'reservation:send_reminders' do
   before do
     # メール送信履歴をクリア
     ActionMailer::Base.deliveries.clear
-    
+
     # ジョブキューのアダプターをテスト用に変更
     @original_queue_adapter = ActiveJob::Base.queue_adapter
     ActiveJob::Base.queue_adapter = :test
-    
+
     # ジョブキューの状態をクリア
     clear_enqueued_jobs
     clear_performed_jobs
-    
+
     # タスクを再実行可能にする
     task.reenable
   end
@@ -46,10 +46,10 @@ RSpec.describe 'reservation:send_reminders' do
     # ジョブキューの状態をクリア
     clear_enqueued_jobs
     clear_performed_jobs
-    
+
     # 元のアダプターに戻す
     ActiveJob::Base.queue_adapter = @original_queue_adapter
-    
+
     # メール送信履歴をクリア
     ActionMailer::Base.deliveries.clear
   end
@@ -76,7 +76,7 @@ RSpec.describe 'reservation:send_reminders' do
         :reservation,
         schedule: schedule_for_target,
         email: 'tomorrow@example.com',
-        date: target_date  # 10月11日
+        date: target_date # 10月11日
       )
 
       # 明後日上映予定のスケジュールと予約を作成（送信対象外）
@@ -89,7 +89,7 @@ RSpec.describe 'reservation:send_reminders' do
         :reservation,
         schedule: schedule_for_other,
         email: 'later@example.com',
-        date: target_date + 1.day  # 10月12日（送信対象外）
+        date: target_date + 1.day # 10月12日（送信対象外）
       )
 
       # 非同期ジョブを実行してタスクを実行
@@ -115,7 +115,7 @@ RSpec.describe 'reservation:send_reminders' do
     travel_to(Time.zone.local(2024, 10, 10, 12, 0, 0)) do
       # 指定日（10月15日）を設定
       override_date = Date.new(2024, 10, 15)
-      
+
       # 指定日上映予定のスケジュールと予約を作成
       schedule_for_target = create(
         :schedule,
@@ -126,7 +126,7 @@ RSpec.describe 'reservation:send_reminders' do
         :reservation,
         schedule: schedule_for_target,
         email: 'override@example.com',
-        date: override_date  # 10月15日
+        date: override_date # 10月15日
       )
 
       # 環境変数で対象日付を指定

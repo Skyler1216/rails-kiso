@@ -28,7 +28,7 @@ module Admin
       # 3. 表示対象の日付を決定
       # URLパラメータで指定された日付を検証し、有効な日付を選択
       @selected_date = resolve_selected_date(@available_dates, params[:date])
-      
+
       # 4. 選択された日付のランキングデータを取得
       # 映画情報も一緒に読み込んでN+1問題を回避
       @rankings = fetch_rankings(@selected_date)
@@ -76,7 +76,7 @@ module Admin
 
       # 日付文字列をDateオブジェクトに変換
       parsed_date = Date.parse(requested_date)
-      
+
       # 利用可能な日付に含まれているかチェック
       return parsed_date if available_dates.include?(parsed_date)
 
@@ -97,10 +97,10 @@ module Admin
     # ============================================================================
     def fetch_rankings(target_date)
       DailyMovieRanking
-        .includes(:movie)  # 映画情報を事前読み込み（N+1問題回避）
-        .for_date(target_date)  # 指定日付のデータのみ取得
-        .ordered  # 順位順でソート
-        .to_a  # 配列として取得
+        .includes(:movie) # 映画情報を事前読み込み（N+1問題回避）
+        .for_date(target_date) # 指定日付のデータのみ取得
+        .ordered # 順位順でソート
+        .to_a # 配列として取得
     end
 
     # ============================================================================
@@ -114,11 +114,11 @@ module Admin
     def build_rank_differences(current_rankings, previous_rankings)
       # 前日のランキングをmovie_idでインデックス化（高速検索のため）
       previous_map = previous_rankings.index_by(&:movie_id)
-      
+
       # 現在のランキングを順番に処理
       current_rankings.each_with_object({}) do |ranking, hash|
         previous_ranking = previous_map[ranking.movie_id]
-        
+
         # 前日のランキングが存在する場合のみ差分を計算
         # 前日の順位 - 現在の順位 = 変動数（正の値で上昇、負の値で下降）
         hash[ranking.movie_id] = previous_ranking ? previous_ranking.rank_position - ranking.rank_position : nil
@@ -136,11 +136,11 @@ module Admin
     def build_reservation_differences(current_rankings, previous_rankings)
       # 前日のランキングをmovie_idでインデックス化（高速検索のため）
       previous_map = previous_rankings.index_by(&:movie_id)
-      
+
       # 現在のランキングを順番に処理
       current_rankings.each_with_object({}) do |ranking, hash|
         previous_ranking = previous_map[ranking.movie_id]
-        
+
         # 前日のランキングが存在する場合のみ差分を計算
         # 現在の予約数 - 前日の予約数 = 変動数（正の値で増加、負の値で減少）
         hash[ranking.movie_id] = previous_ranking ? ranking.reservation_count - previous_ranking.reservation_count : nil
@@ -156,7 +156,7 @@ module Admin
     # ============================================================================
     def previous_available_date(available_dates, current)
       index = available_dates.index(current)
-      
+
       # インデックスが存在し、次の要素（前の日付）が存在する場合のみ返す
       return nil unless index && (index + 1) < available_dates.size
 
@@ -172,7 +172,7 @@ module Admin
     # ============================================================================
     def next_available_date(available_dates, current)
       index = available_dates.index(current)
-      
+
       # インデックスが存在し、正の値（前の要素が存在する）場合のみ返す
       return nil unless index&.positive?
 

@@ -47,9 +47,9 @@ RSpec.describe 'Movies', type: :request do
     end
 
     it 'dateパラメータで日付を指定できること' do
-      get movie_path(movie), params: { 
-        theater_id: theater.id, 
-        date: schedule.start_time.to_date.to_s 
+      get movie_path(movie), params: {
+        theater_id: theater.id,
+        date: schedule.start_time.to_date.to_s
       }
       expect(response).to have_http_status(200)
     end

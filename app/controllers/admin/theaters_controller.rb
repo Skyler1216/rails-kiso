@@ -32,7 +32,7 @@ module Admin
     def new
       # 新しい劇場オブジェクトを作成
       @theater = Theater.new
-      
+
       # 最初からスクリーン入力欄を1つ追加しておく
       @theater.screens.build
     end
@@ -97,7 +97,7 @@ module Admin
         # 失敗時: エラーメッセージを表示
         admin_flash_error(@theater.errors.full_messages.join('、'))
       end
-      
+
       # 一覧画面へリダイレクト
       redirect_to admin_theaters_path
     end
@@ -115,14 +115,14 @@ module Admin
     # 劇場パラメータの許可設定
     def theater_params
       params.require(:theater).permit(:name, :address, :phone, :is_active,
-                                      screens_attributes: [:id, :name, :_destroy])
+                                      screens_attributes: %i[id name _destroy])
     end
 
     # 表示用のスクリーンフィールドを確保
     def ensure_screen_field_for_display
       # 削除予定でないスクリーンのみを取得
       visible_screens = @theater.screens.reject(&:marked_for_destruction?)
-      
+
       # 表示可能なスクリーンがない場合は新しいフィールドを追加
       @theater.screens.build if visible_screens.empty?
     end

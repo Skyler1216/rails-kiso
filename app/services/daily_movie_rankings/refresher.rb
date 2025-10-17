@@ -31,7 +31,7 @@ module DailyMovieRankings
       ApplicationRecord.transaction do
         # 既存のランキングデータを削除（重複を防ぐため）
         DailyMovieRanking.for_date(target_date).delete_all
-        
+
         # 新しいランキングデータを構築
         rows = build_rows
         return [] if rows.empty?
@@ -55,7 +55,7 @@ module DailyMovieRankings
       # 集計結果をランキング順位付きで変換
       aggregated_counts.map.with_index(1).map do |tuple, index|
         {
-          aggregated_on: target_date,                    # 集計対象日
+          aggregated_on: target_date, # 集計対象日
           movie_id: tuple[:movie_id],                     # 映画ID
           reservation_count: tuple[:reservation_count],   # 予約数
           rank_position: index,                          # ランキング順位（1位から開始）
@@ -68,11 +68,11 @@ module DailyMovieRankings
     # 映画別の予約数を集計
     # @return [Array<Hash>] 映画IDと予約数のハッシュ配列
     def aggregated_counts
-      Reservation.joins(schedule: :movie)                # 予約→スケジュール→映画の結合
-                 .where(created_at: created_at_range)     # 集計期間内の予約のみ
-                 .group('movies.id')                     # 映画IDでグループ化
-                 .select('movies.id AS movie_id, COUNT(*) AS reservation_count')  # 映画IDと予約数を選択
-                 .order('reservation_count DESC, movies.id ASC')  # 予約数降順、映画ID昇順でソート
+      Reservation.joins(schedule: :movie) # 予約→スケジュール→映画の結合
+                 .where(created_at: created_at_range) # 集計期間内の予約のみ
+                 .group('movies.id') # 映画IDでグループ化
+                 .select('movies.id AS movie_id, COUNT(*) AS reservation_count') # 映画IDと予約数を選択
+                 .order('reservation_count DESC, movies.id ASC') # 予約数降順、映画ID昇順でソート
                  .map { |record| { movie_id: record.movie_id, reservation_count: record.reservation_count.to_i } }
     end
 

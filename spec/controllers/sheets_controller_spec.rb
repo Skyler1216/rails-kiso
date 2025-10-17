@@ -21,8 +21,8 @@ RSpec.describe SheetsController, type: :controller do
       expect(assigns(:total_screens)).to eq(expected_screen_count)
       expect(assigns(:total_seats)).to eq(expected_seat_count)
       expect(assigns(:sample_layout_rows)).to eq([['A', [1, 2, 3, 4, 5]],
-                                                 ['B', [1, 2, 3, 4, 5]],
-                                                 ['C', [1, 2, 3, 4, 5]]])
+                                                  ['B', [1, 2, 3, 4, 5]],
+                                                  ['C', [1, 2, 3, 4, 5]]])
     end
 
     it 'HTMLを返すこと' do

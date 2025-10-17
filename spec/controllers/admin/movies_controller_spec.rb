@@ -49,9 +49,9 @@ RSpec.describe Admin::MoviesController, type: :controller do
 
     context '有効なパラメータの場合' do
       it '映画が作成されること' do
-        expect {
+        expect do
           post :create, params: valid_params
-        }.to change(Movie, :count).by(1)
+        end.to change(Movie, :count).by(1)
       end
 
       it '映画一覧にリダイレクトすること' do
@@ -80,9 +80,9 @@ RSpec.describe Admin::MoviesController, type: :controller do
       end
 
       it '映画が作成されないこと' do
-        expect {
+        expect do
           post :create, params: invalid_params
-        }.not_to change(Movie, :count)
+        end.not_to change(Movie, :count)
       end
 
       it 'newテンプレートを再表示すること' do
@@ -199,9 +199,9 @@ RSpec.describe Admin::MoviesController, type: :controller do
     let!(:movie_to_delete) { create(:movie) }
 
     it '映画が削除されること' do
-      expect {
+      expect do
         delete :destroy, params: { id: movie_to_delete.id }
-      }.to change(Movie, :count).by(-1)
+      end.to change(Movie, :count).by(-1)
     end
 
     it '映画一覧にリダイレクトすること' do

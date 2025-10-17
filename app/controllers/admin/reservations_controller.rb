@@ -4,7 +4,7 @@ module Admin
     # 🎫 管理者用予約管理コントローラー
     # ============================================================================
     # 管理画面での予約のCRUD操作を管理します。
-    # 
+    #
     # 設計方針:
     # - 入力チェックと関連整合性チェック（schedule/screen/sheet）の責務を
     #   小さなメソッドに分割し、エラーメッセージを明確化
@@ -15,7 +15,7 @@ module Admin
 
     # 予約設定の共通処理
     before_action :set_reservation, only: %i[show update destroy]
-    
+
     # 過去の予約編集を防止
     before_action :ensure_reservation_upcoming, only: %i[show update]
 
@@ -25,16 +25,16 @@ module Admin
     def index
       # 現在時刻を取得
       now = Time.zone.now
-      
+
       # 劇場一覧を取得（フィルタ用）
       @theaters = Theater.order(:name)
-      
+
       # 選択された劇場を特定
       @selected_theater = locate_selected_theater(@theaters, params[:theater_id])
 
       # 未来の予約の基本スコープを取得
       scope = upcoming_reservation_scope(now)
-      
+
       # 劇場が選択されている場合は該当劇場のみに絞り込み
       scope = scope.where(screens: { theater_id: @selected_theater.id }) if @selected_theater
 
@@ -49,7 +49,7 @@ module Admin
     def new
       # 新しい予約オブジェクトを作成
       @reservation = Reservation.new
-      
+
       # フォーム選択肢（スケジュール/座席/予約済み座席マップ）を事前にロード
       prepare_form_resources(@reservation.schedule_id)
     end
@@ -60,7 +60,7 @@ module Admin
     def create
       # パラメータから予約オブジェクトを作成
       @reservation = Reservation.new(reservation_params)
-      
+
       # バリデーション前に、フォーム選択肢や予約済み座席マップを用意
       prepare_form_resources(@reservation.schedule_id)
 
@@ -75,18 +75,16 @@ module Admin
       if schedule && sheet
         # スクリーン整合性: 選んだ座席がそのスケジュールのスクリーンに属しているか
         validate_screen_match(schedule, sheet)
-        
+
         # 予約日付: スケジュール開始日に合わせ、スクリーンを紐付け
         assign_reservation_screen_and_date(@reservation, schedule, compute_reservation_date(schedule))
-        
+
         # 重複防止: 同じ座席・同じ日・同じスケジュールの重複を拒否
         validate_duplicate_seat(schedule, sheet, @reservation.date)
       end
 
       # エラーがある場合はフォームを再表示
-      if @reservation.errors.any?
-        return render_new_with_errors
-      end
+      return render_new_with_errors if @reservation.errors.any?
 
       # 予約を保存
       if @reservation.save
@@ -111,7 +109,7 @@ module Admin
     def update
       # 更新対象のスケジュールIDを取得
       schedule_id = reservation_params[:schedule_id]
-      
+
       # 更新時にも同様にフォーム資材をロード
       prepare_form_resources(schedule_id)
 
@@ -126,14 +124,13 @@ module Admin
       if schedule && sheet
         # スクリーン整合性 → 予約日付の再計算 → 重複チェック（自分自身は除外）
         validate_screen_match(schedule, sheet)
-        assign_reservation_screen_and_date(@reservation, schedule, compute_reservation_date(schedule, @reservation.date))
+        assign_reservation_screen_and_date(@reservation, schedule,
+                                           compute_reservation_date(schedule, @reservation.date))
         validate_duplicate_seat(schedule, sheet, @reservation.date, exclude: @reservation.id)
       end
 
       # エラーがある場合はフォームを再表示
-      if @reservation.errors.any?
-        return render_edit_with_errors('❌ 入力内容に誤りがあります')
-      end
+      return render_edit_with_errors('❌ 入力内容に誤りがあります') if @reservation.errors.any?
 
       # 予約属性を更新（日付は再計算されたものを使用）
       @reservation.assign_attributes(reservation_params.merge(date: @reservation.date))
@@ -153,7 +150,7 @@ module Admin
     def destroy
       # 予約を削除
       @reservation.destroy
-      
+
       # 成功メッセージを表示して一覧に戻る
       admin_flash_success('予約を削除しました')
       redirect_to admin_reservations_path
@@ -184,12 +181,12 @@ module Admin
     #   @available_sheets  … 表示する座席候補（選択中ならそのスクリーンのみ）
     def prepare_form_resources(schedule_id)
       now = Time.zone.now
-      
+
       # 映画・劇場を事前読み込み（N+1回避）、終了済みを除外、開始時刻順で並べる
       @schedules = Schedule.includes(:movie, screen: :theater)
                            .where('schedules.end_time IS NULL OR schedules.end_time >= ?', now)
                            .order(:start_time)
-      
+
       # 全座席を取得（スクリーン、行、列順）
       @sheets = Sheet.includes(screen: :theater).order(:screen_id, :row, :column)
 

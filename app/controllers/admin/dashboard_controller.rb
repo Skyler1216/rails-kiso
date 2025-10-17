@@ -39,25 +39,25 @@ module Admin
       {
         # 映画の統計
         movies: {
-          total: Movie.count,                                    # 全映画数
+          total: Movie.count, # 全映画数
           showing: Movie.where(is_showing: true).count,         # 上映中
           upcoming: Movie.where(is_showing: false).count        # 上映予定
         },
         # スケジュールの統計
         schedules: {
-          total: Schedule.count,                                 # 全スケジュール数
+          total: Schedule.count, # 全スケジュール数
           today: Schedule.where(start_time: today.all_day).count, # 今日の上映
           upcoming: Schedule.where('start_time >= ?', today.beginning_of_day).count # 今後の上映
         },
         # 予約の統計
         reservations: {
-          total: Reservation.count,                              # 全予約数
+          total: Reservation.count, # 全予約数
           today: Reservation.where(date: today).count,          # 今日の予約
           upcoming: Reservation.where('date > ?', today).count  # 今後の予約
         },
         # 劇場の統計
         theaters: {
-          total: Theater.count,                                  # 全劇場数
+          total: Theater.count, # 全劇場数
           active: Theater.where(is_active: true).count,         # アクティブ
           inactive: Theater.where(is_active: false).count       # 非アクティブ
         }

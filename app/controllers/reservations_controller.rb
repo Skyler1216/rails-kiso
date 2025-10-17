@@ -37,7 +37,7 @@ class ReservationsController < ApplicationController
       redirect_to reservation_movie_path(@movie,
                                          schedule_id: @schedule.id,
                                          date: @date,
-                                         theater_id: @theater.id), 
+                                         theater_id: @theater.id),
                   alert: 'その座席はすでに予約済みです'
       return
     end
@@ -52,7 +52,7 @@ class ReservationsController < ApplicationController
   def create
     # 予約オブジェクトを作成
     @reservation = Reservation.new(reservation_params)
-    
+
     # 現在のユーザー情報を設定
     assign_user_info
 
@@ -62,7 +62,7 @@ class ReservationsController < ApplicationController
       redirect_to_duplicate_reservation_path
     elsif @reservation.save
       # 予約データの保存が成功した場合の処理
-      
+
       # station3,4で説明
       # 予約確認メールを非同期（メール送信処理とは別スレッド）で送信。SMTPの遅延対策。
       # deliver_later: バックグラウンドでメール送信（レスポンスをブロックしない）
@@ -71,7 +71,7 @@ class ReservationsController < ApplicationController
       ReservationMailer.booking_confirmation(@reservation).deliver_later
 
       # 予約成功時は映画詳細画面へリダイレクト
-      redirect_to movie_path(@reservation.schedule.movie_id), 
+      redirect_to movie_path(@reservation.schedule.movie_id),
                   notice: '予約が完了しました'
     else
       # バリデーションエラーの場合はエラーハンドリング

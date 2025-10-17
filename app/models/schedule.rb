@@ -41,10 +41,10 @@ class Schedule < ApplicationRecord
     return if start_time.blank? || end_time.blank? || screen_id.blank?
 
     overlap_exists = Schedule
-                      .where(screen_id: screen_id)
-                      .where.not(id: id)
-                      .where('start_time < ? AND end_time > ?', end_time, start_time)
-                      .exists?
+                     .where(screen_id: screen_id)
+                     .where.not(id: id)
+                     .where('start_time < ? AND end_time > ?', end_time, start_time)
+                     .exists?
 
     return unless overlap_exists
 
@@ -56,8 +56,8 @@ class Schedule < ApplicationRecord
 
     return if will_save_change_to_end_time?
 
-    if end_time.blank? || will_save_change_to_start_time?
-      self.end_time = start_time + movie.running_minutes.minutes
-    end
+    return unless end_time.blank? || will_save_change_to_start_time?
+
+    self.end_time = start_time + movie.running_minutes.minutes
   end
 end

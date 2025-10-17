@@ -69,9 +69,9 @@ RSpec.describe 'Admin', type: :request do
       before { sign_in admin_user }
 
       it '映画が作成されること' do
-        expect {
+        expect do
           post admin_movies_path, params: valid_params
-        }.to change(Movie, :count).by(1)
+        end.to change(Movie, :count).by(1)
       end
 
       it '映画一覧にリダイレクトすること' do

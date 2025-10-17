@@ -48,9 +48,9 @@ RSpec.describe ReservationsController, type: :controller do
 
     context '重複予約がある場合' do
       let!(:existing_reservation) do
-        create(:reservation, 
-               schedule: schedule, 
-               sheet: sheet, 
+        create(:reservation,
+               schedule: schedule,
+               sheet: sheet,
                date: reservation_date,
                screen: screen)
       end
@@ -62,10 +62,10 @@ RSpec.describe ReservationsController, type: :controller do
           sheet_id: sheet.id,
           date: reservation_date
         }
-        expect(response).to redirect_to(reservation_movie_path(movie, 
-                                                              schedule_id: schedule.id,
-                                                              date: reservation_date,
-                                                              theater_id: theater.id))
+        expect(response).to redirect_to(reservation_movie_path(movie,
+                                                               schedule_id: schedule.id,
+                                                               date: reservation_date,
+                                                               theater_id: theater.id))
       end
     end
   end
@@ -84,9 +84,9 @@ RSpec.describe ReservationsController, type: :controller do
 
     context '有効なパラメータの場合' do
       it '予約が作成されること' do
-        expect {
+        expect do
           post :create, params: valid_params
-        }.to change(Reservation, :count).by(1)
+        end.to change(Reservation, :count).by(1)
       end
 
       it '映画詳細画面にリダイレクトすること' do
@@ -110,25 +110,25 @@ RSpec.describe ReservationsController, type: :controller do
 
     context '重複予約がある場合' do
       let!(:existing_reservation) do
-        create(:reservation, 
-               schedule: schedule, 
-               sheet: sheet, 
+        create(:reservation,
+               schedule: schedule,
+               sheet: sheet,
                date: reservation_date,
                screen: screen)
       end
 
       it '予約が作成されないこと' do
-        expect {
+        expect do
           post :create, params: valid_params
-        }.not_to change(Reservation, :count)
+        end.not_to change(Reservation, :count)
       end
 
       it 'リダイレクトすること' do
         post :create, params: valid_params
         expect(response).to redirect_to(reservation_movie_path(movie,
-                                                              schedule_id: schedule.id,
-                                                              date: reservation_date,
-                                                              theater_id: theater.id))
+                                                               schedule_id: schedule.id,
+                                                               date: reservation_date,
+                                                               theater_id: theater.id))
       end
 
       it 'エラーメッセージが表示されること' do
@@ -150,9 +150,9 @@ RSpec.describe ReservationsController, type: :controller do
       end
 
       it '予約が作成されないこと' do
-        expect {
+        expect do
           post :create, params: invalid_params
-        }.not_to change(Reservation, :count)
+        end.not_to change(Reservation, :count)
       end
 
       it 'newテンプレートを再表示すること' do

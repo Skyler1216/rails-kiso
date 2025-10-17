@@ -13,7 +13,7 @@
 namespace :reservation do
   # タスクの説明（rake -T で表示される）
   desc 'Send reminder emails for reservations scheduled for the next day'
-  
+
   # メインのタスク定義
   task send_reminders: :environment do
     # 対象日付の決定

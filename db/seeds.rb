@@ -42,10 +42,10 @@ end
 
 # === 各スクリーンに座席を作成（A-1～C-5） ===
 screens.each do |screen|
-('A'..'C').each do |row|
-  (1..5).each do |column|
-    Sheet.find_or_create_by!(screen: screen, row: row, column: column)
-  end
+  ('A'..'C').each do |row|
+    (1..5).each do |column|
+      Sheet.find_or_create_by!(screen: screen, row: row, column: column)
+    end
   end
 end
 

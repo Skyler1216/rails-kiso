@@ -28,7 +28,7 @@ RSpec.describe 'Reservations', type: :request do
       before do
         # メール送信履歴をクリア
         ActionMailer::Base.deliveries.clear
-        
+
         # ジョブキューのアダプターをテスト用に変更
         @original_queue_adapter = ActiveJob::Base.queue_adapter
         ActiveJob::Base.queue_adapter = :test
@@ -39,7 +39,7 @@ RSpec.describe 'Reservations', type: :request do
         # ジョブキューの状態をクリア
         clear_enqueued_jobs
         clear_performed_jobs
-        
+
         # 元のアダプターに戻す
         ActiveJob::Base.queue_adapter = @original_queue_adapter
       end
@@ -100,10 +100,10 @@ RSpec.describe 'Reservations', type: :request do
 
         # 送信されたメールの内容確認
         mail = ActionMailer::Base.deliveries.last
-        
+
         # 送信先の確認
         expect(mail.to).to contain_exactly(user.email)
-        
+
         # 件名に映画名が含まれることを確認
         expect(mail.subject).to include(movie.name)
 
@@ -114,7 +114,7 @@ RSpec.describe 'Reservations', type: :request do
 
         # 予約者名の確認
         expect(text_body).to include(user.name)
-        
+
         # 劇場名の確認
         expect(html_body).to include(screen.theater.name)
 

@@ -16,9 +16,9 @@ RSpec.describe 'User authentication flow', type: :system do
       fill_in 'パスワード', with: 'password123'
       fill_in 'パスワード（確認）', with: 'password123'
 
-      expect {
+      expect do
         click_button '登録する'
-      }.to change(User, :count).by(1)
+      end.to change(User, :count).by(1)
 
       expect(page).to have_content('新規登録が完了しました')
     end
@@ -31,9 +31,9 @@ RSpec.describe 'User authentication flow', type: :system do
       fill_in 'パスワード', with: '123'
       fill_in 'パスワード（確認）', with: '456'
 
-      expect {
+      expect do
         click_button '登録する'
-      }.not_to change(User, :count)
+      end.not_to change(User, :count)
 
       expect(page).to have_content('Name 入力してください')
       expect(page).to have_content('Email は不正な値です')

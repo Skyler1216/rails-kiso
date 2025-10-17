@@ -27,9 +27,9 @@ RSpec.describe 'Reservations', type: :request do
       end
 
       it '重複予約がある場合はリダイレクトすること' do
-        create(:reservation, 
-               schedule: schedule, 
-               sheet: sheet, 
+        create(:reservation,
+               schedule: schedule,
+               sheet: sheet,
                date: reservation_date,
                screen: screen)
 
@@ -68,9 +68,9 @@ RSpec.describe 'Reservations', type: :request do
       before { sign_in user }
 
       it '予約が作成されること' do
-        expect {
+        expect do
           post reservations_path, params: valid_params
-        }.to change(Reservation, :count).by(1)
+        end.to change(Reservation, :count).by(1)
       end
 
       it '映画詳細ページにリダイレクトすること' do
@@ -79,9 +79,9 @@ RSpec.describe 'Reservations', type: :request do
       end
 
       it '重複予約がある場合はリダイレクトすること' do
-        create(:reservation, 
-               schedule: schedule, 
-               sheet: sheet, 
+        create(:reservation,
+               schedule: schedule,
+               sheet: sheet,
                date: reservation_date,
                screen: screen)
 

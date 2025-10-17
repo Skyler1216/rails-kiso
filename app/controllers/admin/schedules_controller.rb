@@ -147,7 +147,9 @@ module Admin
     end
 
     def reorder_schedules(schedules, now)
-      schedules.sort_by { |schedule| [schedule_finished?(schedule, now) ? 1 : 0, schedule.start_time || Time.zone.at(0)] }
+      schedules.sort_by do |schedule|
+        [schedule_finished?(schedule, now) ? 1 : 0, schedule.start_time || Time.zone.at(0)]
+      end
     end
 
     def schedule_finished?(schedule, now)

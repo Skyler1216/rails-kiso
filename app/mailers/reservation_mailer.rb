@@ -26,7 +26,7 @@ class ReservationMailer < ApplicationMailer
 
     # メール送信設定
     mail(
-      to: reservation.email,                                                    # 送信先：予約者のメールアドレス
+      to: reservation.email, # 送信先：予約者のメールアドレス
       # 件名：I18nを使用して映画名を動的に挿入
       # 例: "【鬼滅の刃】ご予約が完了しました"
       subject: I18n.t('reservation_mailer.booking_confirmation.subject', movie: @movie.name)
@@ -52,7 +52,7 @@ class ReservationMailer < ApplicationMailer
 
     # メール送信設定
     mail(
-      to: reservation.email,                                                    # 送信先：予約者のメールアドレス
+      to: reservation.email, # 送信先：予約者のメールアドレス
       # 件名：I18nを使用して映画名を動的に挿入
       # 例: "【鬼滅の刃】上映リマインド"
       subject: I18n.t('reservation_mailer.reminder.subject', movie: @movie.name)
@@ -79,12 +79,12 @@ class ReservationMailer < ApplicationMailer
     @theater = @screen.theater           # 劇場情報
     @sheet = reservation.sheet           # 座席情報
     @screening_date = reservation.date   # 上映日
-    
+
     # 時間情報（フォーマット済み）
     @screening_start_time = formatted_time(@schedule.start_time)    # 開始時間（HH:MM形式）
     @screening_end_time = formatted_time(@schedule.end_time)        # 終了時間（HH:MM形式）
-    @screening_time_range = build_time_range(@screening_start_time, @screening_end_time)  # 時間範囲文字列
-    
+    @screening_time_range = build_time_range(@screening_start_time, @screening_end_time) # 時間範囲文字列
+
     # 予約日時（JST変換済み）
     @booking_timestamp = reservation.created_at.in_time_zone('Asia/Tokyo')
   end
@@ -118,7 +118,7 @@ class ReservationMailer < ApplicationMailer
     # 終了時間がない場合は開始時間のみを返す
     # 例: "14:30" → "14:30"
     return start_time if end_time.blank?
-    
+
     # 開始時間がない場合は終了時間のみを返す（通常は発生しない）
     # 例: nil, "16:00" → "16:00"
     return end_time if start_time.blank?

@@ -41,7 +41,7 @@ RSpec.describe Sheet, type: :model do
       screen = create(:screen)
       sheet1 = create(:sheet, screen: screen)
       sheet2 = create(:sheet, screen: screen)
-      
+
       expect(sheet1.row).not_to eq(sheet2.row) if sheet1.column == sheet2.column
       expect(sheet1.column).not_to eq(sheet2.column) if sheet1.row == sheet2.row
     end

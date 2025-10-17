@@ -16,7 +16,7 @@ RSpec.describe MoviesController, type: :controller do
     # create(:movie, ...)はFactoryBotを使ってテストデータを作成
     let!(:movie1) { create(:movie, name: '映画1', is_showing: 1) }  # 上映中の映画
     let!(:movie2) { create(:movie, name: '映画2', is_showing: 0) }  # 上映予定の映画
-    let!(:movie3) { create(:movie, name: 'テスト映画', is_showing: 1) }  # 上映中の映画（検索テスト用）
+    let!(:movie3) { create(:movie, name: 'テスト映画', is_showing: 1) } # 上映中の映画（検索テスト用）
 
     # パラメータなしでアクセスした場合のテスト
     context 'パラメータなしの場合' do
@@ -130,19 +130,19 @@ RSpec.describe MoviesController, type: :controller do
     # テスト用の劇場データを作成
     let!(:theater1) { create(:theater, name: '劇場A') }  # 劇場A
     let!(:theater2) { create(:theater, name: '劇場B') }  # 劇場B
-    
+
     # 各劇場のスクリーンデータを作成
     let!(:screen1) { create(:screen, theater: theater1, name: 'スクリーン1') }  # 劇場Aのスクリーン1
     let!(:screen2) { create(:screen, theater: theater2, name: 'スクリーン1') }  # 劇場Bのスクリーン1
-    
+
     # テスト対象の映画データを作成
     let!(:movie) { create(:movie) }
-    
+
     # 未来の日付と時間を設定（スケジュールテスト用）
-    let(:future_date) { Time.zone.today + 5.days }  # 5日後の日付
+    let(:future_date) { Time.zone.today + 5.days } # 5日後の日付
     let(:future_start_time1) { future_date.in_time_zone.change(hour: 10, min: 0) }  # 10:00開始
     let(:future_start_time2) { future_date.in_time_zone.change(hour: 14, min: 0) }  # 14:00開始
-    
+
     # 各スクリーンでの上映スケジュールを作成
     let!(:schedule1) { create(:schedule, movie: movie, screen: screen1, start_time: future_start_time1) }
     let!(:schedule2) { create(:schedule, movie: movie, screen: screen2, start_time: future_start_time2) }
@@ -202,11 +202,11 @@ RSpec.describe MoviesController, type: :controller do
   # GET #reservationアクション（予約画面）のテストを記述
   describe 'GET #reservation' do
     # 予約画面テスト用のデータを作成
-    let!(:theater) { create(:theater) }  # 劇場
-    let!(:screen) { create(:screen, theater: theater) }  # スクリーン
-    let!(:movie) { create(:movie) }  # 映画
-    let!(:schedule) { create(:schedule, movie: movie, screen: screen) }  # 上映スケジュール
-    let!(:sheet) { create(:sheet, screen: screen) }  # 座席
+    let!(:theater) { create(:theater) } # 劇場
+    let!(:screen) { create(:screen, theater: theater) } # スクリーン
+    let!(:movie) { create(:movie) } # 映画
+    let!(:schedule) { create(:schedule, movie: movie, screen: screen) } # 上映スケジュール
+    let!(:sheet) { create(:sheet, screen: screen) } # 座席
     # 予約日付をスケジュールの開始時間から取得
     let(:reservation_date) { schedule.start_time.to_date.to_s }
 
@@ -215,8 +215,8 @@ RSpec.describe MoviesController, type: :controller do
       # HTTPステータスコードが200（成功）を返すことをテスト
       it '200を返すこと' do
         # 必要なパラメータを全て指定してreservationアクションを実行
-        get :reservation, params: { 
-          id: movie.id,           # 映画ID
+        get :reservation, params: {
+          id: movie.id, # 映画ID
           schedule_id: schedule.id,  # スケジュールID
           date: reservation_date,    # 予約日付
           theater_id: theater.id     # 劇場ID
@@ -228,8 +228,8 @@ RSpec.describe MoviesController, type: :controller do
       # 予約画面に必要な情報が正しく設定されることをテスト
       it '予約画面を表示すること' do
         # 必要なパラメータを全て指定してreservationアクションを実行
-        get :reservation, params: { 
-          id: movie.id,           # 映画ID
+        get :reservation, params: {
+          id: movie.id, # 映画ID
           schedule_id: schedule.id,  # スケジュールID
           date: reservation_date,    # 予約日付
           theater_id: theater.id     # 劇場ID
@@ -247,9 +247,9 @@ RSpec.describe MoviesController, type: :controller do
       # 存在しないスケジュールIDでアクセスした場合にリダイレクトされることをテスト
       it 'リダイレクトすること' do
         # 存在しないスケジュールID（99999）を指定してreservationアクションを実行
-        get :reservation, params: { 
-          id: movie.id,           # 映画ID
-          schedule_id: 99999,     # 存在しないスケジュールID
+        get :reservation, params: {
+          id: movie.id, # 映画ID
+          schedule_id: 99_999, # 存在しないスケジュールID
           date: reservation_date,    # 予約日付
           theater_id: theater.id     # 劇場ID
         }

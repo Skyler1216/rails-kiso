@@ -11,10 +11,10 @@ RSpec.describe ReservationMailer, type: :mailer do
   # --- テストデータの準備 ------------------------------------------------------
   # ここで作る値は、メール本文の表示内容（上映時間や予約日時）を
   # 予測しやすく・再現性高く検証できるように、固定の時刻にしています。
-  let(:start_time) { Time.utc(2024, 10, 8, 20, 0) }  # 上映開始時間（UTC）
-  let(:schedule) { create(:schedule, start_time: start_time, end_time: start_time + 2.hours) }  # 2時間の上映
-  let(:booking_time) { Time.utc(2024, 10, 2, 12, 30) }  # 予約作成時間（UTC）
-  
+  let(:start_time) { Time.utc(2024, 10, 8, 20, 0) } # 上映開始時間（UTC）
+  let(:schedule) { create(:schedule, start_time: start_time, end_time: start_time + 2.hours) } # 2時間の上映
+  let(:booking_time) { Time.utc(2024, 10, 2, 12, 30) } # 予約作成時間（UTC）
+
   # 予約データ：作成時間(created_at)を手動で固定
   # → メール本文に出る「予約日時」の期待値を正確に比較するため
   let(:reservation) do
@@ -51,10 +51,10 @@ RSpec.describe ReservationMailer, type: :mailer do
 
       # 予約者名
       expect(text_body).to include(reservation.name)
-      
+
       # 映画名（HTML側で確認）
       expect(html_body).to include(reservation.schedule.movie.name)
-      
+
       # 劇場名（HTML側で確認）
       expect(html_body).to include(reservation.screen.theater.name)
 

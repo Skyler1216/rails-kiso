@@ -59,7 +59,7 @@ RSpec.describe Theater, type: :model do
     it '同じ劇場内でスクリーン名が重複しないこと' do
       theater.screens.build(name: 'スクリーン1')
       theater.screens.build(name: 'スクリーン1')
-      
+
       expect(theater).not_to be_valid
       expect(theater.screens.first.errors[:name]).to include('は同じ劇場内で一意になるよう設定してください')
       expect(theater.screens.last.errors[:name]).to include('は同じ劇場内で一意になるよう設定してください')
@@ -68,14 +68,14 @@ RSpec.describe Theater, type: :model do
     it '大文字小文字を区別せずに重複チェックすること' do
       theater.screens.build(name: 'スクリーンA')
       theater.screens.build(name: 'スクリーンa')
-      
+
       expect(theater).not_to be_valid
     end
 
     it '空白を除去して重複チェックすること' do
       theater.screens.build(name: 'スクリーン1')
       theater.screens.build(name: ' スクリーン1 ')
-      
+
       expect(theater).not_to be_valid
     end
 
@@ -83,14 +83,14 @@ RSpec.describe Theater, type: :model do
       theater.screens.build(name: 'スクリーン1')
       screen2 = theater.screens.build(name: 'スクリーン1')
       screen2.mark_for_destruction
-      
+
       expect(theater).to be_valid
     end
 
     it '空のスクリーン名では重複エラーが発生しないこと' do
       theater.screens.build(name: 'スクリーン1')
       theater.screens.build(name: '')
-      
+
       expect(theater).to be_invalid
       expect(theater.screens.last.errors.added?(:name, :blank)).to be(true)
       expect(theater.screens.last.errors[:name]).not_to include('は同じ劇場内で一意になるよう設定してください')

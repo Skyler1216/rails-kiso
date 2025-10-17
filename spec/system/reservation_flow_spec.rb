@@ -45,9 +45,9 @@ RSpec.describe 'Reservation flow', type: :system do
       expect(page).to have_content('スクリーン1')
 
       # 予約を確定
-      expect {
+      expect do
         click_button '予約を確定する'
-      }.to change(Reservation, :count).by(1)
+      end.to change(Reservation, :count).by(1)
 
       # 成功メッセージが表示される
       expect(page).to have_content('予約が完了しました')
@@ -55,9 +55,9 @@ RSpec.describe 'Reservation flow', type: :system do
 
     it '重複予約を防げること' do
       # 既存の予約を作成
-      create(:reservation, 
-             schedule: schedule, 
-             sheet: sheet1, 
+      create(:reservation,
+             schedule: schedule,
+             sheet: sheet1,
              date: schedule_start_time.to_date.to_s,
              screen: screen)
 
@@ -84,16 +84,16 @@ RSpec.describe 'Reservation flow', type: :system do
 
     it '予約フォームでバリデーションエラーが表示されること' do
       # 直接予約フォームにアクセス
-      visit new_movie_schedule_reservation_path(movie, schedule, 
-                                               sheet_id: sheet1.id, 
-                                               date: schedule_start_time.to_date.to_s)
+      visit new_movie_schedule_reservation_path(movie, schedule,
+                                                sheet_id: sheet1.id,
+                                                date: schedule_start_time.to_date.to_s)
 
       # 無効な情報で予約を試行（hiddenフィールドを書き換えて日付を空にする）
       find("input[name='reservation[date]']", visible: false).set('')
 
-      expect {
+      expect do
         click_button '予約を確定する'
-      }.not_to change(Reservation, :count)
+      end.not_to change(Reservation, :count)
 
       expect(page).to have_content('入力内容に誤りがあります')
     end
@@ -101,9 +101,9 @@ RSpec.describe 'Reservation flow', type: :system do
 
   describe 'ログインが必要な予約機能' do
     it 'ログインしていない場合は予約ページにアクセスできないこと' do
-      visit new_movie_schedule_reservation_path(movie, schedule, 
-                                               sheet_id: sheet1.id, 
-                                               date: schedule_start_time.to_date.to_s)
+      visit new_movie_schedule_reservation_path(movie, schedule,
+                                                sheet_id: sheet1.id,
+                                                date: schedule_start_time.to_date.to_s)
 
       expect(page).to have_current_path(new_user_session_path)
       expect(page).to have_content('ログイン')
@@ -111,9 +111,9 @@ RSpec.describe 'Reservation flow', type: :system do
 
     it 'ログイン後は予約ページにアクセスできること' do
       sign_in user
-      visit new_movie_schedule_reservation_path(movie, schedule, 
-                                               sheet_id: sheet1.id, 
-                                               date: schedule_start_time.to_date.to_s)
+      visit new_movie_schedule_reservation_path(movie, schedule,
+                                                sheet_id: sheet1.id,
+                                                date: schedule_start_time.to_date.to_s)
 
       expect(page).to have_content('予約者情報')
     end

@@ -4,13 +4,13 @@ module DailyMovieRankings
   # station 5,6の変更箇所
   # ============================================================================
   # 日次ランキングデータの整合性を保つためのスナップショット構築サービスです。
-  # 
+  #
   # 【主な機能】
   # 1. 現在のランキングデータと過去のランキングデータを統合
   # 2. 過去にランキングに含まれていたが現在は含まれていない作品の表示
   # 3. 現在上映中または過去にランキングに含まれていた作品の一覧表示
   # 4. 予約数0の作品も含めた完全なランキングの構築
-  # 
+  #
   # 【処理の流れ】
   # 1. 現在のランキングをソート
   # 2. 過去のランキングから現在に含まれていない作品をプレースホルダーとして追加
@@ -33,16 +33,16 @@ module DailyMovieRankings
     # @param previous_rankings [Array] 前日のランキングデータ
     # @param target_date [Date] 対象日付
     def initialize(current_rankings:, previous_rankings:, target_date:)
-      @current_rankings = Array(current_rankings)  # 配列として正規化
-      @previous_rankings = Array(previous_rankings)  # 配列として正規化
+      @current_rankings = Array(current_rankings) # 配列として正規化
+      @previous_rankings = Array(previous_rankings) # 配列として正規化
       @target_date = target_date
     end
 
     # メイン処理：スナップショットの構築
     def call
       Result.new(
-        current: build_current_snapshot,  # 現在のランキングを正規化
-        previous: sort(@previous_rankings)  # 前日のランキングをソート
+        current: build_current_snapshot, # 現在のランキングを正規化
+        previous: sort(@previous_rankings) # 前日のランキングをソート
       )
     end
 
@@ -63,10 +63,10 @@ module DailyMovieRankings
     def build_current_snapshot
       # 1. 現在のランキングをソート
       sorted_current = sort(current_rankings)
-      
+
       # 2. 過去のランキングから現在に含まれていない作品をプレースホルダーとして追加
       with_previous = merge_from_previous(sorted_current)
-      
+
       # 3. 候補映画から現在・過去に含まれていない作品をプレースホルダーとして追加
       merge_from_candidate_movies(with_previous)
     end
@@ -81,7 +81,7 @@ module DailyMovieRankings
     def merge_from_previous(sorted_current)
       # 現在のランキングに含まれている映画IDを取得
       existing_ids = sorted_current.map(&:movie_id)
-      
+
       # 次の順位を計算（現在のランキングの最大順位 + 1）
       next_rank_position = next_rank(sorted_current)
 
@@ -94,13 +94,13 @@ module DailyMovieRankings
           movie_id: ranking.movie_id,
           rank_position: next_rank_position
         )
-        
+
         # 重複を避けるため、既存IDリストに追加
         existing_ids << ranking.movie_id
-        
+
         # 次の順位をインクリメント
         next_rank_position += 1
-        
+
         placeholder
       end
 
@@ -118,23 +118,23 @@ module DailyMovieRankings
     def merge_from_candidate_movies(sorted_current)
       # 現在のランキングに含まれている映画IDを取得
       existing_ids = sorted_current.map(&:movie_id)
-      
+
       # 候補映画IDから既存のIDを除外
       remaining_ids = candidate_movie_ids - existing_ids
-      
+
       # 追加する作品がない場合は現在のランキングをそのまま返す
       return sorted_current if remaining_ids.empty?
 
       # 残りの映画情報を一括取得（N+1問題回避）
       movies = Movie.where(id: remaining_ids).index_by(&:id)
-      
+
       # 次の順位を計算
       next_rank_position = next_rank(sorted_current)
 
       # 残りの映画IDからプレースホルダーを作成
       placeholders = remaining_ids.filter_map do |movie_id|
         movie = movies[movie_id]
-        next unless movie  # 映画が存在しない場合はスキップ
+        next unless movie # 映画が存在しない場合はスキップ
 
         # プレースホルダーを作成（予約数0、適切な順位）
         placeholder = build_placeholder(
@@ -142,10 +142,10 @@ module DailyMovieRankings
           movie_id: movie_id,
           rank_position: next_rank_position
         )
-        
+
         # 次の順位をインクリメント
         next_rank_position += 1
-        
+
         placeholder
       end
 
@@ -165,9 +165,9 @@ module DailyMovieRankings
     def sort(rankings)
       rankings.sort_by do |ranking|
         [
-          ranking.reservation_count.zero? ? 1 : 0,  # 予約数0の作品を最後に
-          ranking.rank_position || Float::INFINITY,  # 順位順（nilは最後に）
-          ranking.movie_id  # 映画ID順（安定ソート）
+          ranking.reservation_count.zero? ? 1 : 0, # 予約数0の作品を最後に
+          ranking.rank_position || Float::INFINITY, # 順位順（nilは最後に）
+          ranking.movie_id # 映画ID順（安定ソート）
         ]
       end
     end
@@ -207,17 +207,17 @@ module DailyMovieRankings
     # 候補映画は以下の条件を満たすもの：
     # 1. 過去にランキングに含まれていた映画
     # 2. 現在上映中の映画
-    # 
+    #
     # メモ化により、同じインスタンス内での重複クエリを回避します。
     # ============================================================================
     def candidate_movie_ids
       @candidate_movie_ids ||= begin
         # 過去にランキングに含まれていた映画IDを取得
         historical_ids = DailyMovieRanking.distinct.pluck(:movie_id)
-        
+
         # 現在上映中の映画IDを取得
         active_ids = Movie.where(is_showing: true).pluck(:id)
-        
+
         # 両方を結合して重複を除去
         (historical_ids + active_ids).uniq
       end
