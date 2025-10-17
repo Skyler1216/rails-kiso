@@ -112,6 +112,10 @@ Rails.application.routes.draw do
     # GET    /admin/reservations/:id (予約詳細)
     # PATCH  /admin/reservations/:id (予約更新)
     # DELETE /admin/reservations/:id (予約削除)
+
+    # station 5,6の変更箇所
+    # 人気ランキング履歴
+    resources :daily_movie_rankings, only: [:index], controller: 'daily_movie_rankings'
   end
 
   # ========================================

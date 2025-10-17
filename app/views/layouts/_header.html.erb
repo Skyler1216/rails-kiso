@@ -70,6 +70,8 @@
           <%= link_to '映画管理', admin_movies_path, class: admin_nav_link_class(admin_movies_path) %>
           <%= link_to 'スケジュール', admin_schedules_path, class: admin_nav_link_class(admin_schedules_path) %>
           <%= link_to '予約管理', admin_reservations_path, class: admin_nav_link_class(admin_reservations_path) %>
+          <%# station 5,6の変更箇所 %>
+          <%= link_to 'ランキング履歴', admin_daily_movie_rankings_path, class: admin_nav_link_class(admin_daily_movie_rankings_path) %>
         </nav>
       </div>
     </div>
