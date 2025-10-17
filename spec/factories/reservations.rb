@@ -11,7 +11,10 @@ FactoryBot.define do
     association :schedule
 
     # 上映日：スケジュールの開始時間から自動計算、なければ今日の日付
-    date { schedule&.start_time&.in_time_zone&.to_date || Date.current }
+    date do
+      start_time = schedule&.start_time
+      start_time ? start_time.in_time_zone.to_date : Date.current
+    end
 
     # 予約者情報（テスト用の固定値）
     name { 'Test User' }

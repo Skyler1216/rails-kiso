@@ -13,36 +13,11 @@ class ReservationsController < ApplicationController
   # 予約フォーム表示
   # ----------------------------------------------------------------------------
   def new
-    # 必須パラメータのチェック
-    if params[:date].blank? || params[:sheet_id].blank?
-      head :bad_request
-      return
-    end
+    return head :bad_request unless required_new_params?
 
-    # 関連情報を取得
-    @movie = Movie.find(params[:movie_id])
-    @schedule = Schedule.includes(screen: :theater).find(params[:schedule_id])
-    @screen = @schedule.screen
-    @theater = @screen.theater
-    @sheet = Sheet.find(params[:sheet_id])
-    @date = params[:date]
+    load_new_reservation_context
+    return redirect_reserved_seat if seat_already_reserved?
 
-    # 重複予約のチェック
-    if Reservation.exists?(
-      schedule_id: @schedule.id,
-      date: @date,
-      sheet_id: @sheet.id,
-      screen_id: @screen.id
-    )
-      redirect_to reservation_movie_path(@movie,
-                                         schedule_id: @schedule.id,
-                                         date: @date,
-                                         theater_id: @theater.id),
-                  alert: 'その座席はすでに予約済みです'
-      return
-    end
-
-    # 新しい予約オブジェクトを作成
     @reservation = Reservation.new
   end
 
@@ -129,5 +104,35 @@ class ReservationsController < ApplicationController
     # エラーメッセージを設定してフォームを再表示
     flash.now[:alert] = '入力内容に誤りがあります'
     render :new, status: :unprocessable_entity
+  end
+
+  def required_new_params?
+    params[:date].present? && params[:sheet_id].present?
+  end
+
+  def load_new_reservation_context
+    @movie = Movie.find(params[:movie_id])
+    @schedule = Schedule.includes(screen: :theater).find(params[:schedule_id])
+    @screen = @schedule.screen
+    @theater = @screen.theater
+    @sheet = Sheet.find(params[:sheet_id])
+    @date = params[:date]
+  end
+
+  def seat_already_reserved?
+    Reservation.exists?(
+      schedule_id: @schedule.id,
+      date: @date,
+      sheet_id: @sheet.id,
+      screen_id: @screen.id
+    )
+  end
+
+  def redirect_reserved_seat
+    redirect_to reservation_movie_path(@movie,
+                                       schedule_id: @schedule.id,
+                                       date: @date,
+                                       theater_id: @theater.id),
+                alert: 'その座席はすでに予約済みです'
   end
 end

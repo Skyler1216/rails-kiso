@@ -37,30 +37,10 @@ module Admin
     # ダッシュボード統計情報の構築
     def build_dashboard_stats(today)
       {
-        # 映画の統計
-        movies: {
-          total: Movie.count, # 全映画数
-          showing: Movie.where(is_showing: true).count,         # 上映中
-          upcoming: Movie.where(is_showing: false).count        # 上映予定
-        },
-        # スケジュールの統計
-        schedules: {
-          total: Schedule.count, # 全スケジュール数
-          today: Schedule.where(start_time: today.all_day).count, # 今日の上映
-          upcoming: Schedule.where('start_time >= ?', today.beginning_of_day).count # 今後の上映
-        },
-        # 予約の統計
-        reservations: {
-          total: Reservation.count, # 全予約数
-          today: Reservation.where(date: today).count,          # 今日の予約
-          upcoming: Reservation.where('date > ?', today).count  # 今後の予約
-        },
-        # 劇場の統計
-        theaters: {
-          total: Theater.count, # 全劇場数
-          active: Theater.where(is_active: true).count,         # アクティブ
-          inactive: Theater.where(is_active: false).count       # 非アクティブ
-        }
+        movies: movie_stats,
+        schedules: schedule_stats(today),
+        reservations: reservation_stats(today),
+        theaters: theater_stats
       }
     end
 
@@ -89,6 +69,38 @@ module Admin
     # 最近更新された劇場を取得
     def recent_theaters
       Theater.order(updated_at: :desc).limit(5)
+    end
+
+    def movie_stats
+      {
+        total: Movie.count,
+        showing: Movie.where(is_showing: true).count,
+        upcoming: Movie.where(is_showing: false).count
+      }
+    end
+
+    def schedule_stats(today)
+      {
+        total: Schedule.count,
+        today: Schedule.where(start_time: today.all_day).count,
+        upcoming: Schedule.where('start_time >= ?', today.beginning_of_day).count
+      }
+    end
+
+    def reservation_stats(today)
+      {
+        total: Reservation.count,
+        today: Reservation.where(date: today).count,
+        upcoming: Reservation.where('date > ?', today).count
+      }
+    end
+
+    def theater_stats
+      {
+        total: Theater.count,
+        active: Theater.where(is_active: true).count,
+        inactive: Theater.where(is_active: false).count
+      }
     end
   end
 end

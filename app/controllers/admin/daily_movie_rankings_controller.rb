@@ -8,61 +8,92 @@ module Admin
     # 過去との順位・予約数の差分を確認できる管理画面を提供します。
     # ============================================================================
 
-    # 人気作品ランキングの履歴表示
+    # ============================================================================
+    # 人気作品ランキングの履歴表示（リファクタリング版）
+    # ============================================================================
+    # メソッドを細分化して可読性と保守性を向上させたバージョンです。
+    # 各ステップを独立したメソッドに分離し、責任を明確にしています。
+    # ============================================================================
     def index
-      # 1. 利用可能な集計日一覧を取得（最新順でソート）
-      # DailyMovieRankingテーブルから重複を除いた集計日を降順で取得
-      @available_dates = DailyMovieRanking
-                         .distinct
-                         .order(aggregated_on: :desc)
-                         .pluck(:aggregated_on)
+      # 1. 利用可能な集計日一覧を取得
+      @available_dates = fetch_available_dates
 
-      # 2. データが存在しない場合の早期リターン
-      # ランキングデータがまだ存在しない場合は空の状態でビューに渡す
-      if @available_dates.empty?
-        @selected_date = nil
-        @rankings = []
-        return
-      end
+      # 2. データが存在しない場合は空の状態を設定して終了
+      return assign_empty_state if @available_dates.empty?
 
-      # 3. 表示対象の日付を決定
-      # URLパラメータで指定された日付を検証し、有効な日付を選択
+      # 3. 表示対象の日付を決定し、ランキングデータを構築
       @selected_date = resolve_selected_date(@available_dates, params[:date])
+      @rankings, @previous_rankings, @previous_date = build_rankings(@selected_date, @available_dates)
 
-      # 4. 選択された日付のランキングデータを取得
-      # 映画情報も一緒に読み込んでN+1問題を回避
-      @rankings = fetch_rankings(@selected_date)
+      # 4. 順位変動と予約数変動の差分を計算・設定
+      assign_differences(@rankings, @previous_rankings)
 
-      # 5. 前日（比較対象）の日付とランキングデータを取得
-      # 順位変動や予約数変動の計算に使用
-      previous_date = previous_available_date(@available_dates, @selected_date)
-      @previous_rankings = previous_date ? fetch_rankings(previous_date) : []
-
-      # 6. スナップショットビルダーでランキングデータを正規化
-      # 過去のデータと現在のデータを統合し、一貫性のあるランキングを作成
-      # これにより、過去にランキングに含まれていたが現在は含まれていない作品も表示される
-      snapshot = DailyMovieRankings::SnapshotBuilder.call(
-        current_rankings: @rankings,
-        previous_rankings: @previous_rankings,
-        target_date: @selected_date
-      )
-
-      # 7. 正規化されたランキングデータを取得
-      @rankings = snapshot.current
-      @previous_rankings = snapshot.previous
-
-      # 8. 順位変動と予約数変動の差分を計算
-      # ビューで前日比の表示に使用される
-      @rankings_diff = build_rank_differences(@rankings, @previous_rankings)
-      @reservation_diff = build_reservation_differences(@rankings, @previous_rankings)
-
-      # 9. ナビゲーション用の前後の日付を設定
-      # ビューで「前の日付」「次の日付」ボタンの表示制御に使用
+      # 5. ナビゲーション用の次の日付を設定
       @next_date = next_available_date(@available_dates, @selected_date)
-      @previous_date = previous_date
     end
 
     private
+
+    # ============================================================================
+    # 利用可能な集計日取得メソッド
+    # ============================================================================
+    # DailyMovieRankingテーブルから重複を除いた集計日を降順で取得します。
+    # 最新の日付が最初に来るようにソートされています。
+    # ============================================================================
+    def fetch_available_dates
+      DailyMovieRanking
+        .distinct
+        .order(aggregated_on: :desc)
+        .pluck(:aggregated_on)
+    end
+
+    # ============================================================================
+    # 空の状態設定メソッド
+    # ============================================================================
+    # ランキングデータが存在しない場合に、すべてのインスタンス変数を
+    # 空の状態に初期化します。これにより、ビューでエラーが発生することを防ぎます。
+    # ============================================================================
+    def assign_empty_state
+      @selected_date = nil
+      @rankings = []
+      @previous_rankings = []
+      @rankings_diff = {}
+      @reservation_diff = {}
+      @next_date = nil
+      @previous_date = nil
+    end
+
+    # ============================================================================
+    # ランキングデータ構築メソッド
+    # ============================================================================
+    # 選択された日付と前日のランキングデータを取得し、
+    # SnapshotBuilderで正規化したランキングを構築します。
+    #
+    # @param selected_date [Date] 選択された集計日
+    # @param available_dates [Array<Date>] 利用可能な集計日一覧
+    # @return [Array] [現在のランキング, 前日のランキング, 前日の日付] の配列
+    # ============================================================================
+    def build_rankings(selected_date, available_dates)
+      # 前日（比較対象）の日付を取得
+      previous_date = previous_available_date(available_dates, selected_date)
+
+      # 前日のランキングデータを取得（存在する場合のみ）
+      previous_rankings = previous_date ? fetch_rankings(previous_date) : []
+
+      # 現在のランキングデータを取得
+      current_rankings = fetch_rankings(selected_date)
+
+      # スナップショットビルダーでランキングデータを正規化
+      # 過去のデータと現在のデータを統合し、一貫性のあるランキングを作成
+      snapshot = DailyMovieRankings::SnapshotBuilder.call(
+        current_rankings: current_rankings,
+        previous_rankings: previous_rankings,
+        target_date: selected_date
+      )
+
+      # 正規化されたランキングデータと前日の日付を配列として返す
+      [snapshot.current, snapshot.previous, previous_date]
+    end
 
     # ============================================================================
     # 日付解決メソッド
@@ -177,6 +208,24 @@ module Admin
       return nil unless index&.positive?
 
       available_dates[index - 1]
+    end
+
+    # ============================================================================
+    # 差分データ設定メソッド
+    # ============================================================================
+    # 現在のランキングと前日のランキングを比較し、
+    # 順位変動と予約数変動の差分をインスタンス変数に設定します。
+    # ビューで前日比の表示に使用されるデータを準備します。
+    #
+    # @param current_rankings [Array] 現在のランキングデータ
+    # @param previous_rankings [Array] 前日のランキングデータ
+    # ============================================================================
+    def assign_differences(current_rankings, previous_rankings)
+      # 順位変動の差分を計算・設定
+      @rankings_diff = build_rank_differences(current_rankings, previous_rankings)
+
+      # 予約数変動の差分を計算・設定
+      @reservation_diff = build_reservation_differences(current_rankings, previous_rankings)
     end
   end
 end
