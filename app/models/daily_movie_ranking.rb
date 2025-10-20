@@ -29,14 +29,6 @@ class DailyMovieRanking < ApplicationRecord
   # ============================================================================
 
   # 指定した日付のランキングを取得
-  # 使用例: DailyMovieRanking.for_date(Date.current)
+  # 使用例: DailyMovieRanking.for_date(Date.today)
   scope :for_date, ->(date) { where(aggregated_on: date) }
-
-  # ランキング順位でソート（1位、2位、3位...の順）
-  # 使用例: DailyMovieRanking.ordered
-  scope :ordered, -> { order(:rank_position) }
-
-  # 上位N位までのランキングを取得
-  # 使用例: DailyMovieRanking.top(10) → 上位10位まで
-  scope :top, ->(limit_value) { ordered.limit(limit_value) }
 end

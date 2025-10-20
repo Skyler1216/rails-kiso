@@ -9,10 +9,11 @@
 #   - reservation_count: その日の予約数（人気度の指標）
 #   - rank_position: ランキング順位（1位、2位、3位...）
 #   - movie_id: 映画への外部キー参照
-#   - created_at: 作成日時
-#   - updated_at: 更新日時
+#   - created_at(timestamp): 作成日時
+#   - updated_at(timestamp): 更新日時
 # ============================================================================
 class CreateDailyMovieRankings < ActiveRecord::Migration[7.1]
+  # changeメソッドを使うと、Railsが自動的にロールバック用の処理を生成してくれる
   def change
     # 日次映画ランキングテーブルを作成
     create_table :daily_movie_rankings do |t|

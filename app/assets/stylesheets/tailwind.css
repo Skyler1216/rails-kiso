@@ -3580,11 +3580,6 @@ a:hover {
   color: rgb(249 178 52 / var(--tw-text-opacity, 1));
 }
 
-.group:hover .group-hover\:text-slate-300 {
-  --tw-text-opacity: 1;
-  color: rgb(203 213 225 / var(--tw-text-opacity, 1));
-}
-
 @media (min-width: 640px) {
   .sm\:w-auto {
     width: auto;

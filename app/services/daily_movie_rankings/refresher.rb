@@ -10,18 +10,20 @@ module DailyMovieRankings
     # デフォルトの集計期間（過去30日間）
     LOOKBACK_DAYS = 30
 
-    # クラスメソッドでインスタンス化と実行を一括処理
+    # クラスメソッドでインスタンス化と実行を一括処理。１行で済む。
     # 使用例: DailyMovieRankings::Refresher.call(target_date: Date.current)
     def self.call(...)
       new(...).call
     end
 
-    # 初期化処理
+    # 初期化処理　initialize は new とセットで動く
     # @param target_date [Date] 集計対象日（デフォルト: 今日）
     # @param lookback_days [Integer] 集計期間（デフォルト: 30日）
     def initialize(target_date: Time.zone.today, lookback_days: LOOKBACK_DAYS)
+      # .to_date … 「日付（Dateオブジェクト）」に変換
       @target_date = target_date.to_date
-      # 最小値1を保証（負の値や0を防ぐ）
+      # .to_i … 「整数」に変換
+      # [lookback_days.to_i, 1].max … 「lookback_days.to_i」と「1」のうち、大きい方を選択し、最小値1を保証（負の値や0を防ぐ）
       @lookback_days = [lookback_days.to_i, 1].max
     end
 
@@ -32,8 +34,9 @@ module DailyMovieRankings
         # 既存のランキングデータを削除（重複を防ぐため）
         DailyMovieRanking.for_date(target_date).delete_all
 
-        # 新しいランキングデータを構築
+        # 新しいランキングデータを構築。build_rowsは、下で定義されている。
         rows = build_rows
+        # もし、rowsが空の場合は、空の配列を返す。つまり、ランキングデータがない場合は、空の配列を返す。
         return [] if rows.empty?
 
         # 一括挿入でパフォーマンスを向上
@@ -48,6 +51,19 @@ module DailyMovieRankings
 
     # ランキングデータの行を構築
     # @return [Array<Hash>] データベース挿入用のハッシュ配列
+    #
+    # 【処理の流れ】
+    # 1. aggregated_countsから映画別予約数を取得
+    #   例: [{ movie_id: 3, reservation_count: 52 }, { movie_id: 5, reservation_count: 48 }]
+    #
+    # 2. map.with_index(1)でランキング順位を付与
+    #   例: [{ movie_id: 3, reservation_count: 52, rank_position: 1 }, ...]
+    #
+    # 3. データベース挿入用の完全なハッシュに変換
+    #   例: [{ aggregated_on: target_date, movie_id: 3, reservation_count: 52,
+    #         rank_position: 1, created_at: now, updated_at: now }, ...]
+    #
+    # 4. DailyMovieRanking.insert_all!で一括挿入
     def build_rows
       # 一括挿入のため、全レコードで同じタイムスタンプを使用
       now = Time.current

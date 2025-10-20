@@ -41,6 +41,11 @@ Rails.application.routes.draw do
   get '/movies/:id', to: 'movies#show'     # GET /movies/1 → 映画詳細ページ
 
   # 映画予約機能（ネストしたルート）
+  # resources :moviesにより以下のヘルパーメソッドが自動生成される：
+  # - movie_path(movie) => "/movies/#{movie.id}" (映画詳細ページ)
+  # - movies_path => "/movies" (映画一覧ページ)
+  # - movie_url(movie) => "http://example.com/movies/#{movie.id}" (絶対URL)
+  # - movies_url => "http://example.com/movies" (絶対URL)
   resources :movies, only: %i[index show] do
     # 映画の予約ページ
     get 'reservation', on: :member # GET /movies/:id/reservation → 予約ページ

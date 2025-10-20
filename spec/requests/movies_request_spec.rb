@@ -96,7 +96,6 @@ RSpec.describe 'Movies', type: :request do
           expect(response.body).to include('人気作品ランキング')
           expect(response.body).to include("No.#{ranking.rank_position}")
           expect(response.body).to include(ranking.movie.name)
-          expect(response.body).to include('予約件数')
         end
       end
 

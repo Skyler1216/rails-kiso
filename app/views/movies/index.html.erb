@@ -17,7 +17,7 @@
       <% if @ranking_date.present? %>
         <div class="flex flex-col gap-1 text-xs uppercase tracking-[0.28em] text-slate-400 md:items-end">
           <span>集計日 <%= @ranking_date.strftime('%Y/%m/%d') %></span>
-          <span>集計期間 過去 <%= DailyMovieRankings::Refresher::LOOKBACK_DAYS %> 日（予約日ベース）</span>
+          <span>集計期間 過去 <%= DailyMovieRankings::Refresher::LOOKBACK_DAYS %> 日</span>
         </div>
       <% end %>
     </div>
@@ -40,9 +40,10 @@
               <div class="flex-1">
                 <%= link_to movie_path(ranking.movie), class: 'group block' do %>
                   <p class="text-base font-semibold text-white group-hover:text-brand-gold"><%= ranking.movie.name %></p>
-                  <p class="text-xs text-slate-400 group-hover:text-slate-300">予約件数 <%= number_with_delimiter(ranking.reservation_count) %> 件</p>
                 <% end %>
               </div>
+              <%# 映画オブジェクトのidを取得 → /movies/:id の形式でURLを生成 
+              → 結果："/movies/101" → このURLに対して、詳細ページへのリンクを作成 %>
               <%= link_to '詳細', movie_path(ranking.movie), class: 'btn-secondary' %>
             </div>
           </li>

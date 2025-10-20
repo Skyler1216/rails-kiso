@@ -1,48 +1,81 @@
 require 'rails_helper'
 
+# ============================================================================
+# DailyMovieRankingモデルのテストファイル
+# ============================================================================
+# このファイルは、映画の日次ランキングデータが正しく動作するかをテストします。
+#
+# 【テストの目的】
+# 1. データの入力チェック（バリデーション）が正しく動作するか
+# 2. データの検索機能（スコープ）が正しく動作するか
+#
+# 【初心者向けの説明】
+# - テストとは：プログラムが期待通りに動くかを自動で確認する仕組み
+# - バリデーション：データが正しい形式かどうかをチェックする機能
+# - スコープ：データベースから条件に合うデータを取得する機能
+# ============================================================================
 RSpec.describe DailyMovieRanking, type: :model do
+  # ============================================================================
+  # バリデーションテスト（データの入力チェック）
+  # ============================================================================
+  # 映画ランキングのデータが正しい形式で入力されているかをテストします。
+  # 例：日付が空でないか、予約数がマイナスでないか、など
+  # ============================================================================
   describe 'validations' do
-    it 'is invalid without aggregated_on' do
+    # テスト1：集計日（日付）が必須であることを確認
+    it '集計日が必須であること' do
+      # 日付を空にしてランキングデータを作成
       ranking = build(:daily_movie_ranking, aggregated_on: nil)
 
+      # データが無効（エラーがある）であることを確認
       expect(ranking).not_to be_valid
+      # エラーメッセージに「空白はダメ」という内容が含まれていることを確認
       expect(ranking.errors.details[:aggregated_on]).to include(error: :blank)
     end
 
-    it 'is invalid with negative reservation_count' do
+    # テスト2：予約数が0以上であることを確認
+    it '予約数が0以上であること' do
+      # 予約数を-1（マイナス）にしてランキングデータを作成
       ranking = build(:daily_movie_ranking, reservation_count: -1)
 
+      # データが無効（エラーがある）であることを確認
       expect(ranking).not_to be_valid
+      # エラーメッセージに「0以上でないとダメ」という内容が含まれていることを確認
       expect(ranking.errors.details[:reservation_count]).to include(hash_including(error: :greater_than_or_equal_to))
     end
 
-    it 'is invalid with rank_position less than 1' do
+    # テスト3：順位が1以上であることを確認
+    it '順位が1以上であること' do
+      # 順位を0にしてランキングデータを作成
       ranking = build(:daily_movie_ranking, rank_position: 0)
 
+      # データが無効（エラーがある）であることを確認
       expect(ranking).not_to be_valid
+      # エラーメッセージに「1以上でないとダメ」という内容が含まれていることを確認
       expect(ranking.errors.details[:rank_position]).to include(hash_including(error: :greater_than))
     end
   end
 
+  # ============================================================================
+  # スコープメソッドのテスト（データの検索機能）
+  # ============================================================================
+  # データベースから条件に合うデータを正しく取得できるかをテストします。
+  # 例：特定の日付のランキングのみを取得する
+  # ============================================================================
   describe '.for_date' do
-    it 'returns rankings for the specific date only' do
+    # テスト4：指定した日付のランキングのみを取得できることを確認
+    it '指定した日付のランキングのみを取得すること' do
+      # 今日の日付を設定
       target_date = Date.current
+
+      # 今日のランキングデータを作成（これが取得されるべきデータ）
       ranking_today = create(:daily_movie_ranking, aggregated_on: target_date, rank_position: 1)
+
+      # 昨日のランキングデータを作成（これは取得されないべきデータ）
       create(:daily_movie_ranking, aggregated_on: target_date - 1.day, rank_position: 1)
 
+      # 今日の日付で検索した結果、今日のランキングのみが返されることを確認
       expect(described_class.for_date(target_date)).to contain_exactly(ranking_today)
-    end
-  end
-
-  describe '.top' do
-    it 'orders by rank_position and limits the result' do
-      first = create(:daily_movie_ranking, rank_position: 1)
-      second = create(:daily_movie_ranking, rank_position: 2)
-
-      result = described_class.top(1)
-
-      expect(result).to eq([first])
-      expect(result).not_to include(second)
     end
   end
 end
