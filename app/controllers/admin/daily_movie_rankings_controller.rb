@@ -15,33 +15,31 @@ module Admin
     # ============================================================================
 
     # ============================================================================
-    # 人気作品ランキングの履歴表示（リファクタリング版）
+    # 人気作品ランキングの履歴表示
     # ============================================================================
     # このメソッドは、管理者画面でランキング履歴を表示するためのメイン処理です。
     # メソッドを細分化して可読性と保守性を向上させたバージョンです。
     #
     # 【処理の流れ】
     # 1. 利用可能な集計日一覧を取得
-    # 2. データが存在しない場合は処理を終了（ビュー側で空状態を描画）
-    # 3. 表示対象の日付を決定し、ランキングデータを構築
-    # 4. 順位変動と予約数変動の差分を計算・設定
-    # 5. ナビゲーション用の次の日付を設定
+    # 2. 表示対象の日付を決定し、ランキングデータを構築、ナビゲーション用の前の日付を設定
+    # 3. 順位変動と予約数変動の差分を計算・設定
+    # 4. ナビゲーション用の次の日付を設定
     # ============================================================================
     def index
       # 1. 利用可能な集計日一覧を取得
       @available_dates = fetch_available_dates
-
-      # 2. データが存在しない場合は処理を終了（ビュー側で空状態を描画）
+      #  データが存在しない場合は処理を終了（ビュー側で空状態を描画）
       return if @available_dates.empty?
 
-      # 3. 表示対象の日付を決定し、ランキングデータを構築
+      # 2. 表示対象の日付を決定し、ランキングデータを構築、ナビゲーション用の前の日付を設定
       @selected_date = resolve_selected_date(@available_dates, params[:date])
       @rankings, previous_rankings, @previous_date = build_rankings(@selected_date, @available_dates)
 
-      # 4. 順位変動と予約数変動の差分を計算・設定
+      # 3. 順位変動と予約数変動の差分を計算・設定
       assign_differences(@rankings, previous_rankings)
 
-      # 5. ナビゲーション用の次の日付を設定
+      # 4. ナビゲーション用の次の日付を設定
       @next_date = next_available_date(@available_dates, @selected_date)
     end
 
@@ -71,14 +69,13 @@ module Admin
     # ランキングデータ構築メソッド
     # ============================================================================
     # 選択された日付と前日のランキングデータを取得し、
-    # SnapshotBuilderで正規化したランキングを構築します。
+    # ランキングデータを取得してビューで扱いやすい形に整えます。
     #
     # 【処理の流れ】
     # 1. 前日（比較対象）の日付を取得
     # 2. 前日のランキングデータを取得（存在する場合のみ）
     # 3. 現在のランキングデータを取得
-    # 4. SnapshotBuilderでランキングデータを正規化
-    # 5. 正規化されたランキングデータと前日の日付を配列として返す
+    # 4. 現在と前日のランキングをそのまま返し、ビューで利用できるようにする
     #
     # @param selected_date [Date] 選択された集計日
     # @param available_dates [Array<Date>] 利用可能な集計日一覧
@@ -94,16 +91,23 @@ module Admin
       # 現在のランキングデータを取得
       current_rankings = fetch_rankings(selected_date)
 
-      # スナップショットビルダーでランキングデータを正規化
-      # 過去のデータと現在のデータを統合し、一貫性のあるランキングを作成
-      snapshot = DailyMovieRankings::SnapshotBuilder.call(
-        current_rankings: current_rankings,
-        previous_rankings: previous_rankings,
-        target_date: selected_date
-      )
-
-      # 正規化されたランキングデータと前日の日付を配列として返す
-      [snapshot.current, snapshot.previous, previous_date]
+      # 現在のランキングデータ、前日のランキングデータ、前日の日付を配列として返す
+      # ここでは、例えば、こんな感じの配列が返される。
+      # [
+      #   [# 1番目の要素: 現在のランキング
+      #     { movie_id: 1, rank_position: 1, reservation_count: 100 },
+      #     { movie_id: 2, rank_position: 2, reservation_count: 80 },
+      #     { movie_id: 3, rank_position: 3, reservation_count: 60 }
+      #   ],
+      #   [# 2番目の要素: 前日のランキング
+      #     { movie_id: 1, rank_position: 2, reservation_count: 90 },
+      #     { movie_id: 2, rank_position: 1, reservation_count: 95 },
+      #     { movie_id: 3, rank_position: 3, reservation_count: 55 }
+      #   ],
+      #   # 3番目の要素: 前日の日付
+      #   Date.parse("2024-01-14")
+      # ]
+      [current_rankings, previous_rankings, previous_date]
     end
 
     # ============================================================================
