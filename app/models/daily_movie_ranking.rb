@@ -23,12 +23,4 @@ class DailyMovieRanking < ApplicationRecord
   # ランキング順位は必須かつ1以上の整数
   # greater_than: 0 で0位や負の順位を防ぐ
   validates :rank_position, presence: true, numericality: { greater_than: 0 }
-
-  # ============================================================================
-  # スコープ（よく使う検索条件を定義）
-  # ============================================================================
-
-  # 指定した日付のランキングを取得
-  # 使用例: DailyMovieRanking.for_date(Date.today)
-  scope :for_date, ->(date) { where(aggregated_on: date) }
 end

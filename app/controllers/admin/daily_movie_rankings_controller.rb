@@ -160,14 +160,14 @@ module Admin
     #
     # 【処理内容】
     # - includes(:movie): 映画情報を事前読み込み（N+1問題回避）
-    # - for_date(target_date): 指定日付のデータのみ取得
+    # - where(aggregated_on: target_date): 指定日付のデータのみ取得
     # - order(:rank_position): 順位順でソート
     # - to_a: 配列として取得（データベースアクセスを完了）
     # ============================================================================
     def fetch_rankings(target_date)
       DailyMovieRanking
         .includes(:movie) # 映画情報を事前読み込み（N+1問題回避）
-        .for_date(target_date) # 指定日付のデータのみ取得
+        .where(aggregated_on: target_date) # 指定日付のデータのみ取得
         .order(:rank_position) # 順位順でソート
         .to_a # 配列として取得
     end

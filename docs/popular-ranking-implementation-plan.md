@@ -21,7 +21,7 @@
   - `aggregated_on` と `rank_position` の複合インデックスで日付別の並び取得を高速化。
 - モデル `DailyMovieRanking`
   - `belongs_to :movie`
-  - スコープ例: `for_date(date)`, `top(limit)`.
+  - スコープ例: `top(limit)`。
 
 集計ロジック
 -----------
@@ -44,7 +44,7 @@
 表示更新
 -------
 - `MoviesController#index` でランキング用データを読み込む。
-  - 画面表示は `DailyMovieRanking.for_date(Time.zone.today)` を取得し、データが無い場合は最新日付をフォールバック。
+  - 画面表示は `DailyMovieRanking.where(aggregated_on: Time.zone.today)` を取得し、データが無い場合は最新日付をフォールバック。
   - 取得時には `includes(:movie)` で N+1 を避ける。
 - ビューにランキングセクションを追加。
   - 作品名クリックで詳細ページ (`movie_path(movie)`) へ遷移できるようリンク化。

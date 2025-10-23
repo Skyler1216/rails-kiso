@@ -55,27 +55,4 @@ RSpec.describe DailyMovieRanking, type: :model do
       expect(ranking.errors.details[:rank_position]).to include(hash_including(error: :greater_than))
     end
   end
-
-  # ============================================================================
-  # スコープメソッドのテスト（データの検索機能）
-  # ============================================================================
-  # データベースから条件に合うデータを正しく取得できるかをテストします。
-  # 例：特定の日付のランキングのみを取得する
-  # ============================================================================
-  describe '.for_date' do
-    # テスト4：指定した日付のランキングのみを取得できることを確認
-    it '指定した日付のランキングのみを取得すること' do
-      # 今日の日付を設定
-      target_date = Date.current
-
-      # 今日のランキングデータを作成（これが取得されるべきデータ）
-      ranking_today = create(:daily_movie_ranking, aggregated_on: target_date, rank_position: 1)
-
-      # 昨日のランキングデータを作成（これは取得されないべきデータ）
-      create(:daily_movie_ranking, aggregated_on: target_date - 1.day, rank_position: 1)
-
-      # 今日の日付で検索した結果、今日のランキングのみが返されることを確認
-      expect(described_class.for_date(target_date)).to contain_exactly(ranking_today)
-    end
-  end
 end

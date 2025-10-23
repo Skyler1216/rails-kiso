@@ -100,11 +100,11 @@ class MoviesController < ApplicationController
     ranking_date = Time.zone.today
 
     # 今日の日付でランキングデータを検索します。
-    # for_date(ranking_date)：今日の日付のデータのみを取得
+    # where(aggregated_on: ranking_date)：今日の日付のデータのみを取得
     # order(:rank_position)：順位順でソート（1位、2位、3位...の順）
     # limit(RANKING_LIMIT)：表示する件数を制限（例：上位10件のみ）
     # to_a：DBの結果を配列として取得。DBアクセスを1回に制限し、メモリ上でデータを扱える。（パフォーマンス向上）
-    rankings = query.for_date(ranking_date).order(:rank_position).limit(RANKING_LIMIT).to_a
+    rankings = query.where(aggregated_on: ranking_date).order(:rank_position).limit(RANKING_LIMIT).to_a
 
     # ============================================================================
     # ステップ3：今日のデータがない場合の代替処理
@@ -119,7 +119,7 @@ class MoviesController < ApplicationController
       # 例：今日が1月15日だが、最新データが1月14日の場合
       if latest_date.present? && latest_date != ranking_date
         # 最新の日付のランキングデータを取得
-        rankings = query.for_date(latest_date).order(:rank_position).limit(RANKING_LIMIT).to_a
+        rankings = query.where(aggregated_on: latest_date).order(:rank_position).limit(RANKING_LIMIT).to_a
 
         # データが取得できた場合のみ、ランキング日付を更新
         ranking_date = latest_date if rankings.present?

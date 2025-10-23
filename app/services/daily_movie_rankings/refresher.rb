@@ -32,7 +32,7 @@ module DailyMovieRankings
     def call
       ApplicationRecord.transaction do
         # 既存のランキングデータを削除（重複を防ぐため）
-        DailyMovieRanking.for_date(target_date).delete_all
+        DailyMovieRanking.where(aggregated_on: target_date).delete_all
 
         # 新しいランキングデータを構築。build_rowsは、下で定義されている。
         rows = build_rows
