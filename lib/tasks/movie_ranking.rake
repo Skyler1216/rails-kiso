@@ -22,14 +22,9 @@ namespace :ranking do
                     Time.zone.today
                   end
 
-    # 集計期間の決定（過去30日間）。LOOKBACK_DAYSは、refresher.rbにあり。
-    lookback_days = DailyMovieRankings::Refresher::LOOKBACK_DAYS
-
     # ランキング更新サービスの実行
-    # 指定した日付(target_date)と集計期間(lookback_days)を引数として渡して、ランキングを更新
-    DailyMovieRankings::Refresher.call(
-      target_date:,
-      lookback_days:
-    )
+    # 指定した日付(target_date)を引数として渡して、ランキングを更新
+    # 集計期間はサービス側のデフォルト値（LOOKBACK_DAYS）を使用
+    DailyMovieRankings::Refresher.call(target_date:)
   end
 end
