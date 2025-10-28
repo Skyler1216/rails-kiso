@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 # ============================================================================
@@ -22,7 +24,9 @@ RSpec.describe DailyMovieRanking, type: :model do
   # 例：日付が空でないか、予約数がマイナスでないか、など
   # ============================================================================
   describe 'validations' do
-    # テスト1：集計日（日付）が必須であることを確認
+    # ------------------------------------------------------------------------
+    # テスト1：集計日（日付）が必須であることを確認（失敗系）
+    # ------------------------------------------------------------------------
     it '集計日が必須であること' do
       # 日付を空にしてランキングデータを作成
       ranking = build(:daily_movie_ranking, aggregated_on: nil)
@@ -33,7 +37,9 @@ RSpec.describe DailyMovieRanking, type: :model do
       expect(ranking.errors.details[:aggregated_on]).to include(error: :blank)
     end
 
-    # テスト2：予約数が0以上であることを確認
+    # ------------------------------------------------------------------------
+    # テスト2：予約数が0以上であること（失敗系：-1はNG）
+    # ------------------------------------------------------------------------
     it '予約数が0以上であること' do
       # 予約数を-1（マイナス）にしてランキングデータを作成
       ranking = build(:daily_movie_ranking, reservation_count: -1)
@@ -44,7 +50,18 @@ RSpec.describe DailyMovieRanking, type: :model do
       expect(ranking.errors.details[:reservation_count]).to include(hash_including(error: :greater_than_or_equal_to))
     end
 
-    # テスト3：順位が1以上であることを確認
+    # ------------------------------------------------------------------------
+    # テスト2-境界：予約数が0は有効（成功系：0はOK）
+    # 仕様の境界（0以上）の正側を明示するための追加
+    # ------------------------------------------------------------------------
+    it '予約数が0は有効' do
+      ranking = build(:daily_movie_ranking, reservation_count: 0)
+      expect(ranking).to be_valid
+    end
+
+    # ------------------------------------------------------------------------
+    # テスト3：順位が1以上であること（失敗系：0はNG）
+    # ------------------------------------------------------------------------
     it '順位が1以上であること' do
       # 順位を0にしてランキングデータを作成
       ranking = build(:daily_movie_ranking, rank_position: 0)
@@ -53,6 +70,15 @@ RSpec.describe DailyMovieRanking, type: :model do
       expect(ranking).not_to be_valid
       # エラーメッセージに「1以上でないとダメ」という内容が含まれていることを確認
       expect(ranking.errors.details[:rank_position]).to include(hash_including(error: :greater_than))
+    end
+
+    # ------------------------------------------------------------------------
+    # テスト3-境界：順位が1は有効（成功系：1はOK）
+    # 仕様の境界（1以上）の正側を明示するための追加
+    # ------------------------------------------------------------------------
+    it '順位が1は有効' do
+      ranking = build(:daily_movie_ranking, rank_position: 1)
+      expect(ranking).to be_valid
     end
   end
 end
