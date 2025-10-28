@@ -199,11 +199,7 @@
                       # ============================================================================
                   %>
                   <td class="whitespace-nowrap px-4 py-4 font-semibold text-white">
-                    <% if ranking.reservation_count.zero? %>
-                      <span>ー</span>
-                    <% else %>
-                      <span>No.<%= ranking.rank_position %></span>
-                    <% end %>
+                    <span>No.<%= ranking.rank_position %></span>
                   </td>
                   
                   <%# ============================================================================

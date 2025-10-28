@@ -36,10 +36,13 @@ module Admin
       @selected_date = resolve_selected_date(@available_dates, params[:date])
       @rankings, previous_rankings, @previous_date = build_rankings(@selected_date, @available_dates)
 
-      # 3. 順位変動と予約数変動の差分を計算・設定
-      assign_differences(@rankings, previous_rankings)
+      # 3. 順位変動の差分を計算・設定
+      @rankings_diff = build_rank_differences(@rankings, previous_rankings)
 
-      # 4. ナビゲーション用の次の日付を設定
+      # 4. 予約数変動の差分を計算・設定
+      @reservation_diff = build_reservation_differences(@rankings, previous_rankings)
+
+      # 5. ナビゲーション用の次の日付を設定
       @next_date = next_available_date(@available_dates, @selected_date)
     end
 
@@ -54,7 +57,7 @@ module Admin
     # 【処理内容】
     # - distinct: 重複する日付を除去
     # - order(aggregated_on: :desc): 日付を降順（新しい順）でソート
-    # - pluck(:aggregated_on): 日付のみを配列として取得
+    # - pluck(:aggregated_on): 日付のみを配列として取得。（速くてメモリ効率が良い）
     #
     # 【戻り値の例】
     # [2024-01-15, 2024-01-14, 2024-01-13, ...]
@@ -66,6 +69,7 @@ module Admin
         .pluck(:aggregated_on)
     end
 
+    # ============================================================================
     # ランキングデータ構築メソッド
     # ============================================================================
     # 選択された日付と前日のランキングデータを取得し、
@@ -95,14 +99,14 @@ module Admin
       # ここでは、例えば、こんな感じの配列が返される。
       # [
       #   [# 1番目の要素: 現在のランキング
-      #     { movie_id: 1, rank_position: 1, reservation_count: 100 },
-      #     { movie_id: 2, rank_position: 2, reservation_count: 80 },
-      #     { movie_id: 3, rank_position: 3, reservation_count: 60 }
+      #     { movie_id: 1, rank_position: 1, reservation_count: 100 }...,
+      #     { movie_id: 2, rank_position: 2, reservation_count: 80 }...,
+      #     { movie_id: 3, rank_position: 3, reservation_count: 60 }...,
       #   ],
       #   [# 2番目の要素: 前日のランキング
-      #     { movie_id: 1, rank_position: 2, reservation_count: 90 },
-      #     { movie_id: 2, rank_position: 1, reservation_count: 95 },
-      #     { movie_id: 3, rank_position: 3, reservation_count: 55 }
+      #     { movie_id: 1, rank_position: 2, reservation_count: 90 }...,
+      #     { movie_id: 2, rank_position: 1, reservation_count: 95 }...,
+      #     { movie_id: 3, rank_position: 3, reservation_count: 55 }...,
       #   ],
       #   # 3番目の要素: 前日の日付
       #   Date.parse("2024-01-14")
@@ -194,7 +198,8 @@ module Admin
       # 前日のランキングをmovie_idでインデックス化（高速検索のため）
       previous_map = previous_rankings.index_by(&:movie_id)
 
-      # 現在のランキングを順番に処理
+      # 今日の映画ごとに、昨日の順位と比較して“変動数”を計算し、結果をハッシュにまとめる
+      # 「今日のランキングを1件ずつ見ながら、その映画と同じIDの“昨日のランキング”を探して変動を計算し、結果を hash に入れていく」
       current_rankings.each_with_object({}) do |ranking, hash|
         previous_ranking = previous_map[ranking.movie_id]
 
@@ -228,7 +233,8 @@ module Admin
       # 前日のランキングをmovie_idでインデックス化（高速検索のため）
       previous_map = previous_rankings.index_by(&:movie_id)
 
-      # 現在のランキングを順番に処理
+      # 今日の映画ごとに、昨日の予約数と比較して“変動数”を計算し、結果をハッシュにまとめる
+      # 「今日のランキングを1件ずつ見ながら、その映画と同じIDの“昨日のランキング”を探して変動を計算し、結果を hash に入れていく」
       current_rankings.each_with_object({}) do |ranking, hash|
         previous_ranking = previous_map[ranking.movie_id]
 
@@ -259,7 +265,8 @@ module Admin
     def previous_available_date(available_dates, current)
       index = available_dates.index(current)
 
-      # インデックスが存在し、次の要素（前の日付）が存在する場合のみ返す
+      # インデックスが存在しない、または次の要素（前の日付）が配列範囲外の場合は nil を返す
+      # sizeが3の場合でindexが2の場合、index + 1が3になり、配列範囲外になるため、nilを返す
       return nil unless index && (index + 1) < available_dates.size
 
       available_dates[index + 1]
@@ -290,31 +297,6 @@ module Admin
       return nil unless index&.positive?
 
       available_dates[index - 1]
-    end
-
-    # ============================================================================
-    # 差分データ設定メソッド
-    # ============================================================================
-    # 現在のランキングと前日のランキングを比較し、
-    # 順位変動と予約数変動の差分をインスタンス変数に設定します。
-    # ビューで前日比の表示に使用されるデータを準備します。
-    #
-    # 【設定する変数】
-    # - @rankings_diff: 順位変動の差分ハッシュ
-    # - @reservation_diff: 予約数変動の差分ハッシュ
-    #
-    # 【使用例】
-    # ビューで「↑2位」「↓1位」「+20件」「-5件」などの表示に使用
-    #
-    # @param current_rankings [Array] 現在のランキングデータ
-    # @param previous_rankings [Array] 前日のランキングデータ
-    # ============================================================================
-    def assign_differences(current_rankings, previous_rankings)
-      # 順位変動の差分を計算・設定
-      @rankings_diff = build_rank_differences(current_rankings, previous_rankings)
-
-      # 予約数変動の差分を計算・設定
-      @reservation_diff = build_reservation_differences(current_rankings, previous_rankings)
     end
   end
 end
