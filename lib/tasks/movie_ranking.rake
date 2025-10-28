@@ -11,13 +11,13 @@ namespace :ranking do
   # @description 指定した日付の映画ランキングを集計・更新します
   # @param TARGET_DATE [String] 集計対象日（YYYY-MM-DD形式、デフォルト: 今日）
   # 集計期間は常に過去30日間です
-  desc '日次映画ランキングを更新します（TARGET_DATEのデフォルトは今日です）'
-  task refresh_daily: :environment do
+  desc '日次映画ランキングを更新します（引数TARGET_DATEのデフォルトは今日です）'
+  task :refresh_daily, [:target_date] => :environment do |_, args|
     # 集計対象日の決定
-    # 環境変数TARGET_DATEが指定されている場合はその日付を使用
+    # Rakeタスク引数TARGET_DATEが指定されている場合はその日付を使用
     # 未指定の場合は今日の日付を使用
-    target_date = if ENV['TARGET_DATE'].present?
-                    Date.parse(ENV['TARGET_DATE'])
+    target_date = if args[:target_date].present?
+                    Date.parse(args[:target_date])
                   else
                     Time.zone.today
                   end

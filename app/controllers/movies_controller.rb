@@ -88,12 +88,6 @@ class MoviesController < ApplicationController
     # ============================================================================
     # ステップ1：データ取得の準備
     # ============================================================================
-    # DailyMovieRankingモデルからデータを取得する準備をします。
-    # includes(:movie)により、映画の詳細情報も一緒に取得します。N+1問題を回避します。
-    # これにより、ビューで映画名や画像を表示する際に、データベースに何度もアクセスする必要がなくなります。
-    query = DailyMovieRanking.includes(:movie)
-
-    # ============================================================================
     # ステップ2：今日のランキングデータを取得
     # ============================================================================
     # 今日の日付を取得（例：2024-01-15）
@@ -103,7 +97,10 @@ class MoviesController < ApplicationController
     # where(aggregated_on: ranking_date)：今日の日付のデータのみを取得
     # order(:rank_position)：順位順でソート（1位、2位、3位...の順）
     # limit(RANKING_LIMIT)：表示する件数を制限（例：上位10件のみ）
-    rankings = query.where(aggregated_on: ranking_date).order(:rank_position).limit(RANKING_LIMIT)
+    rankings = DailyMovieRanking
+               .where(aggregated_on: ranking_date)
+               .order(:rank_position)
+               .limit(RANKING_LIMIT)
 
     # ============================================================================
     # ステップ3：今日のデータがない場合の代替処理
@@ -118,7 +115,10 @@ class MoviesController < ApplicationController
       # 例：今日が1月15日だが、最新データが1月14日の場合
       if latest_date.present? && latest_date != ranking_date
         # 最新の日付のランキングデータを取得
-        rankings = query.where(aggregated_on: latest_date).order(:rank_position).limit(RANKING_LIMIT)
+        rankings = DailyMovieRanking
+                   .where(aggregated_on: latest_date)
+                   .order(:rank_position)
+                   .limit(RANKING_LIMIT)
 
         # データが取得できた場合のみ、ランキング日付を更新
         ranking_date = latest_date if rankings.present?

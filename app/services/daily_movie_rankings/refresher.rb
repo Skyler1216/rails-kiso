@@ -56,14 +56,11 @@ module DailyMovieRankings
     # 1. aggregated_countsから映画別予約数を取得
     #   例: [{ movie_id: 3, reservation_count: 52 }, { movie_id: 5, reservation_count: 48 }]
     #
-    # 2. map.with_index(1)でランキング順位を付与
-    #   例: [{ movie_id: 3, reservation_count: 52, rank_position: 1 }, ...]
-    #
-    # 3. データベース挿入用の完全なハッシュに変換
-    #   例: [{ aggregated_on: target_date, movie_id: 3, reservation_count: 52,
+    # 2. map.with_index(1).map でランキング順位を付与しつつ、データベース挿入用のハッシュに変換
+    #   例: [{ aggregated_on: 2024-01-15, movie_id: 3, reservation_count: 52,
     #         rank_position: 1, created_at: now, updated_at: now }, ...]
     #
-    # 4. DailyMovieRanking.insert_all!で一括挿入
+    # 3. DailyMovieRanking.insert_all!で一括挿入
     def build_rows
       # 一括挿入のため、全レコードで同じタイムスタンプを使用
       now = Time.current
